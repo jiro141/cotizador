@@ -1,38 +1,356 @@
-.App {
+/* /////////////////////////////////////////////// Generales ///////////////////////////////////////////// */
+
+body {
+  background-color: #000;
+  color: #fff;
+  margin: 20px 60px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.titulo {
+  font-size: 36px;
   text-align: center;
+  margin: 70px 0 50px 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* ////////////////////////////////////////////// Bontones de inicio //////////////////////////////////////// */
+.button-container-wrapper {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  transition: all 1s ease; /* Transición entre grid y slider */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.button-container-wrapper.grid .button-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  justify-items: center;
+  width: 100%;
+  padding: 10px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.button-container-wrapper.slider .button-container {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 20px;
+  transition: all 1s ease; /* Transición suave */
+}
+.button-container-slider {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 20px;
+  margin: 0 50px;
+  /* Ocultar la barra de scroll en la mayoría de los navegadores */
+  scrollbar-width: none; /* Firefox */
+}
+
+.button-container-slider::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.button-container {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.button-container-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  justify-items: center;
+}
+
+.button-container-slider {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+.button {
+  background-color: #333;
+  border: none;
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+  width: 150px;
+  height: 180px;
+  text-align: center;
+  flex-shrink: 0; /* Evita que los botones se reduzcan en tamaño */
+}
+
+.button img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+  object-fit: contain;
+}
+
+.button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: #70ADDF;
+}
+
+.button.active {
+  border: 2px solid #70ADDF;
+  background-color: #70ADDF;
+}
+
+.button-text {
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.slider-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  padding: 0px;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.slider-button-left {
+  left: 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.slider-button-right {
+  right: 10px;
+}
+
+
+
+/* ///////////////////////////// primer componente (LandingPageClickThrough) ///////////////////////////// */
+
+.grid {
+  margin: 40px 0px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+}
+.grid h4 {
+  margin: 0;
+  padding: 0;
+}
+.grid p {
+  margin: 0;
+  padding: 0;
+}
+
+.container-text {
+  max-width: 800px;
+  text-align: justify;
+}
+/* Estilos generales para el contenedor */
+.section-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+  gap: 10px; /* Espacio entre las columnas */
+  background-color: #36343b;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+/* Estilos para cada checkbox y su label */
+/* Ocultamos el checkbox nativo */
+/* Ocultamos el checkbox nativo */
+
+.checkbox-wrapper-24 .checkbox {
+  display: table-cell;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.checkbox-wrapper-24 label {
+  display: inline-block;
+  color: #fff;
+  cursor: pointer;
+  position: relative;
+}
+.checkbox-wrapper-24 label span {
+  display: inline-block;
+  position: relative;
+  background-color: transparent;
+  width: 25px;
+  height: 25px;
+  transform-origin: center;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  vertical-align: middle;
+  margin-right: 10px;
+  transition: background-color 150ms 200ms,
+    transform 350ms cubic-bezier(0.78, -1.22, 0.17, 1.89);
+}
+.checkbox-wrapper-24 label span:before {
+  content: "";
+  width: 0px;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  position: absolute;
+  transform: rotate(45deg);
+  top: 13px;
+  left: 9px;
+  transition: width 50ms ease 50ms;
+  transform-origin: 0% 0%;
+}
+.checkbox-wrapper-24 label span:after {
+  content: "";
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  position: absolute;
+  transform: rotate(305deg);
+  top: 16px;
+  left: 10px;
+  transition: width 50ms ease;
+  transform-origin: 0% 0%;
+}
+.checkbox-wrapper-24 label:hover span:before {
+  width: 5px;
+  transition: width 100ms ease;
+}
+.checkbox-wrapper-24 label:hover span:after {
+  width: 10px;
+  transition: width 150ms ease 100ms;
+}
+
+.checkbox-wrapper-24 input[type="checkbox"] {
+  display: none;
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label span {
+  background-color: #479bdf;
+  transform: scale(1.25);
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label span:after {
+  width: 10px;
+  background: #fff;
+  transition: width 150ms ease 100ms;
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label span:before {
+  width: 5px;
+  background: #fff;
+  transition: width 150ms ease 100ms;
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label:hover span {
+  background-color: #333;
+  transform: scale(1.25);
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label:hover span:after {
+  width: 10px;
+  background: #fff;
+  transition: width 150ms ease 100ms;
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label:hover span:before {
+  width: 5px;
+  background: #fff;
+  transition: width 150ms ease 100ms;
+}
+/* //////////////////////////////////////////// Calculadora /////////////////////////////////////////// */
+
+
+.calculator-container {
+  width: 900px;
+}
+
+.calculator-content {
+  display: flex;
+  justify-content: space-evenly;
+  background-color: #2c2c2c;
+  padding: 10px;
+  border-radius: 8px;
+  color: #ffffff;
+  width: 100%;
+}
+
+.price-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.price-section h3 {
+  margin: 30px 0px 20px 0px;
+  font-weight: 400;
+  font-size: 30px;
+}
+
+.price {
+  font-size: 40px;
+  font-weight: bold;
+  margin: 30px 0;
+}
+
+.quote-button {
+  height: 35px;
+  width: 200px;
+  background-color: #ff5722;
+  border-radius: 5px;
+  color: #ffffff;
+  padding: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 30px;
+  font-weight: bold;
+
+}
+
+.quote-button:hover {
+  background-color: #e64a19;
+}
+
+.items-section {
+  text-align: left;
+  margin: 30px 0px;
+  max-width: 300px;
+}
+
+.items-section h3 {
+  margin: 0;
+  font-weight: 400;
+  font-size: 24px;
+}
+
+.items-section ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+.total {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.calculator-container .items-list .item-name {
+  white-space: normal;         /* Permite que el texto se ajuste automáticamente a una nueva línea */
+  word-wrap: break-word;       /* Divide las palabras largas en múltiples líneas si es necesario */
+  overflow-wrap: break-word;   /* Asegura que el texto no se desborde */
+  max-width: 100%;             /* Asegura que el ancho máximo sea el 100% del contenedor */
+  line-height: 1.4;            /* Mejora la legibilidad del texto en múltiples líneas */
+  margin-bottom: 8px;          /* Añade un pequeño margen inferior para separar elementos */
 }
