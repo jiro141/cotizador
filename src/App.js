@@ -4,7 +4,7 @@ import { MyContext } from "./context/Context";
 import Buttons from "./components/Buttons";
 import LandingPageClickThrough from "./components/LandingPageClickThrough";
 function App() {
-  const { state, setState } = useContext(MyContext);
+  const { state } = useContext(MyContext);
 
   const renderComponent = () => {
     switch (state) {
