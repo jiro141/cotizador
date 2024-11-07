@@ -32,7 +32,7 @@ export default function LandingPageClickThrough() {
 
     // Control de límite de selección para Secciones
     const [limitReached, setLimitReached] = useState(false);
-    const [setCurrentValue] = useState(0);
+    const [currentValue, setCurrentValue] = useState(0);
     const maxValue = 4;
 
     // Función para obtener datos de "Elementos de portada"
