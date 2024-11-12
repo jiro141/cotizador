@@ -12,6 +12,14 @@ body {
   text-align: center;
   margin: 70px 0 50px 0;
 }
+.custom-separator {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #7a7a7a, transparent);
+  margin: 20px 0; /* Ajusta el margen según sea necesario */
+  opacity: 0.6; /* Para darle una apariencia más suave */
+}
+
 
 /* ////////////////////////////////////////////// Bontones de inicio //////////////////////////////////////// */
 .button-container-wrapper {
@@ -78,7 +86,8 @@ body {
   border-radius: 10px;
   padding: 20px;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease,
+    background-color 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,12 +108,12 @@ body {
 .button:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  background-color: #70ADDF;
+  background-color: #70addf;
 }
 
 .button.active {
-  border: 2px solid #70ADDF;
-  background-color: #70ADDF;
+  border: 2px solid #70addf;
+  background-color: #70addf;
 }
 
 .button-text {
@@ -134,8 +143,6 @@ body {
 .slider-button-right {
   right: 10px;
 }
-
-
 
 /* ///////////////////////////// primer componente (LandingPageClickThrough) ///////////////////////////// */
 
@@ -266,8 +273,28 @@ body {
   background: #fff;
   transition: width 150ms ease 100ms;
 }
-/* //////////////////////////////////////////// Calculadora /////////////////////////////////////////// */
 
+/* bloque de mas servicios  */
+.moreItems {
+  background-color: #70ADDF;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  opacity: 0; /* Oculto inicialmente */
+  transform: translateY(-10px); /* Posición inicial */
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Efecto de entrada */
+}
+
+.moreItems.visible {
+  opacity: 1; /* Visible cuando limitReached es true */
+  transform: translateY(0); /* Posición final */
+}
+
+/* //////////////////////////////////////////// Calculadora /////////////////////////////////////////// */
 
 .calculator-container {
   width: 900px;
@@ -315,7 +342,6 @@ body {
   transition: background-color 0.3s ease;
   margin-bottom: 30px;
   font-weight: bold;
-
 }
 
 .quote-button:hover {
@@ -347,10 +373,10 @@ body {
   margin-top: 10px;
 }
 .calculator-container .items-list .item-name {
-  white-space: normal;         /* Permite que el texto se ajuste automáticamente a una nueva línea */
-  word-wrap: break-word;       /* Divide las palabras largas en múltiples líneas si es necesario */
-  overflow-wrap: break-word;   /* Asegura que el texto no se desborde */
-  max-width: 100%;             /* Asegura que el ancho máximo sea el 100% del contenedor */
-  line-height: 1.4;            /* Mejora la legibilidad del texto en múltiples líneas */
-  margin-bottom: 8px;          /* Añade un pequeño margen inferior para separar elementos */
+  white-space: normal; /* Permite que el texto se ajuste automáticamente a una nueva línea */
+  word-wrap: break-word; /* Divide las palabras largas en múltiples líneas si es necesario */
+  overflow-wrap: break-word; /* Asegura que el texto no se desborde */
+  max-width: 100%; /* Asegura que el ancho máximo sea el 100% del contenedor */
+  line-height: 1.4; /* Mejora la legibilidad del texto en múltiples líneas */
+  margin-bottom: 8px; /* Añade un pequeño margen inferior para separar elementos */
 }

@@ -11,15 +11,21 @@ function App() {
       case "LandingPageClickThrough":
         return <LandingPageClickThrough />;
       case "LandingBasica":
-        return <div>2</div>;
+        return <LandingPageClickThrough />;
       case "WebDeReservaciones":
-        return <div>3</div>;
+        return <LandingPageClickThrough />;
       case "PaginaCorporativa":
-        return <div>4</div>;
+        return <LandingPageClickThrough />;
       case "WebInformativa":
-        return <div>5</div>;
+        return <LandingPageClickThrough />;
       case "Blog":
-        return <div>6</div>;
+        return <LandingPageClickThrough />;
+      case "PaginaDeMembresia":
+        return <LandingPageClickThrough />;
+      case "Foro":
+        return <LandingPageClickThrough />;
+      case "eCommerce":
+        return <LandingPageClickThrough />;
       default:
         return <p></p>;
     }

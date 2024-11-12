@@ -26,11 +26,14 @@ export const getData = async () => {
 export const getServiciosMensuales = async () => {
   try {
     const response = await airtable.get("/Mensuales");
-    
+
     // Usando el ID de la tabla
     return response.data.records;
   } catch (error) {
-    console.error("Error al obtener datos de Servicios Mensuales en Airtable:", error);
+    console.error(
+      "Error al obtener datos de Servicios Mensuales en Airtable:",
+      error
+    );
     throw error;
   }
 };
@@ -38,10 +41,26 @@ export const getServiciosMensuales = async () => {
 // Función para obtener datos de "Páginas Adicionales"
 export const getPaginasAdicionales = async () => {
   try {
-    const response = await airtable.get("/Páginas%20básicas"); 
+    const response = await airtable.get("/Páginas%20básicas");
     return response.data.records;
   } catch (error) {
-    console.error("Error al obtener datos de Páginas Adicionales en Airtable:", error);
+    console.error(
+      "Error al obtener datos de Páginas Adicionales en Airtable:",
+      error
+    );
+    throw error;
+  }
+};
+// Función para obtener datos de "Funciones Adicionales"
+export const getFuncionesAdicionales = async () => {
+  try {
+    const response = await airtable.get("/Funciones%20adicionales");
+    return response.data.records;
+  } catch (error) {
+    console.error(
+      "Error al obtener datos de Páginas Adicionales en Airtable:",
+      error
+    );
     throw error;
   }
 };
