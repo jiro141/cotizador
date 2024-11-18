@@ -64,3 +64,54 @@ export const getFuncionesAdicionales = async () => {
     throw error;
   }
 };
+export const getCotizador = async () => {
+  try {
+    const response = await airtable.get("/productos");
+    return response.data.records;
+  } catch (error) {
+    console.error(
+      "Error al obtener datos de Páginas Adicionales en Airtable:",
+      error
+    );
+    throw error;
+  }
+};
+
+//consulta por id
+export const fetchPortadaElementos = async (id) => {
+  try {
+    const response = await airtable.get(`/Elementos%20de%20portada/${id}`);
+    return response.data.fields["Secciones de portada básicas "];
+  } catch (error) {
+    console.error("Error al obtener datos de portada desde Airtable:", error);
+    throw error;
+  }
+};
+
+// Función para obtener datos de "Páginas Adicionales"
+export const fetchPaginasBasicas = async (id) => {
+  try {
+    const response = await airtable.get(`/Páginas%20básicas/${id}`);
+    return response.data.fields.paginas;
+  } catch (error) {
+    console.error(
+      "Error al obtener datos de páginas básicas desde Airtable:",
+      error
+    );
+    throw error;
+  }
+};
+
+// Función para obtener datos de "Funciones Adicionales"
+export const fetchFuncionesExtras = async (id) => {
+  try {
+    const response = await airtable.get(`/Funciones%20adicionales/${id}`);
+    return response.data.fields["Páginas avanzadas "];
+  } catch (error) {
+    console.error(
+      "Error al obtener datos de funciones adicionales desde Airtable:",
+      error
+    );
+    throw error;
+  }
+};
