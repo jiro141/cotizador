@@ -76,6 +76,7 @@ export default function LandingPageClickThrough() {
   // Control de límite de selección para Secciones
   const [limitReached, setLimitReached] = useState(false);
   const [currentValue, setCurrentValue] = useState(0);
+  console.log(loadingCotizador, currentValue, setCurrentValue);
 
   // Función para obtener datos de "Elementos de portada"
   const fetchData = async () => {
@@ -418,8 +419,7 @@ export default function LandingPageClickThrough() {
       return updatedPaginas;
     });
   };
-  console.log(exceededPaginas,'hola');
-  
+  console.log(exceededPaginas, "hola");
 
   // Maneja la selección de una función avanzada (sin límite)
   const handleCheckboxChangeFunciones = (item) => {
