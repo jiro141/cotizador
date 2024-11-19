@@ -46,7 +46,14 @@ function App() {
         <h3 className="titulo" style={{ fontSize: "20px" }}>
           ¿Necesitas ayuda para saber que es lo mejor para ti??
         </h3>
-        <button className="quote-button">Agendar Asesoria</button>
+        <button
+          className="quote-button"
+          onClick={() =>
+            window.open("https://calendly.com/detipventas", "_blank")
+          }
+        >
+          Agendar Asesoría
+        </button>
       </div>
     </>
   );

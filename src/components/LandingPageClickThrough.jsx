@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import {
   fetchFuncionesExtras,
   fetchPaginasBasicas,
@@ -76,7 +76,6 @@ export default function LandingPageClickThrough() {
   // Control de límite de selección para Secciones
   const [limitReached, setLimitReached] = useState(false);
   const [currentValue, setCurrentValue] = useState(0);
-  console.log(loadingCotizador, currentValue, setCurrentValue);
 
   // Función para obtener datos de "Elementos de portada"
   const fetchData = async () => {
@@ -141,12 +140,21 @@ export default function LandingPageClickThrough() {
     }
   };
 
-  useEffect(() => {
-    const objetos = cotizador
+  const productosMemo = useMemo(() => {
+    if (!cotizador || !state) return null; // Manejo de casos donde cotizador o state no están definidos
+
+    // Filtra y extrae los objetos en un solo paso
+    return cotizador
       .map((item) => item.fields)
-      .filter((item) => item.Producto === state);
-    setProductosFiltrados(objetos[0]);
+      .find((item) => item.Producto === state); // Cambia filter + indexación por find
   }, [cotizador, state]);
+
+  useEffect(() => {
+    // Si necesitas realizar algún efecto basado en productosFiltrados
+    if (productosMemo) {
+      setProductosFiltrados(productosMemo);
+    }
+  }, [productosMemo]);
 
   const maxValue = productosFiltrados?.Secciones;
 
@@ -238,12 +246,13 @@ export default function LandingPageClickThrough() {
     fetchServicios();
     fetchPaginas();
     fetchFunciones();
-  }, []);
+  }, [state]);
+
   useEffect(() => {
     fetchPortadaDatos();
     fetchPaginasBasicasDatos();
     fetchFuncionesExtrasDatos();
-  }, [dataState, state]);
+  }, [state]);
 
   // Funciones de toggle para las secciones
   const togglePortada = () => setPortadaOpen(!isPortadaOpen);
@@ -282,8 +291,6 @@ export default function LandingPageClickThrough() {
       (selectedSecciones.some((i) => i.ID === item.ID)
         ? -itemValue
         : itemValue);
-
-    console.log(selectedSecciones, "secciones");
 
     // Si se supera el maxValue y el límite no ha sido alcanzado
     if (newCurrentValue > maxValue) {
@@ -345,81 +352,64 @@ export default function LandingPageClickThrough() {
   const [exceededPaginas, setExceededPaginas] = useState([]); // Nuevo estado para elementos excedentes
   const maxPaginas = productosFiltrados?.paginas || 0; // Máximo permitido
 
-  const updateExceededPaginas = (newSelectedPaginas) => {
-    if (newSelectedPaginas.length > maxPaginas) {
-      setExceededPaginas(newSelectedPaginas);
+  const handleCheckboxChangePaginas = (item) => {
+    const updateState = (prevState) => {
+      const isSelected = prevState.some((i) => i.ID === item.ID);
+      if (isSelected) {
+        return prevState.filter((i) => i.ID !== item.ID);
+      } else {
+        return [
+          ...prevState,
+          {
+            category: "Páginas Adicionales",
+            name: item.paginas,
+            ID: item.ID,
+            Valor: item.Valor,
+            precio: item.precio,
+            count: 1,
+          },
+        ];
+      }
+    };
+
+    if (selectedPaginas.length < maxPaginas) {
+      setSelectedPaginas(updateState);
     } else {
-      setExceededPaginas([]);
+      setExceededPaginas(updateState);
     }
   };
 
-  const handleCheckboxChangePaginas = (item) => {
-    setSelectedPaginas((prevSelectedPaginas) => {
-      const isSelected = prevSelectedPaginas.some((i) => i.ID === item.ID);
-
-      const newSelectedPaginas = isSelected
-        ? prevSelectedPaginas.filter((i) => i.ID !== item.ID)
-        : [
-            ...prevSelectedPaginas,
-            {
-              category: "Páginas Adicionales",
-              name: item.paginas,
-              ID: item.ID,
-              Valor: item.Valor,
-              precio: item.precio,
-              count: 1,
-            },
-          ];
-
-      // Actualizar estado de excedentes
-      updateExceededPaginas(newSelectedPaginas);
-
-      return newSelectedPaginas;
-    });
-  };
-
   const handleIncrement = (item) => {
-    setSelectedPaginas((prevSelectedPaginas) => {
-      const updatedPaginas = [...prevSelectedPaginas];
-
-      const originalItem = prevSelectedPaginas.find((i) => i.ID === item.ID);
-      if (originalItem) {
-        updatedPaginas.push({ ...originalItem, count: originalItem.count + 1 });
-      }
-
-      // Actualizar estado de excedentes
-      updateExceededPaginas(updatedPaginas);
-
-      return updatedPaginas;
-    });
+    if (selectedPaginas.length < maxPaginas) {
+      setSelectedPaginas((prev) => [...prev, item]); // Agrega el objeto al array
+    } else {
+      setExceededPaginas((prev) => [...prev, item]); // Agrega el objeto al array excedido
+    }
   };
 
   const handleDecrement = (item) => {
-    setSelectedPaginas((prevSelectedPaginas) => {
-      const updatedPaginas = [...prevSelectedPaginas];
-
-      const indexToRemove = updatedPaginas.findIndex((i) => i.ID === item.ID);
-
-      if (indexToRemove !== -1) {
-        const itemToDecrement = updatedPaginas[indexToRemove];
-
-        if (itemToDecrement.count > 1) {
-          updatedPaginas[indexToRemove] = {
-            ...itemToDecrement,
-            count: itemToDecrement.count - 1,
-          };
-        } else {
-          updatedPaginas.splice(indexToRemove, 1);
+    if (selectedPaginas.some((i) => i.ID === item.ID)) {
+      setSelectedPaginas((prev) => {
+        const indexToRemove = prev.findIndex((i) => i.ID === item.ID);
+        if (indexToRemove !== -1) {
+          const newArray = [...prev];
+          newArray.splice(indexToRemove, 1); // Elimina una instancia
+          return newArray;
         }
-      }
-
-      // Actualizar estado de excedentes
-      updateExceededPaginas(updatedPaginas);
-
-      return updatedPaginas;
-    });
+        return prev;
+      });
+    } else if (exceededPaginas.some((i) => i.ID === item.ID)) {
+      setExceededPaginas((prev) => {
+        const indexToRemove = prev.findIndex((i) => i.ID === item.ID);
+        if (indexToRemove !== -1) {
+          const newArray = [...prev];
+          newArray.splice(indexToRemove, 1); // Elimina una instancia
+          return newArray;
+        }
+        return prev;
+      });
+    }
   };
-  console.log(exceededPaginas, "hola");
 
   // Maneja la selección de una función avanzada (sin límite)
   const handleCheckboxChangeFunciones = (item) => {
@@ -442,6 +432,25 @@ export default function LandingPageClickThrough() {
   useEffect(() => {
     setDataState(initialDataState); // Reinicia dataState al valor inicial
   }, [state]);
+
+  useEffect(() => {
+    // Resetear todos los estados dependientes cuando cambia el contexto
+    setSelectedServicios([]);
+    setSelectedSecciones([]);
+    setSelectedSeccionesMax([]);
+    setExceededPaginas([]);
+    setSelectedPaginas([]);
+    setSelectedFunciones([]);
+    setLimitReached(false);
+    setPortadaOpen(false);
+    setPagina(false);
+    setPaginas(false);
+    setFunciones(false);
+    setProductosFiltrados(false);
+    setDataState(initialDataState);
+  }, [state]); // Dependencia en `state`
+
+  // Otras funciones siguen igual
 
   return (
     <>
@@ -588,12 +597,124 @@ export default function LandingPageClickThrough() {
       </>
 
       {/* Sección de Páginas Adicionales */}
+      <>
+        <Separator />
+        <div>
+          <h3
+            onClick={togglePaginas}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "32px",
+            }}
+          >
+            Páginas Adicionales
+            <span
+              style={{
+                marginLeft: "8px",
+                color: isPaginas ? "#ff5722" : "",
+              }}
+            >
+              {isPaginas ? (
+                <IoIosArrowUp size={20} />
+              ) : (
+                <IoIosArrowDown size={20} />
+              )}
+            </span>
+          </h3>
+          {isPaginas && (
+            <div>
+              {loadingPaginas ? (
+                <BounceLoader />
+              ) : error ? (
+                <p>Error al cargar datos</p>
+              ) : (
+                <div className="section-container">
+                  {paginas.map((item) => {
+                    const itemFields = item.fields || {};
+                    const selectedCount = [
+                      ...selectedPaginas.filter((i) => i.ID === itemFields.ID),
+                      ...exceededPaginas.filter((i) => i.ID === itemFields.ID),
+                    ].length;
+                    // Filtra y cuenta cuántas veces aparece este ID
+
+                    return (
+                      <div
+                        key={itemFields.ID}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {/* Checkbox para seleccionar/desseleccionar */}
+                        <div className="checkbox-wrapper-24">
+                          <input
+                            type="checkbox"
+                            id={`check-seccion-paginas-${itemFields.ID}`} // IDs únicos
+                            checked={
+                              !!selectedPaginas.find(
+                                (i) => i.ID === itemFields.ID
+                              ) ||
+                              !!exceededPaginas.find(
+                                (i) => i.ID === itemFields.ID
+                              )
+                            }
+                            onChange={() =>
+                              handleCheckboxChangePaginas(itemFields)
+                            }
+                          />
+                          <label
+                            htmlFor={`check-seccion-paginas-${itemFields.ID}`}
+                          >
+                            <span></span>
+                            {itemFields.paginas || "Sin nombre"}
+                          </label>
+                        </div>
+
+                        {/* Contador visible si el elemento está seleccionado */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            border: "solid 3px #70ADDF",
+                            borderRadius: "8px",
+                            marginRight: "10px",
+                          }}
+                        >
+                          <button
+                            onClick={() => handleDecrement(itemFields)}
+                            disabled={selectedCount === 0}
+                          >
+                            <TiMinus />
+                          </button>
+                          {/* Muestra la cantidad de veces que este ID está seleccionado */}
+                          {selectedCount}
+                          <button
+                            onClick={() => handleIncrement(itemFields)}
+                            disabled={selectedCount === 0}
+                          >
+                            <FaPlus />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </>
       {state !== "LandingPageClickThrough" && state !== "LandingBasica" && (
         <>
-          <Separator />
+          {/* Sección de Funciones adicionales */}
           <div>
+            <Separator />
             <h3
-              onClick={togglePaginas}
+              onClick={toggleFunciones}
               style={{
                 cursor: "pointer",
                 display: "flex",
@@ -601,91 +722,51 @@ export default function LandingPageClickThrough() {
                 fontSize: "32px",
               }}
             >
-              Páginas Adicionales
+              Funciones adicionales
               <span
                 style={{
                   marginLeft: "8px",
-                  color: isPaginas ? "#ff5722" : "",
+                  color: isFunciones ? "#ff5722" : "",
                 }}
               >
-                {isPaginas ? (
+                {isFunciones ? (
                   <IoIosArrowUp size={20} />
                 ) : (
                   <IoIosArrowDown size={20} />
                 )}
               </span>
             </h3>
-            {isPaginas && (
+            {isFunciones && (
               <div>
-                {loadingPaginas ? (
+                {loadingFunciones ? (
                   <BounceLoader />
                 ) : error ? (
                   <p>Error al cargar datos</p>
                 ) : (
                   <div className="section-container">
-                    {paginas.map((item) => {
+                    {funcionesA.map((item) => {
                       const itemFields = item.fields || {};
-                      const selectedCount = selectedPaginas.filter(
-                        (i) => i.ID === itemFields.ID
-                      ).length; // Filtra y cuenta cuántas veces aparece este ID
-
                       return (
                         <div
                           key={itemFields.ID}
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            marginBottom: "10px",
-                          }}
+                          className="checkbox-wrapper-24"
                         >
-                          {/* Checkbox para seleccionar/desseleccionar */}
-                          <div className="checkbox-wrapper-24">
-                            <input
-                              type="checkbox"
-                              id={`check-seccion-paginas-${itemFields.ID}`} // IDs únicos
-                              checked={
-                                !!selectedPaginas.find(
-                                  (i) => i.ID === itemFields.ID
-                                )
-                              }
-                              onChange={() =>
-                                handleCheckboxChangePaginas(itemFields)
-                              }
-                            />
-                            <label
-                              htmlFor={`check-seccion-paginas-${itemFields.ID}`}
-                            >
-                              <span></span>
-                              {itemFields.paginas || "Sin nombre"}
-                            </label>
-                          </div>
-
-                          {/* Contador visible si el elemento está seleccionado */}
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              border: "solid 3px #70ADDF",
-                              borderRadius: "8px",
-                              marginRight: "10px",
-                            }}
+                          <input
+                            type="checkbox"
+                            id={`check-seccion-funciones-${itemFields.ID}`} // IDs únicos
+                            checked={selectedFunciones.some(
+                              (i) => i.ID === itemFields.ID
+                            )}
+                            onChange={() =>
+                              handleCheckboxChangeFunciones(itemFields)
+                            }
+                          />
+                          <label
+                            htmlFor={`check-seccion-funciones-${itemFields.ID}`}
                           >
-                            <button
-                              onClick={() => handleDecrement(itemFields)}
-                              disabled={selectedCount === 0}
-                            >
-                              <TiMinus />
-                            </button>
-                            {/* Muestra la cantidad de veces que este ID está seleccionado */}
-                            {selectedCount}
-                            <button
-                              onClick={() => handleIncrement(itemFields)}
-                              disabled={selectedCount === 0}
-                            >
-                              <FaPlus />
-                            </button>
-                          </div>
+                            <span></span>
+                            {itemFields["Páginas avanzadas "] || "Sin nombre"}
+                          </label>
                         </div>
                       );
                     })}
@@ -697,65 +778,6 @@ export default function LandingPageClickThrough() {
         </>
       )}
 
-      <Separator />
-      {/* Sección de Funciones adicionales */}
-      <div>
-        <h3
-          onClick={toggleFunciones}
-          style={{
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            fontSize: "32px",
-          }}
-        >
-          Funciones adicionales
-          <span
-            style={{ marginLeft: "8px", color: isFunciones ? "#ff5722" : "" }}
-          >
-            {isFunciones ? (
-              <IoIosArrowUp size={20} />
-            ) : (
-              <IoIosArrowDown size={20} />
-            )}
-          </span>
-        </h3>
-        {isFunciones && (
-          <div>
-            {loadingFunciones ? (
-              <BounceLoader />
-            ) : error ? (
-              <p>Error al cargar datos</p>
-            ) : (
-              <div className="section-container">
-                {funcionesA.map((item) => {
-                  const itemFields = item.fields || {};
-                  return (
-                    <div key={itemFields.ID} className="checkbox-wrapper-24">
-                      <input
-                        type="checkbox"
-                        id={`check-seccion-funciones-${itemFields.ID}`} // IDs únicos
-                        checked={selectedFunciones.some(
-                          (i) => i.ID === itemFields.ID
-                        )}
-                        onChange={() =>
-                          handleCheckboxChangeFunciones(itemFields)
-                        }
-                      />
-                      <label
-                        htmlFor={`check-seccion-funciones-${itemFields.ID}`}
-                      >
-                        <span></span>
-                        {itemFields["Páginas avanzadas "] || "Sin nombre"}
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
       {/* Calculadora */}
       <div
         style={{ display: "flex", justifyContent: "center", marginTop: "60px" }}
@@ -768,6 +790,7 @@ export default function LandingPageClickThrough() {
           selectedFunciones={selectedFunciones}
           selectedSeccionesMax={selectedSeccionesMax}
           limitReached={limitReached}
+          exceededPaginas={exceededPaginas}
           onCheckboxChange={handleCheckboxChangeSecciones}
         />
       </div>

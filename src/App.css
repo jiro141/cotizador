@@ -10,7 +10,7 @@ body {
 .titulo {
   font-size: 36px;
   text-align: center;
-  margin: 70px 0 50px 0;
+  margin: 50px 0 20px 0;
 }
 .custom-separator {
   border: none;
@@ -92,7 +92,7 @@ body {
   align-items: center;
   justify-content: space-between;
   width: 150px;
-  height: 180px;
+  height: 160px;
   text-align: center;
   flex-shrink: 0; /* Evita que los botones se reduzcan en tamaño */
 }
@@ -142,6 +142,58 @@ body {
 .slider-button-right {
   right: 10px;
 }
+/* --- Estilos Responsivos --- */
+
+/* Pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+  .button-container-wrapper.grid .button-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en lugar de 3 */
+  }
+
+  .button-container-grid {
+    grid-template-columns: repeat(2, 1fr); /* Ajuste para pantallas pequeñas */
+  }
+
+  .button {
+    width: 120px; /* Botones más pequeños */
+    height: 140px;
+  }
+
+  .button img {
+    width: 60px; /* Iconos más pequeños */
+  }
+
+  .button-text {
+    font-size: 12px; /* Texto más pequeño */
+  }
+}
+
+/* Pantallas extra pequeñas (teléfonos más pequeños) */
+@media (max-width: 480px) {
+  .button-container-wrapper.grid .button-container {
+    grid-template-columns: repeat(1, 1fr); /* 1 columna */
+  }
+
+  .button-container-grid {
+    grid-template-columns: repeat(
+      1,
+      1fr
+    ); /* Ajuste para pantallas muy pequeñas */
+  }
+
+  .button {
+    width: 100px;
+    height: 120px;
+  }
+
+  .button img {
+    width: 50px;
+  }
+
+  .button-text {
+    font-size: 10px;
+  }
+}
 
 /* ///////////////////////////// primer componente (LandingPageClickThrough) ///////////////////////////// */
 
@@ -151,11 +203,14 @@ body {
   justify-content: space-around;
   font-size: 16px;
   gap: 100px;
+  flex-wrap: wrap; /* Permitir que los elementos se ajusten en pantallas pequeñas */
 }
+
 .grid h4 {
   margin: 0;
   padding: 0;
 }
+
 .grid p {
   margin: 0;
   padding: 0;
@@ -165,6 +220,7 @@ body {
   max-width: 600px;
   text-align: justify;
 }
+
 /* Estilos generales para el contenedor */
 .section-container {
   display: grid;
@@ -174,6 +230,8 @@ body {
   padding: 20px;
   border-radius: 8px;
 }
+
+/* Estilos para el checkbox */
 .checkbox-wrapper-24 {
   display: flex;
   align-items: center;
@@ -187,6 +245,11 @@ button {
   padding: 4px 8px;
   cursor: pointer;
   border-radius: 4px;
+  transition: background-color 0.3s ease; /* Transición suave */
+}
+
+button:hover:not(:disabled) {
+  background-color: #444; /* Cambia el color al pasar el mouse */
 }
 
 button:disabled {
@@ -196,6 +259,59 @@ button:disabled {
 
 span {
   font-size: 16px;
+}
+
+/* --- Estilos Responsivos --- */
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 768px) {
+  .grid {
+    gap: 40px; /* Reducir el espacio entre elementos */
+    justify-content: left;
+    padding: 0 20px;
+  }
+
+  .container-text {
+    max-width: 100%; /* Ajustar al ancho completo de la pantalla */
+    /* Agregar espacio interno */
+  }
+
+  .section-container {
+    grid-template-columns: 1fr; /* Una sola columna en pantallas medianas */
+    gap: 15px;
+  }
+}
+
+/* Pantallas pequeñas (móviles) */
+@media (max-width: 480px) {
+  .grid {
+    flex-direction: column; /* Cambiar a diseño en columna */
+    gap: 20px;
+  }
+
+  .container-text {
+    max-width: 100%;
+    text-align: left; /* Cambiar a texto alineado a la izquierda */
+  }
+
+  .section-container {
+    grid-template-columns: 1fr; /* Una columna para móviles */
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .checkbox-wrapper-24 {
+    margin-bottom: 12px;
+  }
+
+  button {
+    padding: 6px 10px; /* Botones más grandes para usabilidad en móviles */
+    font-size: 14px;
+  }
+
+  span {
+    font-size: 14px; /* Texto más pequeño */
+  }
 }
 
 /* Estilos para cada checkbox y su label */
@@ -316,11 +432,43 @@ span {
   opacity: 1; /* Visible cuando limitReached es true */
   transform: translateY(0); /* Posición final */
 }
+.toggle-title {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+}
+
+.arrow {
+  margin-left: 8px;
+}
+
+.arrow-up {
+  color: #ff5722;
+}
+
+.arrow-down {
+  color: inherit;
+}
+.counter-wrapper {
+  display: flex;
+  align-items: center;
+  border: solid 3px #70addf;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+.checkbox-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
 
 /* //////////////////////////////////////////// Calculadora /////////////////////////////////////////// */
 
 .calculator-container {
   width: 900px;
+  margin: 0 auto; /* Centrar horizontalmente */
 }
 
 .calculator-content {
@@ -331,6 +479,7 @@ span {
   border-radius: 8px;
   color: #ffffff;
   width: 100%;
+  flex-wrap: wrap; /* Permitir que los elementos se ajusten en pantallas pequeñas */
 }
 
 .price-section {
@@ -338,6 +487,7 @@ span {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-bottom: 20px; /* Espaciado adicional en pantallas pequeñas */
 }
 
 .price-section h3 {
@@ -395,6 +545,7 @@ span {
   font-weight: bold;
   margin-top: 10px;
 }
+
 .calculator-container .items-list .item-name {
   white-space: normal; /* Permite que el texto se ajuste automáticamente a una nueva línea */
   word-wrap: break-word; /* Divide las palabras largas en múltiples líneas si es necesario */
@@ -402,4 +553,122 @@ span {
   max-width: 100%; /* Asegura que el ancho máximo sea el 100% del contenedor */
   line-height: 1.4; /* Mejora la legibilidad del texto en múltiples líneas */
   margin-bottom: 8px; /* Añade un pequeño margen inferior para separar elementos */
+}
+
+.price-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.secciones-container {
+  margin-top: 20px;
+}
+
+.extra-sections-container {
+  margin-top: 20px;
+}
+
+.items-section {
+  margin-top: 30px;
+}
+
+.extra-item {
+  display: flex;
+  align-items: center;
+}
+
+.icon-extra-section,
+.icon-extra-page {
+  margin-left: 8px;
+  color: #70addf;
+  font-size: 1.2rem;
+}
+
+.total-price {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 768px) {
+  .calculator-container {
+    width: 100%; /* Ocupa todo el ancho disponible */
+    padding: 0 20px; /* Espaciado interno */
+  }
+
+  .calculator-content {
+    flex-direction: column; /* Cambiar a diseño en columna */
+    align-items: center;
+    padding: 20px; /* Aumentar el espacio interno */
+  }
+
+  .price-section h3 {
+    font-size: 24px; /* Reducir tamaño del título */
+  }
+
+  .price {
+    font-size: 32px; /* Reducir tamaño del precio */
+  }
+
+  .quote-button {
+    width: 180px; /* Botón más pequeño */
+    font-size: 14px; /* Texto más pequeño */
+  }
+
+  .items-section {
+    max-width: 100%; /* Ocupa todo el ancho disponible */
+    margin: 20px 0;
+  }
+
+  .items-section ul {
+    font-size: 16px; /* Reducir tamaño del texto */
+  }
+
+  .total {
+    font-size: 24px; /* Reducir tamaño del total */
+  }
+}
+
+/* Pantallas pequeñas (móviles) */
+@media (max-width: 480px) {
+  .calculator-content {
+    padding: 10px; /* Reducir el espacio interno */
+  }
+
+  .price-section h3 {
+    font-size: 20px; /* Reducir tamaño del título */
+    margin: 20px 0px;
+  }
+
+  .price {
+    font-size: 28px; /* Reducir tamaño del precio */
+  }
+
+  .quote-button {
+    width: 150px; /* Botón más pequeño */
+    font-size: 12px; /* Texto más pequeño */
+    height: 30px; /* Reducir altura */
+  }
+
+  .items-section ul {
+    font-size: 14px; /* Reducir tamaño del texto */
+  }
+
+  .total {
+    font-size: 20px; /* Reducir tamaño del total */
+  }
 }

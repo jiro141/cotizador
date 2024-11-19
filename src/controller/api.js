@@ -115,3 +115,27 @@ export const fetchFuncionesExtras = async (id) => {
     throw error;
   }
 };
+export const postCotizacion = async (data) => {
+  const payload = {
+    fields: {
+      Producto: data.Producto || "",
+      funciones_mensuales: data.funciones_mensuales || "",
+      secciones: data.secciones || "",
+      paginas: data.paginas || "",
+      Funciones: data.Funciones || "",
+      secciones_extra: data.secciones_extra || "",
+      paginas_extra: data.paginas_extra || "",
+      total: data.total || 0,
+    },
+  };
+  try {
+    const response = await airtable.post(`/cotizaciones/`, payload);
+    return response;
+  } catch (error) {
+    console.error(
+      "Error al obtener datos de funciones adicionales desde Airtable:",
+      error
+    );
+    throw error;
+  }
+};

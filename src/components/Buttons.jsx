@@ -4,6 +4,10 @@ import img1 from "../img/Recurso 11.svg";
 import img2 from "../img/Group 44.svg";
 import img3 from "../img/Recurso 22.svg";
 import img4 from "../img/Recurso 52.svg";
+import img5 from "../img/Group 64.svg";
+import img6 from "../img/Group 46.svg";
+import img7 from "../img/Group 63.svg";
+import img8 from "../img/Group 48.svg";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 export default function Buttons() {
@@ -47,7 +51,7 @@ export default function Buttons() {
                     <p className="button-text">Web de Reservaciones</p>
                 </button>
                 <button className={`button ${state === 'PaginaCorporativa' ? 'active' : ''}`} onClick={() => handleButtonClick('PaginaCorporativa')}>
-                    <img src={img3} alt="Página Corporativa" />
+                    <img src={img7} alt="Página Corporativa" />
                     <p className="button-text">Página Corporativa</p>
                 </button>
                 <button className={`button ${state === 'WebInformativa' ? 'active' : ''}`} onClick={() => handleButtonClick('WebInformativa')}>
@@ -59,15 +63,15 @@ export default function Buttons() {
                     <p className="button-text">Blog</p>
                 </button>
                 <button className={`button ${state === 'PaginaDeMembresia' ? 'active' : ''}`} onClick={() => handleButtonClick('PaginaDeMembresia')}>
-                    <img src={img1} alt="Página de Membresía" />
+                    <img src={img6} alt="Página de Membresía" />
                     <p className="button-text">Página de Membresía</p>
                 </button>
                 <button className={`button ${state === 'Foro' ? 'active' : ''}`} onClick={() => handleButtonClick('Foro')}>
-                    <img src={img2} alt="Foro" />
+                    <img src={img8} alt="Foro" />
                     <p className="button-text">Foro</p>
                 </button>
                 <button className={`button ${state === 'eCommerce' ? 'active' : ''}`} onClick={() => handleButtonClick('eCommerce')}>
-                    <img src={img3} alt="eCommerce" />
+                    <img src={img5} alt="eCommerce" />
                     <p className="button-text">eCommerce</p>
                 </button>
             </div>
