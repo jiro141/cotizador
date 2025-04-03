@@ -1,0 +1,1189 @@
+/* /////////////////////////////////////////////// Generales ///////////////////////////////////////////// */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* Asegura un modelo de caja consistente */
+}
+body {
+  background-color: #000;
+  color: #fff;
+  margin: 20px 0px;
+  font-family: "Montserrat", sans-serif !important;
+}
+/* Fondo de estrellas */
+.stars-background {
+  position: fixed; /* Fijar al fondo de la pantalla */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; /* Ocupa toda la pantalla visible */
+  pointer-events: none; /* Evita interferencias con clics */
+  overflow: hidden; /* Evita desbordamientos */
+}
+
+.star {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background-color: white;
+  border-radius: 50%;
+  animation: twinkle 2s infinite ease-in-out, moveStar 10s linear infinite;
+}
+
+/* Animaciones */
+@keyframes twinkle {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes moveStar {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100px); /* Simula un ligero movimiento hacia abajo */
+  }
+}
+
+.titulo {
+  font-size: 36px;
+  text-align: center;
+  margin: 50px 0 20px 0;
+}
+.custom-separator {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #7a7a7a, transparent);
+  margin: 20px 0; /* Ajusta el margen según sea necesario */
+  opacity: 0.6; /* Para darle una apariencia más suave */
+}
+
+/* ////////////////////////////////////////////// Bontones de inicio //////////////////////////////////////// */
+.button-container-wrapper {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  transition: all 1s ease;
+  padding: 0px; /* Transición entre grid y slider */
+  z-index: 2;
+}
+
+.button-container-wrapper.grid .button-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  justify-items: center;
+  width: 100%;
+}
+
+.button-container-wrapper.slider .button-container {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  transition: all 1s ease; /* Transición suave */
+}
+.button-container-slider {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 20px;
+  margin: 0 60px;
+  /* Ocultar la barra de scroll en la mayoría de los navegadores */
+  scrollbar-width: none; /* Firefox */
+}
+
+.button-container-slider::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.button-container {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.button-container-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  justify-items: center;
+}
+
+.button-container-slider {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+.button {
+  background-color: #333;
+  border: none;
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease,
+    background-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 150px;
+  height: 170px;
+  text-align: center;
+  flex-shrink: 0; /* Evita que los botones se reduzcan en tamaño */
+}
+
+.button img {
+  width: 80px; /* Base width */
+  height: auto;
+  margin-bottom: 10px;
+  object-fit: contain;
+
+  /* Responsive behavior */
+  max-width: 100%; /* Ensures the image never exceeds the container width */
+  height: auto; /* Maintains the aspect ratio */
+}
+
+.button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: #70addf;
+}
+
+.button.active {
+  border: 2px solid #70addf;
+  background-color: #70addf;
+}
+
+.button-text {
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+  margin: 10px 0px;
+  padding-bottom: 20px;
+}
+
+.slider-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  justify-content: center;
+}
+
+.slider-button-left {
+  left: 10px;
+}
+
+.slider-button-right {
+  right: 10px;
+}
+/* --- Estilos Responsivos --- */
+
+/* Pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+  .button-container-wrapper.grid .button-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en lugar de 3 */
+  }
+
+  .button-container-grid {
+    grid-template-columns: repeat(2, 1fr); /* Ajuste para pantallas pequeñas */
+  }
+
+  .button {
+    width: 120px; /* Botones más pequeños */
+    height: 140px;
+    padding: 10px;
+  }
+
+  .button img {
+    height: 50px; /* Iconos más pequeños */
+    margin-bottom: 0px;
+  }
+
+  .button-text {
+    font-size: 16px;
+    margin-top: 10px; /* Texto más pequeño */
+  }
+}
+
+/* Pantallas extra pequeñas (teléfonos más pequeños) */
+@media (max-width: 480px) {
+  .button-container-wrapper.grid .button-container {
+    grid-template-columns: repeat(1, 1fr); /* 1 columna */
+  }
+
+  .button-container-grid {
+    grid-template-columns: repeat(
+      1,
+      1fr
+    ); /* Ajuste para pantallas muy pequeñas */
+  }
+
+  .button {
+    width: 100px;
+    height: 120px;
+    justify-content: center;
+  }
+
+  .button img {
+    width: 50px;
+    margin-bottom: 0px !important;
+  }
+
+  .button-text {
+    font-size: 10px;
+    padding: 0px !important;
+    margin-top: 10px !important;
+  }
+}
+
+/* ///////////////////////////// primer componente (LandingPageClickThrough) ///////////////////////////// */
+
+.grid {
+  margin: 40px 80px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  gap: 100px;
+  z-index: 2;
+  flex-wrap: wrap; /* Permitir que los elementos se ajusten en pantallas pequeñas */
+}
+
+.grid h4 {
+  margin: 0;
+  padding: 0;
+}
+
+.grid p {
+  margin: 0;
+  padding: 0;
+}
+
+.container-text {
+  max-width: 600px;
+  text-align: justify;
+  z-index: 2;
+}
+
+/* Estilos generales para el contenedor */
+.section-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+  gap: 10px; /* Espacio entre las columnas */
+  background-color: #2c2c2c;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 0px 80px;
+  position: relative; /* Añade esta línea para activar z-index */
+  z-index: 2 !important;
+}
+.section-container2 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Tres columnas iguales */
+  gap: 10px; /* Espacio entre las columnas */
+  background-color: #2c2c2c;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 0px 80px;
+  position: relative; /* Activa z-index */
+  z-index: 2 !important;
+}
+
+.secciones {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 28px;
+  margin: 20px 80px;
+}
+
+/* Estilos para el checkbox */
+.checkbox-wrapper-24 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+button {
+  background-color: #2c2c2c;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease; /* Transición suave */
+}
+
+button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+span {
+  font-size: 16px;
+}
+
+/* --- Estilos Responsivos --- */
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 768px) {
+  .grid {
+    gap: 40px; /* Reducir el espacio entre elementos */
+    justify-content: left;
+    /* padding: 0 20px; */
+  }
+  .secciones {
+    font-size: 20px;
+  }
+
+  .container-text {
+    max-width: 100%; /* Ajustar al ancho completo de la pantalla */
+    /* Agregar espacio interno */
+  }
+
+  .section-container {
+    grid-template-columns: 1fr; /* Una sola columna en pantallas medianas */
+    gap: 15px;
+    margin: 0 40px;
+  }
+  .section-container2 {
+    margin: 0 40px;
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* Pantallas pequeñas (móviles) */
+@media (max-width: 480px) {
+  .grid {
+    flex-direction: column; /* Cambiar a diseño en columna */
+    gap: 20px;
+  }
+  .secciones {
+    font-size: 18px;
+  }
+
+  .container-text {
+    max-width: 100%;
+    text-align: left; /* Cambiar a texto alineado a la izquierda */
+  }
+
+  .section-container {
+    grid-template-columns: 1fr; /* Una columna para móviles */
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .checkbox-wrapper-24 {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 100%;
+  }
+
+  button {
+    padding: 6px 10px; /* Botones más grandes para usabilidad en móviles */
+    font-size: 14px;
+  }
+
+  span {
+    font-size: 14px; /* Texto más pequeño */
+  }
+}
+
+/* Estilos para cada checkbox y su label */
+/* Ocultamos el checkbox nativo */
+/* Ocultamos el checkbox nativo */
+
+.checkbox-wrapper-24 .checkbox {
+  display: table-cell;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.checkbox-wrapper-24 label {
+  display: inline-block;
+  color: #fff;
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+}
+.checkbox-wrapper-24 label span {
+  display: inline-block;
+  position: relative;
+  background-color: transparent;
+  width: 25px;
+  height: 25px;
+  transform-origin: center;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  vertical-align: middle;
+  margin-right: 10px;
+  transition: background-color 150ms 200ms,
+    transform 350ms cubic-bezier(0.78, -1.22, 0.17, 1.89);
+}
+.checkbox-wrapper-24 label span:before {
+  content: "";
+  width: 0px;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  position: absolute;
+  transform: rotate(45deg);
+  top: 13px;
+  left: 9px;
+  transition: width 50ms ease 50ms;
+  transform-origin: 0% 0%;
+  margin-top: -2px;
+  margin-left: -2px;
+}
+.checkbox-wrapper-24 label span:after {
+  content: "";
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  position: absolute;
+  transform: rotate(305deg);
+  top: 16px;
+  left: 10px;
+  transition: width 50ms ease;
+  transform-origin: 0% 0%;
+  margin-top: -2px;
+  margin-left: -2px;
+}
+.checkbox-wrapper-24 label:hover span:before {
+  width: 5px;
+  transition: width 100ms ease;
+}
+.checkbox-wrapper-24 label:hover span:after {
+  width: 10px;
+  transition: width 150ms ease 100ms;
+}
+
+.checkbox-wrapper-24 input[type="checkbox"] {
+  display: none;
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label span {
+  background-color: #479bdf;
+  transform: scale(1.25);
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label span:after {
+  width: 10px;
+  background: #fff;
+  transition: width 150ms ease 100ms;
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label span:before {
+  width: 5px;
+  background: #fff;
+  transition: width 150ms ease 100ms;
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label:hover span {
+  background-color: #333;
+  transform: scale(1.25);
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label:hover span:after {
+  width: 10px;
+  background: #fff;
+  transition: width 150ms ease 100ms;
+}
+.checkbox-wrapper-24 input[type="checkbox"]:checked + label:hover span:before {
+  width: 5px;
+  background: #fff;
+  transition: width 150ms ease 100ms;
+}
+
+/* bloque de mas servicios  */
+.moreItems {
+  background-color: #70addf;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  opacity: 0; /* Oculto inicialmente */
+  transform: translateY(-10px); /* Posición inicial */
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Efecto de entrada */
+}
+
+.moreItems.visible {
+  opacity: 1; /* Visible cuando limitReached es true */
+  transform: translateY(0); /* Posición final */
+}
+.toggle-title {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+}
+
+.arrow {
+  margin-left: 8px;
+}
+
+.arrow-up {
+  color: #ff5722;
+}
+
+.arrow-down {
+  color: inherit;
+}
+.counter-wrapper {
+  display: flex;
+  align-items: center;
+  border: solid 3px #70addf;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+.checkbox-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* //////////////////////////////////////////// Calculadora /////////////////////////////////////////// */
+
+.calculator-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 900px;
+  margin: 0 auto; /* Centrar horizontalmente */
+  z-index: 2;
+}
+.full {
+  min-height: 80vh;
+}
+
+.calculator-content {
+  z-index: 99;
+  display: flex;
+  justify-content: center;
+  background-color: #2c2c2c;
+  padding: 20px;
+  border-radius: 8px;
+  color: #ffffff;
+  width: 100%;
+  flex-wrap: wrap; /* Permitir que los elementos se ajusten en pantallas pequeñas */
+}
+
+.price-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px; /* Espaciado adicional en pantallas pequeñas */
+}
+
+.price-section h3 {
+  margin: 30px 0px 20px 0px;
+  font-weight: 400;
+  font-size: 30px;
+}
+
+.price {
+  font-size: 40px;
+  font-weight: bold;
+  margin: 30px 0;
+}
+
+.quote-button {
+  height: 35px;
+  width: 200px;
+  background-color: #ff5722;
+  border-radius: 8px;
+  color: #ffffff;
+  padding: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.quote-button:hover {
+  background-color: #e64a19;
+}
+
+.items-section {
+  text-align: left;
+  margin: 30px 0px;
+  max-width: 300px;
+}
+
+.items-section h3 {
+  margin: 0;
+  font-weight: 400;
+  font-size: 24px;
+}
+
+.items-section ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+.total {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.calculator-container .items-list .item-name {
+  white-space: normal; /* Permite que el texto se ajuste automáticamente a una nueva línea */
+  word-wrap: break-word; /* Divide las palabras largas en múltiples líneas si es necesario */
+  overflow-wrap: break-word; /* Asegura que el texto no se desborde */
+   /* Asegura que el ancho máximo sea el 100% del contenedor */
+  line-height: 1.4; /* Mejora la legibilidad del texto en múltiples líneas */
+  margin-bottom: 8px; /* Añade un pequeño margen inferior para separar elementos */
+}
+
+.price-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.secciones-container {
+  margin-top: 20px;
+}
+
+.extra-sections-container {
+  margin-top: 20px;
+}
+
+.items-section {
+  margin-top: 30px;
+}
+
+.extra-item {
+  display: flex;
+  align-items: center;
+}
+
+.icon-extra-section,
+.icon-extra-page {
+  margin-left: 8px;
+  color: #70addf;
+  font-size: 1.2rem;
+}
+
+.total-price {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 768px) {
+  .calculator-container {
+    width: 100%; /* Ocupa todo el ancho disponible */
+    padding: 0 20px; /* Espaciado interno */
+  }
+
+  .calculator-content {
+    flex-direction: column; /* Cambiar a diseño en columna */
+    align-items: center;
+    padding: 20px; /* Aumentar el espacio interno */
+  }
+
+  .price-section h3 {
+    font-size: 24px; /* Reducir tamaño del título */
+  }
+
+  .price {
+    font-size: 32px; /* Reducir tamaño del precio */
+  }
+
+  .quote-button {
+    width: 100%; /* Botón más pequeño */
+    font-size: 16px; /* Texto más pequeño */
+  }
+
+  .items-section {
+    max-width: 100%; /* Ocupa todo el ancho disponible */
+    margin: 20px 0;
+  }
+
+  .items-section ul {
+    font-size: 16px; /* Reducir tamaño del texto */
+  }
+
+  .total {
+    font-size: 24px; /* Reducir tamaño del total */
+  }
+}
+
+/* Pantallas pequeñas (móviles) */
+@media (max-width: 480px) {
+  .calculator-content {
+    padding: 10px; /* Reducir el espacio interno */
+  }
+
+  .price-section h3 {
+    font-size: 20px; /* Reducir tamaño del título */
+    margin: 20px 0px;
+  }
+
+  .price {
+    font-size: 28px; /* Reducir tamaño del precio */
+  }
+
+  .quote-button {
+    width: 150px; /* Botón más pequeño */
+    font-size: 12px; /* Texto más pequeño */
+    height: 30px; /* Reducir altura */
+  }
+
+  .items-section ul {
+    font-size: 14px; /* Reducir tamaño del texto */
+  }
+
+  .total {
+    font-size: 20px; /* Reducir tamaño del total */
+  }
+}
+
+/* /////////////////////////////// Formulario /////////////////////////////////////////////// */
+/* Form Styling */
+.formulario {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.custom-form {
+  margin: 10px;
+  display: grid;
+  grid-template-areas:
+    "area1 area2"
+    "area3 area4"
+    "area5 area5"
+    "area6 area6"
+    "area7 area7";
+  grid-template-columns: 1fr 1fr; /* 2 columnas */
+  grid-template-rows: auto auto auto auto; /* 4 filas */
+  gap: 10px 40px;
+}
+
+.custom-form > .area1 {
+  grid-area: area1;
+}
+
+.custom-form > .area2 {
+  grid-area: area2;
+}
+
+.custom-form > .area3 {
+  grid-area: area3;
+}
+
+.custom-form > .area4 {
+  grid-area: area4;
+}
+
+.custom-form > .area5 {
+  grid-area: area5;
+}
+
+.custom-form > .area6 {
+  grid-area: area6;
+}
+@media (max-width: 768px) {
+  .custom-form {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Form Groups */
+.form-group {
+  position: relative;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* Labels */
+.form-label {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  padding: 0 5px;
+  color: #777;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+.form-input{
+  color: #fff;
+}
+.form-input,
+textarea.form-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  background: none;
+  transition: border 0.3s ease;
+  color: #fff;
+}
+
+/* Focus effect for label */
+.form-input:focus,
+textarea.form-input:focus {
+  border-color: #ffffff;
+}
+
+.form-input:focus + .form-label,
+textarea.form-input:focus + .form-label,
+.form-input:not(:placeholder-shown) + .form-label,
+textarea.form-input:not(:placeholder-shown) + .form-label {
+  top: -10px;
+  left: 5px;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.active {
+  top: -10px;
+  left: 5px;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+/* Full-width for comments */
+.full-width {
+  grid-column: span 2;
+}
+
+/* Footer styling */
+.form-footer {
+  display: flex;
+  justify-content: center !important;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ///////////////////////////////////////// login //////////////////////////////////////// */
+
+/* General Form Styling */
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-form {
+  width: 400px;
+  padding: 30px;
+  background: #2c2c2cd1; /* Fondo del formulario */
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+
+.login-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffffff; /* Color del texto */
+  font-size: 24px;
+}
+
+/* Input Group */
+.form-group {
+  position: relative;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  outline: none;
+  background-color: #2c2c2c;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: #70addf;
+}
+
+/* Labels */
+.form-label {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  padding: 0 5px;
+  font-size: 16px;
+  color: #777;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  /* background: #2a2a3d; */
+}
+
+.form-input:focus + .form-label,
+.form-input:not(:placeholder-shown) + .form-label {
+  top: -10px;
+  left: 10px;
+  font-size: 12px;
+  color: #70addf;
+}
+
+.active {
+  top: -10px;
+  left: 10px;
+  font-size: 12px;
+  color: #70addf;
+}
+
+/* Button Styles */
+.login-button {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  color: #ffffff;
+  background-color: #70addf;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #0095cc;
+}
+
+/* Footer Links */
+.form-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #777;
+}
+
+.form-footer a {
+  color: #70addf;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.form-footer a:hover {
+  color: #0095cc;
+}
+.centrar {
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.boton-pais {
+  z-index: 99;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+}
+.boton-pais:hover {
+  background-color: #444;
+}
+.boton-pais img {
+  width: 25px;
+  height: 25px;
+}
+
+/* /////////////////////////// modal //////////////////// */
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Modal Container */
+.modal {
+  overflow-y: hidden !important;
+  background-color: white;
+  border-radius: 8px;
+  width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 40px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Close Button */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 20px;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Header with selected country */
+.modal-header {
+  margin-bottom: 10px;
+}
+
+.selected-country {
+  background-color: #ff5722;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Country list */
+.modal-body {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.country-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.country-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  color: #79747e;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.country-item:hover {
+  background-color: #eee;
+}
+
+.country-icon {
+  font-size: 18px;
+}
+.country-letter {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.country-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  margin: 5px 0;
+  cursor: pointer;
+}
+
+.country-item.selected {
+  background-color: #ff5722;
+  font-weight: bold;
+}
+
+.country-icon {
+  margin-right: 8px;
+}
+.country-letter {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+  text-transform: uppercase;
+  color: #79747e;
+}
+
+.country-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  margin: 5px 0;
+  cursor: pointer;
+}
+
+.country-item.selected {
+  background-color: #ff5722;
+  color: #fff;
+  font-weight: bold;
+}
+
+.country-icon {
+  margin-right: 8px;
+}
+.country-items {
+  display: flex;
+  min-width: 400px;
+  gap: 20px;
+  margin: 5px 0px;
+}
