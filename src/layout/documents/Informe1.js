@@ -1,59 +1,109 @@
+import { seccionesEstaticas } from "./seccionesEstaticas";
 export const createHtmlFile1 = (data) => {
   const reportId = Math.floor(1000 + Math.random() * 9000);
 
   const procesarTexto = (texto) =>
     texto.replace(/\*\*/g, "").replace(/\n/g, "<br>");
+  const contenidoFinal = {
+    ...seccionesEstaticas,
+    ...data.contenido,
+  };
 
   const generarPaginasDesdeContenido = (contenido) => {
-    return Object.entries(contenido)
-      .filter(([key, value]) => value && value.length !== 0)
+    const secciones = Object.entries(contenido).filter(
+      ([_, value]) => value && value.length !== 0
+    );
+
+    // Crear índice dinámico
+    const indiceHTML = `
+      <div class="page">
+        <div class="header">
+          <img src="${data.logo}" style="max-height: 80px" />
+        </div>
+        <h2>1. Índice</h2>
+        <ul style="list-style-type: none; padding-left: 0;">
+          ${secciones
+            .map(([key], i) => {
+              const titulo = key
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase());
+              return `<li><strong>${
+                i + 2
+              }. ${titulo}</strong>.............................................................${
+                i + 2
+              }</li>`;
+            })
+            .join("\n")}
+        </ul>
+        <div class="footer">
+          <a href="https://detipcompany.com/">www.Detipcompany.com</a>
+        </div>
+      </div>
+    `;
+
+    // Páginas del contenido real
+    const paginasContenido = secciones
       .map(([key, value], i) => {
+        const numero = i + 2; // +2 porque el índice es la página 1
+
         if (key === "caracteristicas" && Array.isArray(value)) {
           const rendered = value
             .map(
               (item) => `
                 <div style="margin-bottom: 20px;">
-                  <h5>${procesarTexto(item.nombre)}</h5>
+                  <h6>${procesarTexto(item.nombre)}</h6>
                   <p class="parrafo">${procesarTexto(item.descripcion)}</p>
+                  <button class="btn btn-sm btn-primary edit-btn">✏️ Editar</button>
                 </div>`
             )
             .join("");
           return `
-              <div class="page">
-                <div class="header">
-                  <img src="${data.logo}" style="max-height: 80px" />
-                </div>
-                <h2>${i + 1}. Características</h2>
-                ${rendered}
-                <div class="footer">
-                  Informe generado automáticamente – Smart Solutions
-                </div>
-              </div>`;
+            <div class="page">
+              <div class="header">
+                <img src="${data.logo}" style="max-height: 80px" />
+              </div>
+              <h2>${numero}. Características</h2>
+              ${rendered}
+              <div class="footer">
+                <a href="https://detipcompany.com/">www.Detipcompany.com</a>
+              </div>
+            </div>`;
         } else {
           const titulo = key
             .replace(/_/g, " ")
             .replace(/\b\w/g, (l) => l.toUpperCase());
 
           return `
-              <div class="page">
-                <div class="header">
-                  <img src="${data.logo}" style="max-height: 80px" />
-                </div>
-                <h2>${i + 1}. ${titulo}</h2>
-                <p class="parrafo">${procesarTexto(value)}</p>
-                <button class="btn btn-sm btn-primary edit-btn">✏️ Editar</button>
-                <div class="footer">
-                  Informe generado automáticamente – Smart Solutions
-                </div>
-              </div>`;
+            <div class="page">
+              <div class="header">
+                <img src="${data.logo}" style="max-height: 80px" />
+              </div>
+              <h2>${numero}. ${titulo}</h2>
+              <p class="parrafo">${procesarTexto(value)}</p>
+              <button class="btn btn-sm btn-primary edit-btn">✏️ Editar</button>
+              <div class="footer">
+                <a href="https://detipcompany.com/">www.Detipcompany.com</a>
+              </div>
+            </div>`;
         }
       })
       .join("\n");
+
+    // Combina todo
+    return `${indiceHTML}\n${paginasContenido}`;
+  };
+
+  const getCurrentDate = () => {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, "0");
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const yyyy = today.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
   };
 
   const htmlContent = `<!DOCTYPE html>
-    <html lang="es">
-    <head>
+<html lang="es">
+  <head>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -168,37 +218,67 @@ export const createHtmlFile1 = (data) => {
       }
     </style>
   </head>
-    <body class="bg-light">
-      <div class="page-container">
-        <div class="page">
-          <div class="center">
-            <h1 style="font-weight: bold; font-size: 50px">Smart Solutions</h1>
-            <img class="icono" src="${data.frente}" />
-          </div>
-          <div class="table-container">
-            <table>
-              <tr><th>Nº de Oferta</th><td>${reportId}</td></tr>
-              ${
-                data.informe?.descripcion_empresa
-                  ? `<tr><th>Empresa</th><td>${data.informe.descripcion_empresa}</td></tr>`
-                  : ""
-              }
-              ${
-                data.informe?.cliente?.nombre
-                  ? `<tr><th>Cliente</th><td>${data.informe.cliente.nombre}</td></tr>`
-                  : ""
-              }
-              ${
-                data.informe?.cliente?.cargo
-                  ? `<tr><th>Cargo</th><td>${data.informe.cliente.cargo}</td></tr>`
-                  : ""
-              }
-            </table>
-          </div>
+  <body class="bg-light">
+    <div class="page-container">
+      <div class="page">
+        <div class="header">
+          <img src="${data.logo}" style="max-height: 80px" />
         </div>
-        ${generarPaginasDesdeContenido(data.contenido)}
+        <div class="center">
+          <h1 style="font-weight: bold; font-size: 50px">${
+            data.tipo_producto !== "Smart Solution"
+              ? "Web Esencial"
+              : "Smart Solution"
+          }</h1>
+          <img class="icono" src="${data.frente}" />
+        </div>
+        <div class="table-container">
+          <table>
+            <tr>
+              <th>Nº de Oferta</th>
+              <td>${reportId}</td>
+            </tr>
+              <tr>
+              <th>Fecha</th>
+               <td>${getCurrentDate()}</td>
+            </tr>
+            ${
+              data.informe?.descripcion_empresa
+                ? `
+            <tr>
+              <th>Empresa</th>
+              <td>${data.informe.descripcion_empresa}</td>
+            </tr>
+            `
+                : ""
+            } ${
+    data.informe?.cliente?.nombre
+      ? `
+            <tr>
+              <th>Cliente</th>
+              <td>${data.informe.cliente.nombre}</td>
+            </tr>
+            `
+      : ""
+  } ${
+    data.informe?.cliente?.cargo
+      ? `
+            <tr>
+              <th>Cargo</th>
+              <td>${data.informe.cliente.cargo}</td>
+            </tr>
+            `
+      : ""
+  }
+          </table>
+        </div>
+        <div class="footer">
+          <a href="https://detipcompany.com/">www.Detipcompany.com</a>
+        </div>
       </div>
-      <div
+      ${generarPaginasDesdeContenido(contenidoFinal)}
+    </div>
+    <div
       class="modal fade"
       id="editorModal"
       tabindex="-1"
@@ -249,25 +329,24 @@ export const createHtmlFile1 = (data) => {
       });
 
       function checkParagraphs() {
-  document.querySelectorAll(".page .parrafo").forEach((parrafo) => {
-    const parent = parrafo.parentElement;
-    const editBtn = parent.querySelector(".edit-btn");
+        document.querySelectorAll(".page .parrafo").forEach((parrafo) => {
+          const parent = parrafo.parentElement;
+          const editBtn = parent.querySelector(".edit-btn");
 
-    if (parrafo.innerText.trim()) {
-      parrafo.style.display = "block";
-      editBtn.style.display = "inline-block";
-    } else {
-      parrafo.style.display = "none";
-      editBtn.style.display = "inline-block";
-    }
+          if (parrafo.innerText.trim()) {
+            parrafo.style.display = "block";
+            editBtn.style.display = "inline-block";
+          } else {
+            parrafo.style.display = "none";
+            editBtn.style.display = "inline-block";
+          }
 
-    // ✅ Agregar evento al botón si no lo tenía
-    if (editBtn && !editBtn.onclick) {
-      editBtn.onclick = () => editParagraph(parrafo);
-    }
-  });
-}
-
+          // ✅ Agregar evento al botón si no lo tenía
+          if (editBtn && !editBtn.onclick) {
+            editBtn.onclick = () => editParagraph(parrafo);
+          }
+        });
+      }
 
       function editParagraph(parrafo) {
         currentParagraph = parrafo; // Guardar referencia al párrafo
@@ -289,42 +368,44 @@ export const createHtmlFile1 = (data) => {
 
       document.addEventListener("DOMContentLoaded", checkParagraphs);
 
-    
+      function downloadPDF() {
+        const sectionToPrint = document.querySelector(".page-container");
 
-     function downloadPDF() {
-  const sectionToPrint = document.querySelector(".page-container");
+        // Ocultar botones antes del PDF
+        const buttonsToHide = document.querySelectorAll(
+          ".edit-btn, .download-btn"
+        );
+        buttonsToHide.forEach((btn) => (btn.style.display = "none"));
 
-  // Ocultar botones antes del PDF
-  const buttonsToHide = document.querySelectorAll(".edit-btn, .download-btn");
-  buttonsToHide.forEach((btn) => (btn.style.display = "none"));
+        const options = {
+          margin: 10,
+          filename: "informe.pdf",
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        };
 
-  const options = {
-    margin: 10,
-    filename: "informe.pdf",
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-  };
-
-  html2pdf()
-    .set(options)
-    .from(sectionToPrint)
-    .save()
-    .then(() => {
-      // Restaurar visibilidad después de exportar
-      buttonsToHide.forEach((btn) => (btn.style.display = "inline-block"));
-    });
-}
-
+        html2pdf()
+          .set(options)
+          .from(sectionToPrint)
+          .save()
+          .then(() => {
+            // Restaurar visibilidad después de exportar
+            buttonsToHide.forEach(
+              (btn) => (btn.style.display = "inline-block")
+            );
+          });
+      }
 
       document.addEventListener("DOMContentLoaded", function () {
         ensurePageExists();
         checkParagraphs();
       });
     </script>
-    </body>
-    </html>`;
+  </body>
+</html>
+`;
 
   // ✅ CREAR BLOB Y ABRIR EN PESTAÑA NUEVA
   const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
