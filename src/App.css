@@ -57,6 +57,11 @@ body {
   text-align: center;
   margin: 50px 0 20px 0;
 }
+.titulo2 {
+  font-size: 25px;
+  text-align: center;
+  margin: 50px 0 20px 0;
+}
 .custom-separator {
   border: none;
   height: 1px;
@@ -656,7 +661,7 @@ span {
   white-space: normal; /* Permite que el texto se ajuste automáticamente a una nueva línea */
   word-wrap: break-word; /* Divide las palabras largas en múltiples líneas si es necesario */
   overflow-wrap: break-word; /* Asegura que el texto no se desborde */
-   /* Asegura que el ancho máximo sea el 100% del contenedor */
+  /* Asegura que el ancho máximo sea el 100% del contenedor */
   line-height: 1.4; /* Mejora la legibilidad del texto en múltiples líneas */
   margin-bottom: 8px; /* Añade un pequeño margen inferior para separar elementos */
 }
@@ -847,7 +852,7 @@ span {
   transition: all 0.3s ease;
   pointer-events: none;
 }
-.form-input{
+.form-input {
   color: #fff;
 }
 .form-input,
@@ -1028,16 +1033,32 @@ textarea.form-input:not(:placeholder-shown) + .form-label {
   right: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
   color: white;
-  padding: 10px 15px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
   font-size: 20px;
   font-weight: bold;
 }
-.boton-pais:hover {
+.atras {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  padding: 10px 15px;
+}
+.atras:hover{
+  cursor: pointer;
+}
+.boton-pais a {
+  padding: 10px 15px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.boton-pais a:hover {
   background-color: #444;
 }
 .boton-pais img {

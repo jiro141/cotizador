@@ -338,7 +338,7 @@ export default function Calculadora({
         <div className="items-section">
           <h3 className="section-title">
             <strong>
-              {selectedServicios.length > 0 ? "Servicios Mensuales" : ""}
+              {selectedServicios.length > 0 ? "Servicios" : ""}
             </strong>
           </h3>
           <ul className="items-list">

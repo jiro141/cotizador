@@ -20,8 +20,12 @@ function App() {
   useEffect(() => {
     try {
       const authData = JSON.parse(localStorage.getItem("authData"));
-      
-      if (authData && authData.isAuthenticated && authData.expiry > Date.now()) {
+
+      if (
+        authData &&
+        authData.isAuthenticated &&
+        authData.expiry > Date.now()
+      ) {
         setIsAuthenticated(true);
       } else {
         localStorage.removeItem("authData"); // Limpiar sesión expirada
@@ -41,20 +45,19 @@ function App() {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user?.pais?.[0]) return;
-    
+
         const data = await precioPais(user.pais[0]); // Obtener precio por país
-    
+
         const precioRedondeado = Math.ceil(data.horaTrabajo); // 🔥 Redondeo hacia arriba
-    
+
         setPrecio(precioRedondeado);
-    
+
         // Guardar en localStorage el valor redondeado
         localStorage.setItem("precio", JSON.stringify(precioRedondeado));
       } catch (error) {
         console.error("Error al obtener los precios por país:", error);
       }
     };
-    
 
     fetchPreciosPais();
 
@@ -88,7 +91,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <>
       <Routes>
         {/* Ruta para el inicio de sesión */}
         <Route
@@ -128,7 +131,7 @@ function App() {
           }
         />
       </Routes>
-    </Router>
+    </>
   );
 }
 

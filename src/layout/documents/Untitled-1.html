@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tabs con Imágenes</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <!-- Agregamos FontAwesome para los íconos -->
+    <style>
+      /* Contenedor principal de los Tabs */
+      body {
+        background-color: none !important;
+      }
+      .tabs-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible; /* <- Cambiado */
+        margin-bottom: 20px;
+      }
+
+      .tabs-container {
+        display: flex;
+        justify-content: center; /* <- Cambio para mejor scroll */
+        align-items: center;
+        gap: 50px;
+        overflow-x: scroll; /* <- Importante: scroll visible */
+        white-space: nowrap; /* <- Mantener en línea */
+        padding: 10px 40px; /* espacio lateral para flechas */
+        scroll-snap-type: x mandatory;
+        width: 100%;
+        scroll-behavior: smooth;
+        transition: transform 0.3s ease;
+      }
+
+      /* Flechas para desplazarse entre los tabs (más grandes y espaciadas) */
+      .arrow-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 15px;
+        border: none;
+        cursor: pointer;
+        z-index: 10;
+        font-size: 30px;
+      }
+      .arrow-left {
+        left: 10px;
+      }
+      .arrow-right {
+        right: 10px;
+      }
+
+      /* Estilo para cada tab (imagen) */
+      .tab {
+        width: 500px;
+        height: 200px;
+        cursor: pointer;
+        object-fit: cover;
+        scroll-snap-align: center;
+        position: relative;
+        transition: transform 0.3s ease-in-out;
+        border-radius: 8px;
+        opacity: 0.5;
+      }
+      .tab img {
+        border-radius: 8px !important;
+      }
+
+      /* Efecto al hacer hover o estar activo */
+      .tab:hover,
+      .tab.selected {
+        transform: scale(1.1);
+        opacity: 1;
+      }
+
+      /* Fondo semi-transparente y título en hover o cuando está activo */
+      .tab:hover::after,
+      .tab.selected::after {
+        content: attr(data-title);
+        position: absolute;
+        top: 10px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(
+          255,
+          255,
+          255,
+          0.7
+        ); /* Fondo blanco semi-transparente */
+        color: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 22px;
+        border-radius: 8px;
+        padding: 10px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Contenedor de contenido */
+      .content-container {
+        padding: 20px;
+        min-height: 200px;
+        margin-top: 20px;
+      }
+
+      /* Eliminar scroll */
+      .tabs-container::-webkit-scrollbar {
+        display: none;
+      }
+      .tabs-container {
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+        scrollbar-width: none; /* Firefox */
+      }
+      /* Estilo base para el contenedor */
+      #content-container {
+        opacity: 0; /* Inicio de la animación (invisible) */
+        transform: translateY(20px); /* Posición desplazada hacia abajo */
+        animation: fadeUp 1s ease-in-out forwards; /* Activar animación */
+      }
+
+      /* Definición de la animación fade-up */
+      @keyframes fadeUp {
+        0% {
+          opacity: 0;
+          transform: translateY(20px); /* Posición inicial */
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0); /* Posición final */
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Contenedor principal con las flechas y los tabs -->
+    <div class="tabs-wrapper">
+      <!-- Flecha izquierda -->
+      <button class="arrow-button arrow-left">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <!-- Contenedor de los tabs con imágenes -->
+      <div class="tabs-container">
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/1-e1732638280330.png"
+          alt="Tab 1"
+          class="tab"
+          data-content="content1"
+          data-title="Patolsima"
+        />
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-26_130604727.png"
+          alt="Tab 2"
+          class="tab"
+          data-content="content2"
+          data-title="Green & Clean"
+        />
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_082408868-e1732710310835.png"
+          alt="Tab 3"
+          class="tab"
+          data-content="content3"
+          data-title="Organización Tanabe"
+        />
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_083233055-e1732710855728.png"
+          alt="Tab 4"
+          class="tab"
+          data-content="content4"
+          data-title="Villa Manolo"
+        />
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084005190.png"
+          alt="Tab 5"
+          class="tab"
+          data-content="content5"
+          data-title="Dojo Hinomaru"
+        />
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084629699-e1732711645792.png"
+          alt="Tab 6"
+          class="tab"
+          data-content="content6"
+          data-title="Oasis Uvita"
+        />
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_085344234-e1732712097986.png"
+          alt="Tab 7"
+          class="tab"
+          data-content="content7"
+          data-title="Koru"
+        />
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_090717014-e1732712918901.png"
+          alt="Tab 8"
+          class="tab"
+          data-content="content8"
+          data-title="Osa Magic"
+        />
+        <img
+          src="https://detipcompany.com/wp-content/uploads/2024/11/Screenshot-2024-11-27-160415-e1732738557306.png"
+          alt="Tab 9"
+          class="tab"
+          data-content="content9"
+          data-title="Gitanas Corcovado Tours"
+        />
+      </div>
+
+      <!-- Flecha derecha -->
+      <button class="arrow-button arrow-right">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Contenedor de contenido -->
+    <div class="content-container" id="content-container">
+      <!-- El contenido aquí se actualizará dinámicamente -->
+      <p>[SHORTCODE_ELEMENTOR id="1165"]</p>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const contentContainer = document.getElementById("content-container");
+        const tabsContainer = document.querySelector(".tabs-container");
+        const arrowLeft = document.querySelector(".arrow-left");
+        const arrowRight = document.querySelector(".arrow-right");
+        const scrollValue = 500;
+        const autoScrollSpeed = 1;
+        let isAutoScrolling = true;
+        let autoScrollTimeout;
+
+        // 📦 Diccionario de contenidos por ID
+        const tabContents = {
+          content1: `[SHORTCODE_ELEMENTOR id="1165"]`,
+          content2: `[SHORTCODE_ELEMENTOR id="497"]`,
+          content3: `[SHORTCODE_ELEMENTOR id="507"]`,
+          content4: `[SHORTCODE_ELEMENTOR id="520"]`,
+          content5: `[SHORTCODE_ELEMENTOR id="529"]`,
+          content6: `[SHORTCODE_ELEMENTOR id="540"]`,
+          content7: `[SHORTCODE_ELEMENTOR id="556"]`,
+          content8: `[SHORTCODE_ELEMENTOR id="573"]`,
+          content9: `[SHORTCODE_ELEMENTOR id="826"]`,
+        };
+
+        // 🔁 Clonar tabs para scroll infinito
+        const originalTabs = Array.from(tabsContainer.children);
+        originalTabs.forEach((tab) => {
+          const clone = tab.cloneNode(true);
+          tabsContainer.appendChild(clone);
+        });
+
+        const tabs = document.querySelectorAll(".tab");
+
+        // 🧠 Función para pausar scroll automático temporalmente
+        const pauseAutoScrollTemporarily = () => {
+          isAutoScrolling = false;
+          clearTimeout(autoScrollTimeout);
+          autoScrollTimeout = setTimeout(() => {
+            isAutoScrolling = true;
+          }, 4000);
+        };
+
+        // 👉 Evento click en tabs
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            tabs.forEach((t) => t.classList.remove("selected"));
+            tab.classList.add("selected");
+
+            const tabOffset = tab.offsetLeft;
+            const containerWidth = tabsContainer.offsetWidth;
+            const tabWidth = tab.offsetWidth;
+
+            tabsContainer.scroll({
+              left: tabOffset - containerWidth / 2 + tabWidth / 2,
+              behavior: "smooth",
+            });
+
+            const contentId = tab.getAttribute("data-content");
+            contentContainer.innerHTML = `<p>${
+              tabContents[contentId] || ""
+            }</p>`;
+
+            contentContainer.style.animation = "none";
+            setTimeout(() => {
+              contentContainer.style.animation =
+                "fadeUp 1s ease-in-out forwards";
+            }, 0);
+
+            pauseAutoScrollTemporarily();
+          });
+        });
+
+        // 🧲 Centrar primer tab real (después de clonar) al cargar
+        const centerFirstTab = () => {
+          const containerWidth = tabsContainer.offsetWidth;
+          const tabWidth = tabs[0].offsetWidth;
+          const spacing = 30; // tu gap entre tabs
+          const totalTabsWidth = (tabWidth + spacing) * tabs.length;
+
+          // Desplaza al punto medio del scroll (inicio de duplicado)
+          tabsContainer.scrollLeft = totalTabsWidth / 4;
+
+          tabs[0].classList.add("selected");
+          contentContainer.innerHTML = `<p>${tabContents["content1"]}</p>`;
+        };
+        centerFirstTab();
+
+        // ⬅️➡️ Flechas con pausa de scroll infinito
+        const getScrollAmount = () => {
+          // Usa el ancho real de una tab (más el gap si lo tienes en CSS)
+          const tab = tabs[0];
+          const tabStyles = window.getComputedStyle(tab);
+          const gap = parseInt(tabStyles.marginRight || 30); // fallback 30px
+          return tab.offsetWidth + gap;
+        };
+
+        arrowLeft.addEventListener("click", () => {
+          tabsContainer.scrollBy({
+            left: -getScrollAmount(),
+            behavior: "smooth",
+          });
+          pauseAutoScrollTemporarily();
+        });
+
+        arrowRight.addEventListener("click", () => {
+          tabsContainer.scrollBy({
+            left: getScrollAmount(),
+            behavior: "smooth",
+          });
+          pauseAutoScrollTemporarily();
+        });
+
+        // ♻️ Scroll infinito animado
+        const infiniteScroll = () => {
+          if (isAutoScrolling) {
+            tabsContainer.scrollLeft += autoScrollSpeed;
+
+            // Si llega al final de duplicados, resetea al centro
+            const midpoint = tabsContainer.scrollWidth / 2;
+            if (tabsContainer.scrollLeft >= midpoint) {
+              tabsContainer.scrollLeft = midpoint / 2;
+            }
+          }
+          requestAnimationFrame(infiniteScroll);
+        };
+        infiniteScroll();
+      });
+    </script>
+  </body>
+</html>

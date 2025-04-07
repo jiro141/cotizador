@@ -155,9 +155,9 @@ const FormWeb = () => {
                 required
               >
                 <option value="">Selecciona tipo de informe</option>
-                <option value="informe tipo 1">informe tipo 1</option>
-                <option value="informe tipo 2">informe tipo 2</option>
-                <option value="informe tipo 3">informe tipo 3</option>
+                <option value="informe tipo 1">Basico</option>
+                {/* <option value="informe tipo 2">informe tipo 2</option>
+                <option value="informe tipo 3">informe tipo 3</option> */}
               </select>
               <label
                 className={`form-label ${input.tipo_informe ? "active" : ""}`}

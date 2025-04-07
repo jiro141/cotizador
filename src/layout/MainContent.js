@@ -3,9 +3,9 @@ import { MyContext } from "../context/Context";
 import Buttons from "../components/Buttons";
 import LandingPageClickThrough from "../components/LandingPageClickThrough";
 import FormWeb from "../components/FormWeb";
-
+import { IoChevronBackCircle } from "react-icons/io5";
 function MainContent() {
-  const { state, formData } = useContext(MyContext);
+  const { state, formData, redirectToHome } = useContext(MyContext);
 
   const renderComponent = () => {
     switch (state) {
@@ -26,6 +26,10 @@ function MainContent() {
 
   return (
     <>
+      <a onClick={redirectToHome} className="atras">
+        <IoChevronBackCircle size={30} color="#FFFF" />
+      </a>
+
       <h2 className="titulo">Formulario Web Esencial</h2>
       {/* Mostrar formulario previo si no hay datos */}
       {!formData ? (
@@ -33,26 +37,13 @@ function MainContent() {
       ) : (
         <>
           {" "}
-          <h3 className="titulo">¿Qué servicio estás buscando?</h3>
+          <h3 className="titulo2">¿Qué servicio estás buscando?</h3>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Buttons />
           </div>
           <div>{renderComponent()}</div>
         </>
       )}
-      <div style={{ textAlign: "center" }}>
-        <h3 className="titulo" style={{ fontSize: "20px" }}>
-          ¿Necesitas ayuda para saber qué es lo mejor para ti?
-        </h3>
-        <button
-          className="quote-button"
-          onClick={() =>
-            window.open("https://calendly.com/detipventas", "_blank")
-          }
-        >
-          Agendar Asesoría
-        </button>
-      </div>
     </>
   );
 }

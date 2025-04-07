@@ -610,7 +610,7 @@ export default function LandingPageClickThrough() {
       {/* Sección de Servicios Mensuales */}
       <div>
         <h3 onClick={togglePagina} className="secciones">
-          Servicios Mensuales
+          Servicios
           <span
             style={{
               marginLeft: "8px",

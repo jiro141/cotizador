@@ -8,6 +8,7 @@ import digital from "../img/soporte-en-linea 1.svg";
 import informes from "../img/solicitud 1.svg";
 import globo from "../img/globe_location_pin (1).svg";
 import Modal from "../components/Modal";
+import { BiLogOutCircle } from "react-icons/bi";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -29,20 +30,32 @@ export default function Dashboard() {
     setIsModalOpen(!isModalOpen);
   };
 
+  const handleLogout = () => {
+    // Eliminar todo del localStorage
+    localStorage.clear();
+    window.location.reload()
+    // Redirigir a la página de login
+    // navigate("/login"); // Puedes cambiar esto por cualquier ruta a la que quieras redirigir
+  };
+
   return (
     <div>
       {/* Modal que se muestra al hacer clic en el botón País */}
       <Modal isOpen={isModalOpen} onClose={toggleModal} />
 
       {/* Botón en la parte superior derecha que abre el modal */}
-      {userTipo === "Detip" && (
-        <>
-          <a onClick={toggleModal} className="boton-pais">
+      <div className="boton-pais">
+        {userTipo === "Detip" && (
+          <a onClick={toggleModal}>
             País
             <img src={globo} alt="Globo de ubicación" />
           </a>
-        </>
-      )}
+        )}
+        <a onClick={handleLogout}>
+          Cerrar sesión
+          <BiLogOutCircle size={30} color="#FFFF" />
+        </a>
+      </div>
 
       <div className="centrar">
         <h3 className="titulo">Productos</h3>

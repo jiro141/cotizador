@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { createHtmlFile1 } from "./documents/Informe1";
 import logo from "../img/banner.png";
+import { MyContext } from "../context/Context";
 import logo2 from "../img/cropped-logo.png";
 import frente from "../img/frente.png";
 import toast, { Toaster } from "react-hot-toast";
+import { IoChevronBackCircle } from "react-icons/io5";
 export default function SmartSolutions() {
+  const { redirectToHome } = useContext(MyContext);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -176,6 +179,9 @@ export default function SmartSolutions() {
 
   return (
     <>
+      <a onClick={redirectToHome} className="atras">
+        <IoChevronBackCircle size={30} color="#FFFF" />
+      </a>
       <Toaster />
       {isLoading && (
         <div className="spinner-container">
@@ -304,9 +310,9 @@ export default function SmartSolutions() {
                   required
                 >
                   <option value="">Selecciona tipo de informe</option>
-                  <option value="informe tipo 1">informe tipo 1</option>
-                  <option value="informe tipo 2">informe tipo 2</option>
-                  <option value="informe tipo 3">informe tipo 3</option>
+                  <option value="informe tipo 1">Basico</option>
+                  {/* <option value="informe tipo 2">informe tipo 2</option>
+                  <option value="informe tipo 3">informe tipo 3</option> */}
                 </select>
                 <label
                   className={`form-label ${
