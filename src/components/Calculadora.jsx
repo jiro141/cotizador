@@ -380,10 +380,14 @@ export default function Calculadora({
               <ul className="items-list">
                 {selectedSeccionesMax.map((item) => (
                   <li
-                    key={`max-seccion-${item.ID}`}
-                    className="item-name extra-item flex justify-center"
+                  key={`max-seccion-${item.ID}`}
+                  className="item-name extra-item flex justify-center"
                   >
+<<<<<<< HEAD
                     <GoPlusCircle className="icon-extra-section" />{" "}
+=======
+                  <GoPlusCircle className="icon-extra-section" />
+>>>>>>> estable
                     {item.name}
                     {/* Clase añadida */}
                   </li>
@@ -428,7 +432,11 @@ export default function Calculadora({
                   }, {})
                 ).map(([id, item]) => (
                   <li key={`pagina-${id}`} className="item-name extra-item">
+<<<<<<< HEAD
                     <GoPlusCircle className="icon-extra-page" />{" "}
+=======
+                    <GoPlusCircle className="icon-extra-page" />
+>>>>>>> estable
                     {item.name ? item.name : item.paginas}{" "}
                     {item.count > 1 ? `x${item.count}` : " "}{" "}
                     {/* Clase añadida */}

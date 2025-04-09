@@ -61,8 +61,13 @@ export default function Dashboard() {
         <h3 className="titulo">Productos</h3>
         <div
           className={`button-container-wrapper grid ${
+<<<<<<< HEAD
             userTipo === "Detip" ? "inicio" : ""
           } `}
+=======
+            userTipo === "Detip" ? "cuadrado" : ""
+          }`}
+>>>>>>> estable
         >
           {/* ✅ Siempre muestra el botón "Web Esencial" */}
           <button className="button" onClick={goWebEsencial}>
