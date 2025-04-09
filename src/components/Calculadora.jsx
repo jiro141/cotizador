@@ -332,7 +332,7 @@ export default function Calculadora({
   ]);
 
   return (
-    <div className="calculator-container">
+    <div className="calculator-container2">
       <Toaster />
       <div className="calculator-content">
         <div className="items-section">
