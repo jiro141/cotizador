@@ -33,7 +33,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     // Eliminar todo del localStorage
     localStorage.clear();
-    window.location.reload()
+    window.location.reload();
     // Redirigir a la página de login
     // navigate("/login"); // Puedes cambiar esto por cualquier ruta a la que quieras redirigir
   };
@@ -59,7 +59,11 @@ export default function Dashboard() {
 
       <div className="centrar">
         <h3 className="titulo">Productos</h3>
-        <div className="button-container-wrapper grid">
+        <div
+          className={`button-container-wrapper grid ${
+            userTipo === "Detip" ? "inicio" : ""
+          } `}
+        >
           {/* ✅ Siempre muestra el botón "Web Esencial" */}
           <button className="button" onClick={goWebEsencial}>
             <img src={webEsencial} alt="Web Esencial" />

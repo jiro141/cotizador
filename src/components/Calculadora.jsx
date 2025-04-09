@@ -383,8 +383,8 @@ export default function Calculadora({
                     key={`max-seccion-${item.ID}`}
                     className="item-name extra-item flex justify-center"
                   >
-                    {item.name}
                     <GoPlusCircle className="icon-extra-section" />{" "}
+                    {item.name}
                     {/* Clase añadida */}
                   </li>
                 ))}
@@ -416,7 +416,7 @@ export default function Calculadora({
             <>
               <h3 className="section-title">
                 <strong>
-                  {exceededPaginas.length > 0 ? "Paginas Adicionales" : ""}
+                  {exceededPaginas.length > 0 ? "Paginas extra" : ""}
                 </strong>
               </h3>
               <ul className="items-list">
@@ -428,9 +428,9 @@ export default function Calculadora({
                   }, {})
                 ).map(([id, item]) => (
                   <li key={`pagina-${id}`} className="item-name extra-item">
+                    <GoPlusCircle className="icon-extra-page" />{" "}
                     {item.name ? item.name : item.paginas}{" "}
                     {item.count > 1 ? `x${item.count}` : " "}{" "}
-                    <GoPlusCircle className="icon-extra-page" />{" "}
                     {/* Clase añadida */}
                   </li>
                 ))}
@@ -439,7 +439,7 @@ export default function Calculadora({
           )}
           <h3 className="section-title">
             <strong>
-              {selectedFunciones.length > 0 ? "Funciones Adicionales" : ""}
+              {selectedFunciones.length > 0 ? "Funciones" : ""}
             </strong>
           </h3>
           <ul className="items-list">
