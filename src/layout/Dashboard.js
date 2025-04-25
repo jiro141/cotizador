@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import MainContent from "./MainContent";
 import SmartSolutions from "./SmartSolutions";
@@ -6,15 +6,14 @@ import webEsencial from "../img/sitio-web 1.svg";
 import smart from "../img/innovacion 1.svg";
 import digital from "../img/soporte-en-linea 1.svg";
 import informes from "../img/solicitud 1.svg";
-import globo from "../img/globe_location_pin (1).svg";
 import Modal from "../components/Modal";
-import { BiLogOutCircle } from "react-icons/bi";
+import Header from "../components/Header";
+import { MyContext } from "../context/Context";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user")) || {}; // Evita errores si `localStorage` es null
-  const userTipo = user?.tipoUser || "";
 
+  const { setIsModalOpen, isModalOpen, toggleModal,userTipo } = useContext(MyContext);
   const goWebEsencial = () => {
     navigate("/webEsencial");
   };
@@ -23,28 +22,13 @@ export default function Dashboard() {
     navigate("/smarSolution");
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Función para abrir y cerrar el modal
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
-  const handleLogout = () => {
-    // Eliminar todo del localStorage
-    localStorage.clear();
-    window.location.reload();
-    // Redirigir a la página de login
-    // navigate("/login"); // Puedes cambiar esto por cualquier ruta a la que quieras redirigir
-  };
-
   return (
     <div>
       {/* Modal que se muestra al hacer clic en el botón País */}
       <Modal isOpen={isModalOpen} onClose={toggleModal} />
-
+     
       {/* Botón en la parte superior derecha que abre el modal */}
-      <div className="boton-pais">
+      {/* <div className="boton-pais">
         {userTipo === "Detip" && (
           <a onClick={toggleModal}>
             País
@@ -55,7 +39,7 @@ export default function Dashboard() {
           Cerrar sesión
           <BiLogOutCircle size={30} color="#FFFF" />
         </a>
-      </div>
+      </div> */}
 
       <div className="centrar">
         <h3 className="titulo">Productos</h3>

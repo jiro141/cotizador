@@ -240,21 +240,136 @@ export const authenticateUser = async (username, password) => {
   }
 };
 
-export const updatePassword = async (userId, newPassword) => {
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  const payload = {
-    fields: {
-      password: hashedPassword,
-      Status: "activo",
-    },
-  };
-
+export const updatePassword = async (
+  userId,
+  newPassword,
+  securityQuestions
+) => {
   try {
+    // Hashear la nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Hashear las preguntas de las preguntas de seguridad
+    const hashedAnswers = await Promise.all(
+      securityQuestions.map(async (q) => {
+        return {
+          question: q.question, // Guardamos la pregunta tal cual
+          answer: await bcrypt.hash(q.answer, 10), // Hasheamos la pregunta
+        };
+      })
+    );
+
+    // Preparar el payload con las preguntas de seguridad hasheadas
+    const payload = {
+      fields: {
+        password: hashedPassword,
+        Status: "activo",
+        // Aquí guardamos las preguntas de seguridad hasheadas
+        respuesta1: hashedAnswers[0]?.answer,
+        respuesta2: hashedAnswers[1]?.answer,
+        respuesta3: hashedAnswers[2]?.answer,
+        respuesta4: hashedAnswers[3]?.answer,
+        // Puedes guardar las preguntas también si lo deseas
+        pregunta1: hashedAnswers[0]?.question,
+        pregunta2: hashedAnswers[1]?.question,
+        pregunta3: hashedAnswers[2]?.question,
+        pregunta4: hashedAnswers[3]?.question,
+      },
+    };
+
+    // Realizar el patch para actualizar la contraseña y las preguntas de seguridad
     const response = await airtable.patch(`/users/${userId}`, payload);
     return response.data;
   } catch (error) {
-    console.error("Error al actualizar la contraseña:", error);
+    console.error(
+      "Error al actualizar la contraseña y preguntas de seguridad:",
+      error
+    );
+    throw error;
+  }
+};
+export const updateOnlyPassword = async (userId, newPassword) => {
+  try {
+    // Hashear la nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Payload para Airtable
+    const payload = {
+      fields: {
+        password: hashedPassword,
+        Status: "activo", // Si necesitas cambiar esto, hazlo dinámico
+      },
+    };
+
+    // Actualiza solo la contraseña del usuario
+    const response = await airtable.patch(`/users/${userId}`, payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar solo la contraseña:", error);
+    throw error;
+  }
+};
+// Función para obtener las preguntas de seguridad por correo
+export const getSecurityQuestionsByEmail = async (email) => {
+  try {
+    // Consulta filtrando por el campo username (correo)
+    const response = await airtable.get("/users", {
+      params: {
+        filterByFormula: `{username} = '${email}'`, // Asegúrate de que sea el campo correcto
+      },
+    });
+
+    if (response.data.records.length === 0) {
+      throw new Error("Correo no encontrado");
+    }
+
+    const user = response.data.records[0];
+    const fields = user.fields;
+
+    // Construcción de preguntas de seguridad
+    const securityQuestions = [
+      { question: fields.pregunta1 },
+      { question: fields.pregunta2 },
+      { question: fields.pregunta3 },
+      { question: fields.pregunta4 },
+    ];
+
+    // Retornamos también nombre y tipo de usuario
+    return {
+      id: user.id,
+      name: fields.Name,
+      tipoUser: fields.TipoUser,
+      questions: securityQuestions,
+    };
+  } catch (error) {
+    console.error("Error al obtener las preguntas de seguridad:", error);
+    throw error;
+  }
+};
+
+export const validateSecurityAnswers = async (userId, questions, answers) => {
+  try {
+    const response = await airtable.get(`/users/${userId}`);
+    const fields = response.data.fields;
+
+    const stored = {
+      [fields.pregunta1]: fields.respuesta1,
+      [fields.pregunta2]: fields.respuesta2,
+      [fields.pregunta3]: fields.respuesta3,
+      [fields.pregunta4]: fields.respuesta4,
+    };
+
+    const validations = await Promise.all(
+      questions.map((q, index) => {
+        const hashed = stored[q.question];
+        if (!hashed) return false; // por si hay inconsistencias
+        return bcrypt.compare(answers[index], hashed);
+      })
+    );
+
+    return validations.every(Boolean); // true si todas coinciden
+  } catch (error) {
+    console.error("Error validando respuestas:", error);
     throw error;
   }
 };
@@ -312,7 +427,7 @@ export const getChatGPTResponse = async (prompt) => {
     const data = await response.json();
     return data.message; // Devuelve el contenido del mensaje de ChatGPT
   } catch (error) {
-    console.error("Error al obtener la respuesta de ChatGPT:", error);
+    console.error("Error al obtener la pregunta de ChatGPT:", error);
     throw error;
   }
 };
@@ -339,7 +454,7 @@ export const Pais = async () => {
 export const userData = async (userId, newPais) => {
   const payload = {
     fields: {
-      America: [newPais] // Asegúrate de que el formato coincida con lo que espera Airtable
+      America: [newPais], // Asegúrate de que el formato coincida con lo que espera Airtable
     },
   };
 

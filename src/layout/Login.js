@@ -4,6 +4,8 @@ import { updatePassword } from "../controller/api"; // Nueva función para actua
 import "./css/Login.css"; // Asegúrate de tener un archivo CSS para los estilos
 import logo from "../img/cropped-logo.png";
 import toast, { Toaster } from "react-hot-toast";
+import Olvido from "../components/Olvido";
+import Crear from "../components/Crear";
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
@@ -13,7 +15,15 @@ function Login({ onLogin }) {
   const [requiresPasswordSetup, setRequiresPasswordSetup] = useState(false);
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(false); // Estado para controlar el spinner
+  const [olvido, setOlvido] = useState(false);
+  const [securityQuestions, setSecurityQuestions] = useState([
+    { question: "", answer: "" },
+    { question: "", answer: "" },
+    { question: "", answer: "" },
+    { question: "", answer: "" },
+  ]);
 
+  // Función para manejar el inicio de sesión
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true); // Muestra el spinner
@@ -37,6 +47,7 @@ function Login({ onLogin }) {
     }
   };
 
+  // Función para configurar la nueva contraseña
   const handlePasswordSetup = async (e) => {
     e.preventDefault();
     setIsLoading(true); // Muestra el spinner
@@ -48,7 +59,7 @@ function Login({ onLogin }) {
     }
 
     try {
-      await updatePassword(userId, newPassword); // Actualiza la contraseña en Airtable
+      await updatePassword(userId, newPassword, securityQuestions); // Actualiza la contraseña en Airtable
       toast.success("Contraseña configurada exitosamente. Inicia sesión."); // Toast de éxito
       setRequiresPasswordSetup(false); // Vuelve al formulario de inicio de sesión
       setNewPassword(""); // Limpia el campo de nueva contraseña
@@ -60,11 +71,17 @@ function Login({ onLogin }) {
     }
   };
 
+  // Función para manejar el cambio de la vista de Olvido
+  const handleOlvido = () => {
+    setOlvido(!olvido);
+  };
+
   return (
     <div className="login-form-container">
       {/* Componente de Toaster para mostrar los toasts */}
       <Toaster position="top-center" reverseOrder={false} />
       <h3 className="titulo">Bienvenido al cotizador Detip</h3>
+
       {isLoading && ( // Spinner visible solo cuando `isLoading` es true
         <div className="spinner-container">
           <img
@@ -74,12 +91,15 @@ function Login({ onLogin }) {
           />
         </div>
       )}
-      {!requiresPasswordSetup ? (
+
+      {olvido ? (
+        <Olvido />
+      ) : !requiresPasswordSetup ? (
         <form className="login-form" onSubmit={handleLogin}>
           <h2>Iniciar Sesión</h2>
           <div className="form-group">
             <input
-              type="text"
+              type="email"
               className="form-input"
               id="username"
               placeholder=" "
@@ -87,7 +107,7 @@ function Login({ onLogin }) {
               onChange={(e) => setUsername(e.target.value)}
             />
             <label htmlFor="username" className="form-label">
-              Usuario
+            Correo electrónico
             </label>
           </div>
           <div className="form-group">
@@ -103,45 +123,26 @@ function Login({ onLogin }) {
               Contraseña
             </label>
           </div>
-          <button type="submit" className="login-button">
-            Ingresar
-          </button>
+          <div className="botoness">
+            <button type="submit" className="login-button">
+              Ingresar
+            </button>
+            <a onClick={handleOlvido} className="login-olvido">
+              Olvido su contraseña?
+            </a>
+          </div>
         </form>
       ) : (
-        <div className="login-form">
-          <form className="password-setup-form" onSubmit={handlePasswordSetup}>
-            <h2>Configurar Contraseña</h2>
-            <div className="form-group">
-              <input
-                type="password"
-                className="form-input"
-                id="newPassword"
-                placeholder=" "
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-              <label htmlFor="newPassword" className="form-label">
-                Nueva Contraseña
-              </label>
-            </div>
-            <div className="form-group">
-              <input
-                type="password"
-                className="form-input"
-                id="confirmPassword"
-                placeholder=" "
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              <label htmlFor="confirmPassword" className="form-label">
-                Confirmar Contraseña
-              </label>
-            </div>
-            <button type="submit" className="login-button">
-              Guardar Contraseña
-            </button>
-          </form>
-        </div>
+        <Crear
+          newPassword={newPassword}
+          confirmPassword={confirmPassword}
+          setNewPassword={setNewPassword}
+          setConfirmPassword={setConfirmPassword}
+          userId={userId}
+          handlePasswordSetup={handlePasswordSetup}
+          securityQuestions={securityQuestions}
+          setSecurityQuestions={setSecurityQuestions} // Agregar la función de manejo de configuración de contraseña
+        />
       )}
     </div>
   );

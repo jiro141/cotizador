@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useContext, useEffect, useState, useMemo, useRef } from "react";
 import {
   fetchFuncionesExtras,
   fetchPaginasBasicas,
@@ -19,7 +19,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Secc from "./Secc";
 import Separator from "./Separator";
 import { MyContext } from "../context/Context";
-
+import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 export default function LandingPageClickThrough() {
   //contexto global para manejar las vistas
   const { state } = useContext(MyContext);
@@ -343,9 +344,6 @@ export default function LandingPageClickThrough() {
     } else {
       const newCurrentValue = selectedSecciones.length + 1; // +1 porque estamos agregando itemValue
 
-      console.log(itemValue, "hola");
-      console.log(newCurrentValue, "fdjofd");
-
       if (newCurrentValue > maxValue) {
         setSelectedSeccionesMax((prevSelectedSeccionesMax) => [
           ...prevSelectedSeccionesMax,
@@ -592,9 +590,31 @@ export default function LandingPageClickThrough() {
     handleInitialFuncionesObligatorias();
   }, [state]);
   // Se ejecuta cada vez que `state` cambie
+  // 🧠 Toast solo al cambiar de length 0 a >0
+  const useToastOnArrayChange = (array, message, id) => {
+    const prevLengthRef = useRef(0);
+
+    useEffect(() => {
+      if (prevLengthRef.current === 0 && array.length > 0) {
+        toast(message, { id });
+      }
+      prevLengthRef.current = array.length;
+    }, [array, message, id]);
+  };
+  useToastOnArrayChange(
+    exceededPaginas,
+    "Emepezaste agregar paginas extra",
+    "toast-exceeded"
+  );
+  useToastOnArrayChange(
+    selectedSeccionesMax,
+    "Emepezaste agregar secciones extra",
+    "toast-max-secciones"
+  );
 
   return (
     <div className="flex">
+      <Toaster />
       <div>
         <div className="grid">
           <div className="container-text">
@@ -826,7 +846,6 @@ export default function LandingPageClickThrough() {
                               {selectedCount}
                               <button
                                 onClick={() => handleIncrement(itemFields)}
-                                disabled={selectedCount === 0}
                               >
                                 <FaPlus />
                               </button>
