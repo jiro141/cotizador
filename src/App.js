@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,9 +12,14 @@ import ProtectedRoute from "./ProtectedRoute";
 import MainContent from "./layout/MainContent";
 import Dashboard from "./layout/Dashboard";
 import SmartSolutions from "./layout/SmartSolutions";
+import { MyContext } from "./context/Context";
+import Header from "./components/Header";
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [precio, setPrecio] = useState(null);
+  const { setIsModalOpen, isModalOpen, toggleModal, userTipo } =
+    useContext(MyContext);
 
   // ✅ Verificar autenticación al cargar la app
   useEffect(() => {
@@ -110,7 +115,11 @@ function App() {
           path="/"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Dashboard />
+              <Header toggleModal={toggleModal} userTipo={userTipo} />
+              <div className="dashboard">
+                {" "}
+                <Dashboard />
+              </div>
             </ProtectedRoute>
           }
         />
@@ -118,7 +127,10 @@ function App() {
           path="/webEsencial"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <MainContent />
+              <Header toggleModal={toggleModal} userTipo={userTipo} />
+              <div className="dashboard">
+                <MainContent />
+              </div>
             </ProtectedRoute>
           }
         />
@@ -126,7 +138,10 @@ function App() {
           path="/smarSolution"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <SmartSolutions />
+              <Header toggleModal={toggleModal} userTipo={userTipo} />
+              <div className="dashboard">
+                <SmartSolutions />
+              </div>
             </ProtectedRoute>
           }
         />

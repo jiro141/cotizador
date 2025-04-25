@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrusel con Control de Flechas</title>
+    <style>
+      /* Contenedor del Carrusel */
+      .slider {
+        overflow: hidden;
+        width: 95%;
+        height: 200px;
+        position: relative;
+        margin: auto;
+      }
+
+      /* Track del Carrusel (donde se moverán las imágenes) */
+      .slide-track {
+        display: flex;
+        transition: transform 1s ease-in-out; /* Movimiento suave */
+      }
+
+      /* Estilo para cada imagen */
+      .slide {
+        height: 100%;
+        width: 300px; /* Ajustar según el tamaño de la imagen */
+        flex-shrink: 0;
+        overflow: hidden;
+        margin-right: 20px; /* Espacio entre las imágenes */
+      }
+
+      .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px; /* Borde redondeado */
+      }
+
+      /* Estilo para las flechas */
+      .arrow-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 15px;
+        border: none;
+        cursor: pointer;
+        font-size: 30px;
+        z-index: 10;
+      }
+
+      .arrow-left {
+        left: 10px;
+      }
+
+      .arrow-right {
+        right: 10px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="slider">
+      <!-- Flecha izquierda -->
+      <button class="arrow-button arrow-left">
+        &#9664; <!-- Símbolo de flecha hacia la izquierda -->
+      </button>
+
+      <!-- Contenedor de las imágenes (Slide Track) -->
+      <div class="slide-track">
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/1-e1732638280330.png" alt="Tab 1">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-26_130604727.png" alt="Tab 2">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_082408868-e1732710310835.png" alt="Tab 3">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_083233055-e1732710855728.png" alt="Tab 4">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084005190.png" alt="Tab 5">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084629699-e1732711645792.png" alt="Tab 6">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_085344234-e1732712097986.png" alt="Tab 7">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_090717014-e1732712918901.png" alt="Tab 8">
+        </div>
+        <!-- Duplicar las imágenes para crear el efecto de ciclo infinito -->
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/1-e1732638280330.png" alt="Tab 1">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-26_130604727.png" alt="Tab 2">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_082408868-e1732710310835.png" alt="Tab 3">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_083233055-e1732710855728.png" alt="Tab 4">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084005190.png" alt="Tab 5">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084629699-e1732711645792.png" alt="Tab 6">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_085344234-e1732712097986.png" alt="Tab 7">
+        </div>
+        <div class="slide">
+          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_090717014-e1732712918901.png" alt="Tab 8">
+        </div>
+      </div>
+
+      <!-- Flecha derecha -->
+      <button class="arrow-button arrow-right">
+        &#9654; <!-- Símbolo de flecha hacia la derecha -->
+      </button>
+    </div>
+
+    <script>
+      // Obtener los elementos
+      const slideTrack = document.querySelector('.slide-track');
+      const arrowLeft = document.querySelector('.arrow-left');
+      const arrowRight = document.querySelector('.arrow-right');
+
+      // Obtener el ancho de cada slide
+      const slideWidth = document.querySelector('.slide').offsetWidth;
+
+      // Función para mover hacia la izquierda
+      arrowLeft.addEventListener('click', () => {
+        slideTrack.style.transform = `translateX(${slideWidth + 20}px)`; // +20px para el margen entre imágenes
+        setTimeout(() => {
+          slideTrack.appendChild(slideTrack.firstElementChild); // Mover el primer slide al final
+          slideTrack.style.transition = 'none'; // Eliminar transición temporal
+          slideTrack.style.transform = `translateX(0)`; // Resetear la posición
+          setTimeout(() => {
+            slideTrack.style.transition = 'transform 1s ease-in-out'; // Volver a habilitar la transición
+          });
+        }, 500);
+      });
+
+      // Función para mover hacia la derecha
+      arrowRight.addEventListener('click', () => {
+        slideTrack.style.transform = `translateX(-${slideWidth + 20}px)`; // +20px para el margen entre imágenes
+        setTimeout(() => {
+          slideTrack.appendChild(slideTrack.firstElementChild); // Mover el primer slide al final
+          slideTrack.style.transition = 'none'; // Eliminar transición temporal
+          slideTrack.style.transform = `translateX(0)`; // Resetear la posición
+          setTimeout(() => {
+            slideTrack.style.transition = 'transform 1s ease-in-out'; // Volver a habilitar la transición
+          });
+        }, 500);
+      });
+    </script>
+  </body>
+</html>

@@ -108,7 +108,7 @@ export default function Buttons() {
           onClick={() => handleButtonClick("Foro")}
         >
           <img src={img8} alt="Foro" />
-          <p className="button-text">Foro</p>
+          <p className="button-text">Aula virtual</p>
         </button>
         <button
           className={`button ${state === "eCommerce" ? "active" : ""}`}
