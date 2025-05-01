@@ -162,7 +162,7 @@ export default function Olvido() {
               </a>
             </div>
             <div className="form-column">
-              <button type="submit" className="login-button">
+              <button type="submit" className="quote-button">
                 Siguiente
               </button>
             </div>
@@ -196,7 +196,7 @@ export default function Olvido() {
               </a>
             </div>
             <div className="form-column">
-              <button type="submit" className="login-button">
+              <button type="submit" className="quote-button">
                 Verificar respuestas
               </button>
             </div>
@@ -207,7 +207,7 @@ export default function Olvido() {
       {step === 3 && (
         <form onSubmit={handlePasswordSubmit}>
           <h3>
-            Hola, {userInfo.name} ({userInfo.tipoUser})
+            Hola, {userInfo.name} 
           </h3>
           <div className="form-row">
             <div className="form-column">
@@ -244,7 +244,7 @@ export default function Olvido() {
               </a>
             </div>
             <div className="form-column">
-              <button type="submit" className="login-button">
+              <button type="submit" className="quote-button">
                 Guardar contraseña
               </button>
             </div>

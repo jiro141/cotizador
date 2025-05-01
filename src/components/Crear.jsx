@@ -165,7 +165,7 @@ const Crear = ({
             </a>
           </div>
           <div className="form-column">
-            <button type="submit" className="login-button">
+            <button type="submit" className="quote-button">
               Guardar Contraseña
             </button>
           </div>
