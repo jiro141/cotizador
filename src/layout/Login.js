@@ -124,7 +124,7 @@ function Login({ onLogin }) {
             </label>
           </div>
           <div className="botoness">
-            <button type="submit" className="login-button">
+            <button type="submit" className="quote-button">
               Ingresar
             </button>
             <a onClick={handleOlvido} className="login-olvido">

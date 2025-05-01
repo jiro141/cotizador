@@ -4,6 +4,7 @@ import { MyContext } from "../context/Context";
 import { postCotizacion } from "../controller/api";
 import toast, { Toaster } from "react-hot-toast";
 import { sendEmail } from "../controller/api";
+import Separator from "./Separator";
 import logo from "../img/banner.png";
 import frente from "../img/frente.png";
 import { createHtmlFile1 } from "../layout/documents/Informe1";
@@ -23,6 +24,10 @@ export default function Calculadora({
   const precioPais = JSON.parse(localStorage.getItem("precio"));
 
   const { state, setFormData, formData } = useContext(MyContext);
+  const totalServicios = selectedServicios.reduce(
+    (sum, item) => sum + Number(item.fields.Valor),
+    0
+  );
 
   // Calcular el precio total multiplicando por precioPais
 
@@ -337,9 +342,7 @@ export default function Calculadora({
       <div className="calculator-content">
         <div className="items-section">
           <h3 className="section-title">
-            <strong>
-              {selectedServicios.length > 0 ? "Servicios" : ""}
-            </strong>
+            <strong>{selectedServicios.length > 0 ? "Servicios" : ""}</strong>
           </h3>
           <ul className="items-list">
             {selectedServicios.length > 0 ? (
@@ -348,6 +351,14 @@ export default function Calculadora({
                   {item.fields.Producto}
                 </li>
               ))
+            ) : (
+              <></>
+            )}
+            {selectedServicios.length > 0 ? (
+              <>
+                <h4>Total de los servicios: ${totalServicios * precioPais}</h4>
+                <Separator />
+              </>
             ) : (
               <></>
             )}
@@ -380,10 +391,10 @@ export default function Calculadora({
               <ul className="items-list">
                 {selectedSeccionesMax.map((item) => (
                   <li
-                  key={`max-seccion-${item.ID}`}
-                  className="item-name extra-item flex justify-center"
+                    key={`max-seccion-${item.ID}`}
+                    className="item-name extra-item flex justify-center"
                   >
-                  <GoPlusCircle className="icon-extra-section" />
+                    <GoPlusCircle className="icon-extra-section" />
                     {item.name}
                     {/* Clase añadida */}
                   </li>
@@ -438,9 +449,7 @@ export default function Calculadora({
             </>
           )}
           <h3 className="section-title">
-            <strong>
-              {selectedFunciones.length > 0 ? "Funciones" : ""}
-            </strong>
+            <strong>{selectedFunciones.length > 0 ? "Funciones" : ""}</strong>
           </h3>
           <ul className="items-list">
             {selectedFunciones.length > 0 ? (
@@ -455,11 +464,16 @@ export default function Calculadora({
           </ul>
           <p className="total-price">Total: ${total.toFixed(2)}</p>{" "}
           {/* Clase añadida */}
-          <button onClick={handleSubmit} className="quote-button">
-            Enviar Formulario
-          </button>
-        </div>
+          <div className="div-boton">
+        {" "}
+        <button onClick={handleSubmit} className="quote-button">
+          Enviar Formulario
+        </button>
       </div>
+        </div>
+        
+      </div>
+    
     </div>
   );
 }

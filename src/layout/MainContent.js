@@ -30,7 +30,14 @@ function MainContent() {
         <IoChevronBackCircle size={30} color="#FFFF" />
       </a>
 
-      <h2 className="titulo">Formulario Web Esencial</h2>
+      <h2
+        className="titulo"
+        style={{
+          padding: "20px",
+        }}
+      >
+        Formulario Web Esencial
+      </h2>
       {/* Mostrar formulario previo si no hay datos */}
       {!formData ? (
         <FormWeb />
