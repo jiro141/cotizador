@@ -63,7 +63,7 @@ export default function Dashboard() {
               </button>
               <button className="button" onClick={goToAbout}>
                 <img src={digital} alt="Digital Support" />
-                <p className="button-text">Digital Support</p>
+                <p className="button-text">Support and Development</p>
               </button>
               <button className="button" onClick={goToAbout}>
                 <img src={informes} alt="Informes" />

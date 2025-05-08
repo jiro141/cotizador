@@ -466,3 +466,23 @@ export const userData = async (userId, newPais) => {
     throw error;
   }
 };
+export const tipoBeneficio = async () => {
+  try {
+    const response = await airtable.get(`/tipoBeneficio/`);
+    return response.data.records;
+  } catch (error) {
+    console.error("Error al obtener datos de paises desde Airtable:", error);
+    throw error;
+  }
+};
+export const beneficio = async (id) => {
+  try {
+    const response = await airtable.get(`/Beneficio/${id}`);
+    
+    return response.data;
+    
+  } catch (error) {
+    console.error("Error al obtener datos de paises desde Airtable:", error);
+    throw error;
+  }
+};

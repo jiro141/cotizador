@@ -287,6 +287,7 @@ export default function LandingPageClickThrough() {
 
   // Maneja la selección de un servicio mensual (selección única)
   const handleCheckboxChangeServicios = (item) => {
+    
     setSelectedServicios((prevSelected) => {
       const isAlreadySelected = prevSelected.some(
         (i) => i.fields && i.fields.ID === item.fields.ID
@@ -434,24 +435,40 @@ export default function LandingPageClickThrough() {
   };
 
   const handleDecrement = (item) => {
-    if (selectedPaginas.some((i) => i.ID === item.ID)) {
-      // Si el elemento está en el estado normal, eliminarlo
-      setSelectedPaginas((prev) => {
-        const updated = prev.filter((i) => i.ID !== item.ID);
-
-        // Reubicar elementos del excedente al estado normal si hay espacio disponible
-        const combined = [...updated, ...exceededPaginas];
-        const withinLimit = combined.slice(0, maxPaginas);
-        const excess = combined.slice(maxPaginas);
-
-        setExceededPaginas(excess); // Actualizar excedente
-        return withinLimit;
-      });
-    } else if (exceededPaginas.some((i) => i.ID === item.ID)) {
-      // Si el elemento está en el estado excedente, eliminarlo directamente
-      setExceededPaginas((prev) => prev.filter((i) => i.ID !== item.ID));
+    const removeFirstById = (arr, id) => {
+      const index = arr.findIndex((i) => i.ID === id);
+      if (index !== -1) {
+        const copy = [...arr];
+        copy.splice(index, 1);
+        return copy;
+      }
+      return arr;
+    };
+  
+    const isInSelected = selectedPaginas.some((i) => i.ID === item.ID);
+    const isInExceeded = exceededPaginas.some((i) => i.ID === item.ID);
+  
+    if (isInSelected) {
+      const updatedSelected = removeFirstById(selectedPaginas, item.ID);
+  
+      if (exceededPaginas.length > 0) {
+        const [next, ...rest] = exceededPaginas;
+        setSelectedPaginas([...updatedSelected, next]);
+        setExceededPaginas(rest);
+      } else {
+        setSelectedPaginas(updatedSelected);
+      }
+    } else if (isInExceeded) {
+      const updatedExceeded = removeFirstById(exceededPaginas, item.ID);
+      setExceededPaginas(updatedExceeded);
     }
   };
+  
+  
+  
+  
+  
+  
 
   // Maneja la selección de una función avanzada (sin límite)
   const handleCheckboxChangeFunciones = (item) => {

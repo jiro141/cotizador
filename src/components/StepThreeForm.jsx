@@ -86,7 +86,7 @@ const StepThreeForm = ({ handleSubmit, formData, handleBack }) => {
 
     for (const [product, idealBenefits] of Object.entries(profiles)) {
       const matches = selectedBenefits.filter((b) => idealBenefits.includes(b));
-      const score = (matches.length / idealBenefits.length) * 10;
+      const score = (matches.length / idealBenefits.length) * 20;
       scores[product] = Math.round(score);
     }
 
