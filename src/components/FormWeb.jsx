@@ -7,9 +7,8 @@ import StepThreeForm from "./StepThreeForm";
 
 // import StepThreeForm from "./StepThreeForm"; <-- cuando lo crees
 
-const FormWeb = () => {
+const FormWeb = ({ step, setStep }) => {
   const { setFormData } = useContext(MyContext);
-  const [step, setStep] = useState(1);
 
   const [input, setInput] = useState({
     tipo_informe: "",
@@ -75,8 +74,7 @@ const FormWeb = () => {
     } else if (step === 2) {
       setStep(3);
     } else {
-      setFormData(input);
-      console.log("Formulario final enviado:", input);
+      setStep(4);
     }
   };
   const handleBack = () => {
@@ -142,7 +140,11 @@ const FormWeb = () => {
                 />
                 <div
                   className="form-row calculator-container "
-                  style={{ display: "flex", flexDirection: "row", padding:'20px' }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    padding: "20px",
+                  }}
                 >
                   <div className="form-column2">
                     <a className="login-olvido" onClick={handleBack}>

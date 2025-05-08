@@ -5,7 +5,7 @@ import { MyContext } from "../context/Context";
 import logo2 from "../img/cropped-logo.png";
 import frente from "../img/frente.png";
 import toast, { Toaster } from "react-hot-toast";
-import { IoChevronBackCircle } from "react-icons/io5";
+import { IoChevronBackSharp } from "react-icons/io5";
 import { Stepper, Step } from "react-form-stepper";
 
 export default function SmartSolutions() {
@@ -182,7 +182,7 @@ export default function SmartSolutions() {
   return (
     <>
       <a onClick={redirectToHome} className="atras">
-        <IoChevronBackCircle size={30} color="#FFFF" />
+        <IoChevronBackSharp size={30} color="#FFFF" />
       </a>
       <Toaster />
       {isLoading && (
