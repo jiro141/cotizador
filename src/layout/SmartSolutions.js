@@ -6,6 +6,8 @@ import logo2 from "../img/cropped-logo.png";
 import frente from "../img/frente.png";
 import toast, { Toaster } from "react-hot-toast";
 import { IoChevronBackCircle } from "react-icons/io5";
+import { Stepper, Step } from "react-form-stepper";
+
 export default function SmartSolutions() {
   const { redirectToHome } = useContext(MyContext);
   const [isLoading, setIsLoading] = useState(false);
@@ -194,136 +196,166 @@ export default function SmartSolutions() {
       <div className="calculator-container full">
         <form
           onSubmit={handleSubmit}
-          className="custom-form calculator-content"
+          className="calculator-content"
         >
-          {step === 1 && (
-            <>
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="nombre"
-                  value={formData.cliente.nombre}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                  required
-                />
-                <label
-                  className={`form-label ${
-                    formData.cliente.nombre ? "active" : ""
-                  }`}
-                >
-                  Nombre del Cliente
-                </label>
-              </div>
+          <Stepper
+            activeStep={step - 1}
+            style={{ marginBottom: "20px", width: "100%" }}
+            connectorStyleConfig={{
+              activeColor: "#e64a19",
+              completedColor: "#70addf",
+              disabledColor: "#bdbdbd",
+              size: 2,
+            }}
+            styleConfig={{
+              activeBgColor: "#e64a19",
+              activeTextColor: "#fff",
+              completedBgColor: "#70addf",
+              completedTextColor: "#fff",
+              inactiveBgColor: "#e0e0e0",
+              inactiveTextColor: "#000",
+              size: "2em",
+              labelFontSize: "0.8rem",
+              fontWeight: 500,
+            }}
+          >
+            <Step label="Información del cliente" />
+            <Step label="Datos del producto" />
+            <Step label="Detalles técnicos" />
+          </Stepper>
+          <div className="custom-form calculator-content">
+            {" "}
+            {step === 1 && (
+              <>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={formData.cliente.nombre}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.cliente.nombre ? "active" : ""
+                    }`}
+                  >
+                    Nombre del Cliente
+                  </label>
+                </div>
 
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="cargo"
-                  value={formData.cliente.cargo}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                  required
-                />
-                <label
-                  className={`form-label ${
-                    formData.cliente.cargo ? "active" : ""
-                  }`}
-                >
-                  Cargo
-                </label>
-              </div>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="cargo"
+                    value={formData.cliente.cargo}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.cliente.cargo ? "active" : ""
+                    }`}
+                  >
+                    Cargo
+                  </label>
+                </div>
 
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="rubro"
-                  value={formData.cliente.rubro}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                  required
-                />
-                <label
-                  className={`form-label ${
-                    formData.cliente.rubro ? "active" : ""
-                  }`}
-                >
-                  Rubro
-                </label>
-              </div>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="rubro"
+                    value={formData.cliente.rubro}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.cliente.rubro ? "active" : ""
+                    }`}
+                  >
+                    Rubro
+                  </label>
+                </div>
 
-              <div className="form-group">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.cliente.email}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                  required
-                />
-                <label
-                  className={`form-label ${
-                    formData.cliente.email ? "active" : ""
-                  }`}
-                >
-                  Correo Electrónico
-                </label>
-              </div>
+                <div className="form-group">
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.cliente.email}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.cliente.email ? "active" : ""
+                    }`}
+                  >
+                    Correo Electrónico
+                  </label>
+                </div>
 
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="descripcion_empresa"
-                  value={formData.descripcion_empresa}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                  required
-                />
-                <label
-                  className={`form-label ${
-                    formData.descripcion_empresa ? "active" : ""
-                  }`}
-                >
-                  Nombre de la Empresa
-                </label>
-              </div>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="descripcion_empresa"
+                    value={formData.descripcion_empresa}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.descripcion_empresa ? "active" : ""
+                    }`}
+                  >
+                    Nombre de la Empresa
+                  </label>
+                </div>
 
-              <button type="button" className="quote-button" onClick={nextStep}>
-                Siguiente
-              </button>
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              <div className="form-group">
-                <select
-                  name="tipo_informe"
-                  value={formData.tipo_informe}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
+                <button
+                  type="button"
+                  className="quote-button"
+                  onClick={nextStep}
                 >
-                  <option value="">Selecciona tipo de informe</option>
-                  <option value="informe tipo 1">Basico</option>
-                  {/* <option value="informe tipo 2">informe tipo 2</option>
+                  Siguiente
+                </button>
+              </>
+            )}
+            {step === 2 && (
+              <>
+                <div className="form-group">
+                  <select
+                    name="tipo_informe"
+                    value={formData.tipo_informe}
+                    onChange={handleChange}
+                    className="form-input"
+                    required
+                  >
+                    <option value="">Selecciona tipo de informe</option>
+                    <option value="informe tipo 1">Basico</option>
+                    {/* <option value="informe tipo 2">informe tipo 2</option>
                   <option value="informe tipo 3">informe tipo 3</option> */}
-                </select>
-                <label
-                  className={`form-label ${
-                    formData.tipo_informe ? "active" : ""
-                  }`}
-                >
-                  Tipo de Informe
-                </label>
-              </div>
+                  </select>
+                  <label
+                    className={`form-label ${
+                      formData.tipo_informe ? "active" : ""
+                    }`}
+                  >
+                    Tipo de Informe
+                  </label>
+                </div>
 
-              {/* <div className="form-group">
+                {/* <div className="form-group">
                 <select
                   name="tipo_producto"
                   value={formData.tipo_producto}
@@ -344,231 +376,247 @@ export default function SmartSolutions() {
                   Tipo de Producto
                 </label>
               </div> */}
-              <div className="form-group">
-                <select
-                  name="interfaz_producto"
-                  value={formData.interfaz_producto}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                >
-                  <option value="" disabled>
-                    Selecciona una interfaz
-                  </option>
-                  <option value="Web">Web</option>
-                  <option value="Móvil">Móvil</option>
-                  <option value="Escritorio">Escritorio</option>
-                  <option value="PWA">PWA</option>
-                  <option value="TV">TV</option>
-                  <option value="Smartwatch">Smartwatch</option>
-                  <option value="VR">VR</option>
-                  <option value="Consola">Consola</option>
-                  <option value="Todas">Todas</option>
-                </select>
-                <label
-                  className={`form-label ${
-                    formData.interfaz_producto ? "active" : ""
-                  }`}
-                >
-                  Interfaz del Producto
-                </label>
-              </div>
-              <div className="form-group">
-                <input
-                  type="number"
-                  name="usuarios"
-                  value={formData.usuarios}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                  min="1"
-                  required
-                />
-                <label
-                  className={`form-label ${formData.usuarios ? "active" : ""}`}
-                >
-                  Usuarios
-                </label>
-              </div>
+                <div className="form-group">
+                  <select
+                    name="interfaz_producto"
+                    value={formData.interfaz_producto}
+                    onChange={handleChange}
+                    className="form-input"
+                    required
+                  >
+                    <option value="" disabled>
+                      Selecciona una interfaz
+                    </option>
+                    <option value="Web">Web</option>
+                    <option value="Móvil">Móvil</option>
+                    <option value="Escritorio">Escritorio</option>
+                    <option value="PWA">PWA</option>
+                    <option value="TV">TV</option>
+                    <option value="Smartwatch">Smartwatch</option>
+                    <option value="VR">VR</option>
+                    <option value="Consola">Consola</option>
+                    <option value="Todas">Todas</option>
+                  </select>
+                  <label
+                    className={`form-label ${
+                      formData.interfaz_producto ? "active" : ""
+                    }`}
+                  >
+                    Interfaz del Producto
+                  </label>
+                </div>
+                <div className="form-group">
+                  <input
+                    type="number"
+                    name="usuarios"
+                    value={formData.usuarios}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                    min="1"
+                    required
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.usuarios ? "active" : ""
+                    }`}
+                  >
+                    Usuarios
+                  </label>
+                </div>
 
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="tiempo_implementacion"
-                  value={formData.tiempo_implementacion}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                  required
-                />
-                <label
-                  className={`form-label ${
-                    formData.tiempo_implementacion ? "active" : ""
-                  }`}
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="tiempo_implementacion"
+                    value={formData.tiempo_implementacion}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.tiempo_implementacion ? "active" : ""
+                    }`}
+                  >
+                    Tiempo de Implementación
+                  </label>
+                </div>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="tamano_equipo"
+                    value={formData.tamano_equipo}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.tamano_equipo ? "active" : ""
+                    }`}
+                  >
+                    Tamaño del Equipo
+                  </label>
+                </div>
+                <div></div>
+                <button
+                  type="button"
+                  className="quote-button"
+                  onClick={prevStep}
                 >
-                  Tiempo de Implementación
-                </label>
-              </div>
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="tamano_equipo"
-                  value={formData.tamano_equipo}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                  required
-                />
-                <label
-                  className={`form-label ${
-                    formData.tamano_equipo ? "active" : ""
-                  }`}
+                  Atrás
+                </button>
+                <button
+                  type="button"
+                  className="quote-button"
+                  onClick={nextStep}
                 >
-                  Tamaño del Equipo
-                </label>
-              </div>
-              <div></div>
-              <button type="button" className="quote-button" onClick={prevStep}>
-                Atrás
-              </button>
-              <button type="button" className="quote-button" onClick={nextStep}>
-                Siguiente
-              </button>
-            </>
-          )}
+                  Siguiente
+                </button>
+              </>
+            )}
+            {step === 3 && (
+              <>
+                <div className="form-group">
+                  <textarea
+                    name="descripcion_producto"
+                    value={formData.descripcion_producto}
+                    onChange={handleChange}
+                    className="form-input"
+                    rows="3"
+                    required
+                  ></textarea>
+                  <label
+                    className={`form-label ${
+                      formData.descripcion_producto ? "active" : ""
+                    }`}
+                  >
+                    Descripción del Producto
+                  </label>
+                </div>
 
-          {step === 3 && (
-            <>
-              <div className="form-group">
-                <textarea
-                  name="descripcion_producto"
-                  value={formData.descripcion_producto}
-                  onChange={handleChange}
-                  className="form-input"
-                  rows="3"
-                  required
-                ></textarea>
-                <label
-                  className={`form-label ${
-                    formData.descripcion_producto ? "active" : ""
-                  }`}
-                >
-                  Descripción del Producto
-                </label>
-              </div>
+                <div className="form-group">
+                  <textarea
+                    name="beneficios_producto"
+                    value={formData.beneficios_producto}
+                    onChange={handleChange}
+                    className="form-input"
+                    rows="3"
+                  ></textarea>
+                  <label
+                    className={`form-label ${
+                      formData.beneficios_producto ? "active" : ""
+                    }`}
+                  >
+                    Beneficios del Producto
+                  </label>
+                </div>
+                <div className="form-group">
+                  <textarea
+                    name="modulos"
+                    value={formData.modulos}
+                    onChange={handleChange}
+                    className="form-input"
+                    rows="3"
+                  ></textarea>
+                  <label
+                    className={`form-label ${formData.modulos ? "active" : ""}`}
+                  >
+                    Módulos
+                  </label>
+                </div>
+                <div className="form-group">
+                  <textarea
+                    name="notas"
+                    value={formData.notas}
+                    onChange={handleChange}
+                    className="form-input"
+                    rows="3"
+                  ></textarea>
+                  <label
+                    className={`form-label ${formData.notas ? "active" : ""}`}
+                  >
+                    Notas
+                  </label>
+                </div>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="hardware"
+                    value={formData.hardware}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.hardware ? "active" : ""
+                    }`}
+                  >
+                    Hardware requierido
+                  </label>
+                </div>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="integracion_terceros"
+                    value={formData.integracion_terceros}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder=" "
+                  />
+                  <label
+                    className={`form-label ${
+                      formData.integracion_terceros ? "active" : ""
+                    }`}
+                  >
+                    Integración con terceros
+                  </label>
+                </div>
+                <div className="checkbox-wrapper-24">
+                  <input
+                    type="checkbox"
+                    id="check-soporte-digital"
+                    name="soporte_digital"
+                    checked={formData.soporte_digital}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="check-soporte-digital">
+                    <span></span>
+                    Soporte Digital
+                  </label>
+                </div>
 
-              <div className="form-group">
-                <textarea
-                  name="beneficios_producto"
-                  value={formData.beneficios_producto}
-                  onChange={handleChange}
-                  className="form-input"
-                  rows="3"
-                ></textarea>
-                <label
-                  className={`form-label ${
-                    formData.beneficios_producto ? "active" : ""
-                  }`}
-                >
-                  Beneficios del Producto
-                </label>
-              </div>
-              <div className="form-group">
-                <textarea
-                  name="modulos"
-                  value={formData.modulos}
-                  onChange={handleChange}
-                  className="form-input"
-                  rows="3"
-                ></textarea>
-                <label
-                  className={`form-label ${formData.modulos ? "active" : ""}`}
-                >
-                  Módulos
-                </label>
-              </div>
-              <div className="form-group">
-                <textarea
-                  name="notas"
-                  value={formData.notas}
-                  onChange={handleChange}
-                  className="form-input"
-                  rows="3"
-                ></textarea>
-                <label
-                  className={`form-label ${formData.notas ? "active" : ""}`}
-                >
-                  Notas
-                </label>
-              </div>
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="hardware"
-                  value={formData.hardware}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                />
-                <label
-                  className={`form-label ${formData.hardware ? "active" : ""}`}
-                >
-                  Hardware requierido
-                </label>
-              </div>
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="integracion_terceros"
-                  value={formData.integracion_terceros}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder=" "
-                />
-                <label
-                  className={`form-label ${
-                    formData.integracion_terceros ? "active" : ""
-                  }`}
-                >
-                  Integración con terceros
-                </label>
-              </div>
-              <div className="checkbox-wrapper-24">
-                <input
-                  type="checkbox"
-                  id="check-soporte-digital"
-                  name="soporte_digital"
-                  checked={formData.soporte_digital}
-                  onChange={handleChange}
-                />
-                <label htmlFor="check-soporte-digital">
-                  <span></span>
-                  Soporte Digital
-                </label>
-              </div>
+                <div className="checkbox-wrapper-24">
+                  <input
+                    type="checkbox"
+                    id="check-formacion-uso"
+                    name="formacion_uso"
+                    checked={formData.formacion_uso}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="check-formacion-uso">
+                    <span></span>
+                    Formación en el uso
+                  </label>
+                </div>
 
-              <div className="checkbox-wrapper-24">
-                <input
-                  type="checkbox"
-                  id="check-formacion-uso"
-                  name="formacion_uso"
-                  checked={formData.formacion_uso}
-                  onChange={handleChange}
-                />
-                <label htmlFor="check-formacion-uso">
-                  <span></span>
-                  Formación en el uso
-                </label>
-              </div>
-
-              <button type="button" className="quote-button" onClick={prevStep}>
-                Atrás
-              </button>
-              <button type="submit" className="quote-button">
-                Enviar Formulario
-              </button>
-            </>
-          )}
+                <button
+                  type="button"
+                  className="quote-button"
+                  onClick={prevStep}
+                >
+                  Atrás
+                </button>
+                <button type="submit" className="quote-button">
+                  Enviar Formulario
+                </button>
+              </>
+            )}
+          </div>
         </form>
       </div>
     </>

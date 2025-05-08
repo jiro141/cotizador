@@ -28,6 +28,10 @@ export default function Calculadora({
     (sum, item) => sum + Number(item.fields.Valor),
     0
   );
+  const totalServicios2 = selectedServicios.reduce(
+    (sum, item) => sum + Number(item?.fields?.precio || 0),
+    0
+  );
 
   // Calcular el precio total multiplicando por precioPais
 
@@ -45,6 +49,7 @@ export default function Calculadora({
     (sum, item) => sum + Number(item.Valor),
     0 // Agregado el valor inicial
   );
+
   const [isLoading, setIsLoading] = useState(false);
   let total =
     (totalSecciones + totalFunciones + precio + totalPaginasExtra) * precioPais;
@@ -356,7 +361,10 @@ export default function Calculadora({
             )}
             {selectedServicios.length > 0 ? (
               <>
-                <h4>Total de los servicios: ${totalServicios * precioPais}</h4>
+                <h4>
+                  Total de los servicios: $
+                  {totalServicios * precioPais + totalServicios2}
+                </h4>
                 <Separator />
               </>
             ) : (
@@ -465,15 +473,13 @@ export default function Calculadora({
           <p className="total-price">Total: ${total.toFixed(2)}</p>{" "}
           {/* Clase añadida */}
           <div className="div-boton">
-        {" "}
-        <button onClick={handleSubmit} className="quote-button">
-          Enviar Formulario
-        </button>
-      </div>
+            {" "}
+            <button onClick={handleSubmit} className="quote-button">
+              Enviar Formulario
+            </button>
+          </div>
         </div>
-        
       </div>
-    
     </div>
   );
 }

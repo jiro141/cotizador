@@ -101,7 +101,7 @@ const StepOneForm = ({ input, handleChange, handleSubmit, handleBack }) => {
         </label>
       </div>
 
-      <div className="form-group">
+      <div className="form-group" style={{ gridArea: "area7" }}>
         <textarea
           name="notas"
           value={input.notas}
@@ -113,6 +113,8 @@ const StepOneForm = ({ input, handleChange, handleSubmit, handleBack }) => {
           Notas
         </label>
       </div>
+
+      <div></div>
       <div></div>
 
       <div className="form-column2">
