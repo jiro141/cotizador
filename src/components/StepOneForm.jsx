@@ -95,6 +95,8 @@ const StepOneForm = ({ input, handleChange, handleSubmit, handleBack }) => {
         >
           <option value="">Selecciona tipo de informe</option>
           <option value="informe tipo 1">Básico</option>
+          <option value="medio">Medio</option>
+          <option value="avanzado">Avanzado</option>
         </select>
         <label className={`form-label ${input.tipo_informe ? "active" : ""}`}>
           Tipo de Informe

@@ -1,12 +1,13 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { MyContext } from "../context/Context";
 import Buttons from "../components/Buttons";
 import LandingPageClickThrough from "../components/LandingPageClickThrough";
 import FormWeb from "../components/FormWeb";
-import { IoChevronBackCircle } from "react-icons/io5";
+import { IoChevronBackSharp } from "react-icons/io5";
+
 function MainContent() {
   const { state, formData, redirectToHome } = useContext(MyContext);
-
+  const [step, setStep] = useState(1); // 🔥 Ahora el padre controla el paso
   const renderComponent = () => {
     switch (state) {
       case "LandingPageClickThrough":
@@ -26,8 +27,17 @@ function MainContent() {
 
   return (
     <>
-      <a onClick={redirectToHome} className="atras">
-        <IoChevronBackCircle size={30} color="#FFFF" />
+      <a
+        onClick={() => {
+          if (step === 4) {
+            setStep(3);
+          } else {
+            redirectToHome();
+          }
+        }}
+        className="atras"
+      >
+        <IoChevronBackSharp size={30} color="#FFFF" />
       </a>
 
       <h2
@@ -38,19 +48,18 @@ function MainContent() {
       >
         Formulario Web Esencial
       </h2>
-      {/* Mostrar formulario previo si no hay datos */}
-      {!formData ? (
-        <FormWeb />
-      ) : (
-        <>
-          {" "}
-          <h3 className="titulo2">¿Qué servicio estás buscando?</h3>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Buttons />
-          </div>
-          <div>{renderComponent()}</div>
-        </>
-      )}
+      <>
+        {step <= 3 && <FormWeb step={step} setStep={setStep} />}
+        {step === 4 && (
+          <>
+            <h3 className="titulo2">¿Qué servicio estás buscando?</h3>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Buttons />
+            </div>
+            <div>{renderComponent()}</div>
+          </>
+        )}
+      </>
     </>
   );
 }
