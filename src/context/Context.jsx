@@ -13,6 +13,7 @@ export const MyProvider = ({ children }) => {
   const user = JSON.parse(localStorage.getItem("user")) || {}; // Evita errores si `localStorage` es null
   const userTipo = user?.tipoUser || "";
   // Función para abrir y cerrar el modal
+  
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };

@@ -14,6 +14,7 @@ import Dashboard from "./layout/Dashboard";
 import SmartSolutions from "./layout/SmartSolutions";
 import { MyContext } from "./context/Context";
 import Header from "./components/Header";
+import FormWeb from "./components/FormWeb";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,11 +50,11 @@ function App() {
     const fetchPreciosPais = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
-        if (!user?.pais?.[0]) return;
+        if (!user?.pais) return;
 
-        const data = await precioPais(user.pais[0]); // Obtener precio por país
+        const data = await precioPais(user.pais); // Obtener precio por país
 
-        const precioRedondeado = Math.ceil(data.horaTrabajo); // 🔥 Redondeo hacia arriba
+        const precioRedondeado = Math.ceil(data.hora_trabajo); // 🔥 Redondeo hacia arriba
 
         setPrecio(precioRedondeado);
 
@@ -109,7 +110,6 @@ function App() {
             )
           }
         />
-
         {/* Ruta protegida que solo muestra MainContent si está autenticado */}
         <Route
           path="/"
@@ -129,7 +129,7 @@ function App() {
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <Header toggleModal={toggleModal} userTipo={userTipo} />
               <div className="dashboard">
-                <MainContent />
+                <FormWeb />
               </div>
             </ProtectedRoute>
           }

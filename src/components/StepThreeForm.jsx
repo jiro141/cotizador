@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -9,6 +10,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import Buttons from "./Buttons";
+import LandingPageClickThrough from "./LandingPageClickThrough";
 
 ChartJS.register(
   RadialLinearScale,
@@ -18,92 +21,46 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-const productProfiles = {
-  "Landing Page Click Through": [
-    "Tener presencia en internet 24/7",
-    "Generar confianza y credibilidad en clientes",
-    "Aumentar la visibilidad de la marca",
-    "Posicionarse mejor en buscadores (SEO)",
-    "Mostrar promociones o novedades",
-    "Recolectar correos y construir una base de datos",
-  ],
-  "Web de Inicio (Landing básica)": [
-    "Tener presencia en internet 24/7",
-    "Mostrar ubicación y datos de contacto fácilmente",
-    "Mostrar portafolios o testimonios",
-    "Facilitar la comunicación con los clientes",
-  ],
-  "Web de Reservaciones": [
-    "Agilizar reservas, citas o pedidos",
-    "Facilitar la comunicación con los clientes",
-    "Permitir pagos digitales o suscripciones",
-    "Automatizar procesos repetitivos",
-  ],
-  "Página Corporativa": [
-    "Generar confianza y credibilidad en clientes",
-    "Mostrar portafolios o testimonios",
-    "Facilitar la comunicación con los clientes",
-    "Posicionarse mejor en buscadores (SEO)",
-    "Centralizar la información del negocio",
-  ],
-  "Web Informativa": [
-    "Educar al cliente sobre productos/servicios",
-    "Mostrar ubicación y datos de contacto fácilmente",
-    "Facilitar la comunicación con los clientes",
-    "Obtener datos y estadísticas de usuarios",
-  ],
-  Blog: [
-    "Educar al cliente sobre productos/servicios",
-    "Obtener datos y estadísticas de usuarios",
-    "Facilitar la atención multicanal (WhatsApp, email, chatbot)",
-    "Recolectar correos y construir una base de datos",
-  ],
-  "Página de Membresía": [
-    "Gestionar usuarios, clientes o productos desde un panel de control",
-    "Permitir pagos digitales o suscripciones",
-    "Facilitar la atención multicanal (WhatsApp, email, chatbot)",
-    "Mostrar promociones o novedades",
-  ],
-  "Aula virtual": [
-    "Educar al cliente sobre productos/servicios",
-    "Facilitar la atención multicanal (WhatsApp, email, chatbot)",
-    "Ofrecer contenido descargable (ebooks, catálogos, etc.)",
-    "Automatizar procesos repetitivos",
-  ],
-  eCommerce: [
-    "Vender productos o servicios en línea",
-    "Permitir pagos digitales o suscripciones",
-    "Tener control y administración de inventario",
-    "Mostrar promociones o novedades",
-    "Facilitar la atención multicanal (WhatsApp, email, chatbot)",
-  ],
+
+const PRODUCT_LABELS = {
+  1: "Landing Page Click Through",
+  2: "Web de Inicio (Landing básica)",
+  3: "Web de Reservaciones",
+  4: "Página Corporativa",
+  5: "Web Informativa",
+  6: "Blog",
+  7: "Página de Membresía",
+  8: "Aula virtual",
+  9: "eCommerce",
 };
+
 const StepThreeForm = ({ handleSubmit, formData, handleBack }) => {
-  const selectedBenefits = formData?.beneficios_producto || [];
+  const selectedObjects = Object.values(formData?.beneficios || {}).flat();
+  const [showRadar, setShowRadar] = useState(true);
+  // Sumatoria de puntajes por producto_id
+  const productScores = {};
 
-  const calculateSimilarityScore = (selectedBenefits, profiles) => {
-    const scores = {};
+  selectedObjects.forEach((benefit) => {
+    benefit.puntos?.forEach(({ producto_id, puntaje }) => {
+      if (!productScores[producto_id]) {
+        productScores[producto_id] = 0;
+      }
+      productScores[producto_id] += puntaje;
+    });
+  });
 
-    for (const [product, idealBenefits] of Object.entries(profiles)) {
-      const matches = selectedBenefits.filter((b) => idealBenefits.includes(b));
-      const score = (matches.length / idealBenefits.length) * 20;
-      scores[product] = Math.round(score);
-    }
-
-    return scores;
-  };
-
-  const similarityScores = calculateSimilarityScore(
-    selectedBenefits,
-    productProfiles
+  // Convertir a labels y datos para el radar
+  const labels = Object.keys(PRODUCT_LABELS).map((id) => PRODUCT_LABELS[id]);
+  const dataValues = Object.keys(PRODUCT_LABELS).map(
+    (id) => productScores[id] || 0
   );
 
   const data = {
-    labels: Object.keys(similarityScores),
+    labels,
     datasets: [
       {
-        label: "Coincidencia (%)",
-        data: Object.values(similarityScores),
+        label: "Relevancia total",
+        data: dataValues,
         backgroundColor: "rgba(112, 173, 223, 0.2)",
         borderColor: "#70addf",
         pointBackgroundColor: "#70addf",
@@ -125,7 +82,7 @@ const StepThreeForm = ({ handleSubmit, formData, handleBack }) => {
         },
         ticks: {
           beginAtZero: true,
-          stepSize: 1,
+          stepSize: 5,
           color: "#ffffff",
           backdropColor: "transparent",
         },
@@ -143,16 +100,41 @@ const StepThreeForm = ({ handleSubmit, formData, handleBack }) => {
   };
 
   return (
-    <div className="custom-form">
-      <div>
-        <Radar
+    <div>
+      <div
+        style={{
+          display: showRadar ? "flex" : "flex",
+          flexDirection: showRadar ? "row" : "column",
+        }}
+      >
+        {showRadar && (
+          <div
+            style={{
+              backgroundColor: "#2c2c2c",
+              maxHeight: "500px",
+              padding: "10px",
+              zIndex: "99",
+              borderRadius: "8px",
+            }}
+          >
+            <Radar
+              style={{
+                maxWidth: "500px",
+                height: "600px",
+              }}
+              data={data}
+              options={options}
+            />
+          </div>
+        )}
+        <div
           style={{
-            minWidth: "800px",
-            height: "600px",
+            zIndex: "999999999999999999999999999",
           }}
-          data={data}
-          options={options}
-        />
+        >
+          <Buttons  />
+          <LandingPageClickThrough />
+        </div>
       </div>
     </div>
   );

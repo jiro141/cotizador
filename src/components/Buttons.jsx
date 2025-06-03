@@ -8,8 +8,6 @@ import img5 from "../img/Group 64.svg";
 import img6 from "../img/Group 46.svg";
 import img7 from "../img/Group 63.svg";
 import img8 from "../img/Group 48.svg";
-import img9 from "../img/Group 65 (1).svg"
-import img10 from "../img/Group 66.svg"
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 export default function Buttons() {
@@ -19,8 +17,8 @@ export default function Buttons() {
 
   // Función para actualizar el estado en el contexto y activar el slider
   const handleButtonClick = (buttonType) => {
-    setState(buttonType);
-    setIsSliderActive(true); // Activamos el slider cuando se hace clic en un botón
+   console.log(buttonType,'hola');
+   
   };
 
   // Funciones de navegación para el slider
@@ -58,7 +56,7 @@ export default function Buttons() {
           }`}
           onClick={() => handleButtonClick("LandingPageClickThrough")}
         >
-          <img src={img9} alt="Landing Page Click Through" />
+          <img src={img1} alt="Landing Page Click Through" />
           <p className="button-text">Landing Page Click through</p>
         </button>
         <button
@@ -86,7 +84,7 @@ export default function Buttons() {
           className={`button ${state === "WebInformativa" ? "active" : ""}`}
           onClick={() => handleButtonClick("WebInformativa")}
         >
-          <img src={img10} alt="Web Informativa" />
+          <img src={img4} alt="Web Informativa" />
           <p className="button-text">Web Informativa</p>
         </button>
         <button
@@ -108,7 +106,7 @@ export default function Buttons() {
           onClick={() => handleButtonClick("Foro")}
         >
           <img src={img8} alt="Foro" />
-          <p className="button-text">Aula virtual</p>
+          <p className="button-text">Foro</p>
         </button>
         <button
           className={`button ${state === "eCommerce" ? "active" : ""}`}

@@ -17,8 +17,7 @@ async function getChatCompletion() {
       store: true,
     });
 
-    // Accedemos a la respuesta y mostramos el resultado
-    console.log(completion.choices[0].message.content); // Asegúrate de acceder al contenido de la respuesta
+
   } catch (error) {
     console.error('Error en la solicitud a OpenAI:', error);
   }

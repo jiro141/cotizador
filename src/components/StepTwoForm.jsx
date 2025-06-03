@@ -1,36 +1,46 @@
 import React, { useState, useEffect } from "react";
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { tipoBeneficio, beneficio } from "../controller/api";
 import logo from "../img/cropped-logo.png";
-import { Tooltip } from "react-tooltip";
-import "react-tooltip/dist/react-tooltip.css";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
 import Separator from "./Separator";
+
 const StepTwoForm = ({
   selectedBenefits,
   handleCheckboxChange,
   handleSubmit,
   handleBack,
 }) => {
-  const [openCategory, setOpenCategory] = useState(null);
   const [benefitsByCategory, setBenefitsByCategory] = useState({});
   const [loading, setLoading] = useState(true);
-
+  const animatedComponents = makeAnimated();
   const tipoBene = async () => {
     try {
       const response = await tipoBeneficio();
       const result = {};
 
       for (const item of response) {
-        const category = item?.fields?.Name;
-        const ids = item?.fields?.Beneficio;
+        const category = item.nombre || "Categoría desconocida";
+        const ids = item.beneficios || [];
 
         const beneficiosData = await Promise.all(
-          ids?.map(async (id) => {
-            const res = await beneficio(id);
-            return {
-              name: res.fields?.Name || "Nombre desconocido",
-              descripcion: res.fields?.descripcion || null,
-            };
+          ids.map(async (id) => {
+            try {
+              const res = await beneficio(id);
+              return {
+                value: res.name || "Nombre desconocido",
+                label: res.name || "Nombre desconocido",
+                descripcion: res.descripcion || null,
+                puntos: res.puntaje || [],
+              };
+            } catch (error) {
+              console.warn(`Error al cargar beneficio ID ${id}:`, error);
+              return {
+                value: `error-${id}`,
+                label: "Error al cargar",
+                descripcion: null,
+              };
+            }
           })
         );
 
@@ -49,8 +59,9 @@ const StepTwoForm = ({
     tipoBene();
   }, []);
 
-  const toggleCategory = (category) => {
-    setOpenCategory((prev) => (prev === category ? null : category));
+  const handleSelectChange = (category) => (selectedOptions) => {
+    const values = selectedOptions.map((opt) => opt.value);
+    handleCheckboxChange(category, values, selectedOptions);
   };
 
   if (loading) {
@@ -65,72 +76,63 @@ const StepTwoForm = ({
     <div>
       <div className="benefits-categorized-list">
         {Object.entries(benefitsByCategory).map(([category, benefits]) => (
-          <div
-            key={category}
-            className="section-container3"
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                cursor: "pointer",
-                padding: "10px 0",
+          <div key={category} className="section-container3">
+            <h3 className="category-title">{category}</h3>
+            <Select
+              options={benefits}
+              closeMenuOnSelect={false}
+              components={animatedComponents}
+              placeholder={`Selecciona beneficios de "${category}"`}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              onChange={handleSelectChange(category)}
+              menuPortalTarget={document.body}
+              value={benefits.filter((opt) =>
+                (selectedBenefits[category] || []).includes(opt.value)
+              )}
+              isMulti
+              styles={{
+                menuPortal: (base) => ({
+                  ...base,
+                  zIndex: 9999, // por encima de todo
+                }),
+                menu: (provided) => ({
+                  ...provided,
+                  backgroundColor: "#2c2c2c", // fondo sólido real
+                  border: "1px solid #444",
+                  zIndex: 9999,
+                }),
+                control: (provided) => ({
+                  ...provided,
+                  backgroundColor: "#2c2c2c",
+                  borderColor: "#444",
+                  color: "#ff5722",
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: state.isFocused ? "#70addf" : "#2c2c2c",
+                  color: "#fff",
+                  cursor: "pointer",
+                }),
+                multiValue: (provided) => ({
+                  ...provided,
+                  backgroundColor: "#70addf",
+                }),
+                multiValueLabel: (provided) => ({
+                  ...provided,
+                  color: "#000",
+                }),
+                placeholder: (provided) => ({
+                  ...provided,
+                  color: "#ccc",
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: "#000",
+                }),
               }}
-              onClick={() => toggleCategory(category)}
-            >
-              <h3 className="category-title" style={{ margin: 0 }}>
-                {category}
-              </h3>
-              <span style={{ marginLeft: "8px" }}>
-                {openCategory === category ? (
-                  <IoIosArrowUp size={24} color="#ff5722" />
-                ) : (
-                  <IoIosArrowDown size={24} />
-                )}
-              </span>
-             
-            </div>
-            <Separator />
-            {openCategory === category && (
-              <div className="benefits-grid" style={{ marginTop: "10px" }}>
-                {benefits.map((benefit, idx) => {
-                  const benefitId = `benefit-${category}-${idx}`;
-                  return (
-                    <div
-                      key={benefitId}
-                      className="checkbox-wrapper-24"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        id={benefitId}
-                        value={benefit.name}
-                        checked={selectedBenefits.includes(benefit.name)}
-                        onChange={handleCheckboxChange}
-                      />
-                      <label
-                        htmlFor={benefitId}
-                        {...(benefit.descripcion && {
-                          "data-tooltip-id": benefitId,
-                          "data-tooltip-content": benefit.descripcion,
-                        })}
-                      >
-                        <span></span>
-                        {benefit.name}
-                      </label>
-                      {benefit.descripcion && (
-                        <Tooltip id={benefitId} place="top" variant="light" />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            />
+            {/* <Separator /> */}
           </div>
         ))}
       </div>

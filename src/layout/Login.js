@@ -30,7 +30,8 @@ function Login({ onLogin }) {
 
     try {
       const user = await authenticateUser(username, password);
-
+      console.log(user);
+      
       if (user.requiresPasswordSetup) {
         toast.success("Por favor, configure su contraseña."); // Toast informativo
         setRequiresPasswordSetup(true);
