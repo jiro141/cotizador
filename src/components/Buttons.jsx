@@ -1,27 +1,29 @@
-import React, { useState, useContext, useRef } from "react";
-import { MyContext } from "../context/Context";
+import React, { useContext, useRef } from "react";
 import img1 from "../img/Recurso 11.svg";
 import img2 from "../img/Group 44.svg";
-import img3 from "../img/Recurso 22.svg";
+import img3 from "../img/Group 65 (1).svg";
 import img4 from "../img/Recurso 52.svg";
 import img5 from "../img/Group 64.svg";
 import img6 from "../img/Group 46.svg";
 import img7 from "../img/Group 63.svg";
 import img8 from "../img/Group 48.svg";
+import img9 from "../img/Group 66.svg";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { MyContext } from "../context/Context";
 
 export default function Buttons() {
-  const { state, setState } = useContext(MyContext);
-  const [isSliderActive, setIsSliderActive] = useState(false); // Estado para cambiar de grid a slider
+  const { state, setState, step, setStep } = useContext(MyContext);
   const containerRef = useRef(null);
 
-  // Función para actualizar el estado en el contexto y activar el slider
-  const handleButtonClick = (buttonType) => {
-   console.log(buttonType,'hola');
-   
+  const handleButtonClick = (data) => {
+    setState(data);
+
+    // ✅ Solo cambiar a step 3 si aún no estás en él
+    if (step !== 3) {
+      setStep(3);
+    }
   };
 
-  // Funciones de navegación para el slider
   const scrollLeft = () => {
     containerRef.current.scrollBy({ left: -200, behavior: "smooth" });
   };
@@ -30,100 +32,59 @@ export default function Buttons() {
     containerRef.current.scrollBy({ left: 200, behavior: "smooth" });
   };
 
+  const handleKey = (event, callback) => {
+    if (event.key === "Enter" || event.key === " ") {
+      callback();
+    }
+  };
+
   return (
-    <div
-      className={`button-container-wrapper ${
-        isSliderActive ? "slider" : "grid"
-      }`}
-    >
-      {isSliderActive && (
-        <button
-          className="slider-button slider-button-left"
-          onClick={scrollLeft}
-        >
-          <IoIosArrowBack size={24} color="#ff5722" />
-        </button>
-      )}
+    <div className="button-container-wrapper slider">
       <div
-        className={`button-container ${
-          isSliderActive ? "button-container-slider" : "button-container-grid"
-        }`}
-        ref={containerRef}
+        className="slider-button slider-button-left"
+        role="button"
+        tabIndex={0}
+        onClick={scrollLeft}
+        onKeyDown={(e) => handleKey(e, scrollLeft)}
       >
-        <button
-          className={`button ${
-            state === "LandingPageClickThrough" ? "active" : ""
-          }`}
-          onClick={() => handleButtonClick("LandingPageClickThrough")}
-        >
-          <img src={img1} alt="Landing Page Click Through" />
-          <p className="button-text">Landing Page Click through</p>
-        </button>
-        <button
-          className={`button ${state === "LandingBasica" ? "active" : ""}`}
-          onClick={() => handleButtonClick("LandingBasica")}
-        >
-          <img src={img1} alt="Web de Inicio" />
-          <p className="button-text">Web de Inicio (Landing básica)</p>
-        </button>
-        <button
-          className={`button ${state === "WebDeReservaciones" ? "active" : ""}`}
-          onClick={() => handleButtonClick("WebDeReservaciones")}
-        >
-          <img src={img2} alt="Web de Reservaciones" />
-          <p className="button-text">Web de Reservaciones</p>
-        </button>
-        <button
-          className={`button ${state === "PaginaCorporativa" ? "active" : ""}`}
-          onClick={() => handleButtonClick("PaginaCorporativa")}
-        >
-          <img src={img7} alt="Página Corporativa" />
-          <p className="button-text">Página Corporativa</p>
-        </button>
-        <button
-          className={`button ${state === "WebInformativa" ? "active" : ""}`}
-          onClick={() => handleButtonClick("WebInformativa")}
-        >
-          <img src={img4} alt="Web Informativa" />
-          <p className="button-text">Web Informativa</p>
-        </button>
-        <button
-          className={`button ${state === "Blog" ? "active" : ""}`}
-          onClick={() => handleButtonClick("Blog")}
-        >
-          <img src={img4} alt="Blog" />
-          <p className="button-text">Blog</p>
-        </button>
-        <button
-          className={`button ${state === "PaginaDeMembresia" ? "active" : ""}`}
-          onClick={() => handleButtonClick("PaginaDeMembresia")}
-        >
-          <img src={img6} alt="Página de Membresía" />
-          <p className="button-text">Página de Membresía</p>
-        </button>
-        <button
-          className={`button ${state === "Foro" ? "active" : ""}`}
-          onClick={() => handleButtonClick("Foro")}
-        >
-          <img src={img8} alt="Foro" />
-          <p className="button-text">Foro</p>
-        </button>
-        <button
-          className={`button ${state === "eCommerce" ? "active" : ""}`}
-          onClick={() => handleButtonClick("eCommerce")}
-        >
-          <img src={img5} alt="eCommerce" />
-          <p className="button-text">eCommerce</p>
-        </button>
+        <IoIosArrowBack size={24} color="#ff5722" />
       </div>
-      {isSliderActive && (
-        <button
-          className="slider-button slider-button-right"
-          onClick={scrollRight}
-        >
-          <IoIosArrowForward size={24} color="#ff5722" />
-        </button>
-      )}
+
+      <div className="button-container button-container-slider" ref={containerRef}>
+        {[
+          { key: "LandingPageClickThrough", img: img3, text: "Landing Page Click through" },
+          { key: "LandingBasica", img: img1, text: "Web de Inicio (Landing básica)" },
+          { key: "WebDeReservaciones", img: img2, text: "Web de Reservaciones" },
+          { key: "PaginaCorporativa", img: img7, text: "Página Corporativa" },
+          { key: "WebInformativa", img: img9, text: "Web Informativa" },
+          { key: "Blog", img: img4, text: "Blog" },
+          { key: "PaginaDeMembresia", img: img6, text: "Página de Membresía" },
+          { key: "AulaVirtual", img: img8, text: "Aula Virtual" },
+          { key: "eCommerce", img: img5, text: "eCommerce" },
+        ].map(({ key, img, text }) => (
+          <div
+            key={key}
+            className={`button ${state === key ? "active" : ""}`}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleButtonClick(key)}
+            onKeyDown={(e) => handleKey(e, () => handleButtonClick(key))}
+          >
+            <img src={img} alt={text} />
+            <p className="button-text">{text}</p>
+          </div>
+        ))}
+      </div>
+
+      <div
+        className="slider-button slider-button-right"
+        role="button"
+        tabIndex={0}
+        onClick={scrollRight}
+        onKeyDown={(e) => handleKey(e, scrollRight)}
+      >
+        <IoIosArrowForward size={24} color="#ff5722" />
+      </div>
     </div>
   );
 }

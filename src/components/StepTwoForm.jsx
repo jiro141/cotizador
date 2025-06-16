@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { tipoBeneficio, beneficio } from "../controller/api";
 import logo from "../img/cropped-logo.png";
-import Select from "react-select";
-import makeAnimated from "react-select/animated";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
 import Separator from "./Separator";
-
+import { MyContext } from "../context/Context";
 const StepTwoForm = ({
   selectedBenefits,
   handleCheckboxChange,
   handleSubmit,
   handleBack,
 }) => {
+  const [openCategory, setOpenCategory] = useState(null);
   const [benefitsByCategory, setBenefitsByCategory] = useState({});
   const [loading, setLoading] = useState(true);
-  const animatedComponents = makeAnimated();
+  const { setFormData, formData } = useContext(MyContext);
   const tipoBene = async () => {
     try {
       const response = await tipoBeneficio();
@@ -59,9 +61,8 @@ const StepTwoForm = ({
     tipoBene();
   }, []);
 
-  const handleSelectChange = (category) => (selectedOptions) => {
-    const values = selectedOptions.map((opt) => opt.value);
-    handleCheckboxChange(category, values, selectedOptions);
+  const toggleCategory = (category) => {
+    setOpenCategory((prev) => (prev === category ? null : category));
   };
 
   if (loading) {
@@ -77,77 +78,97 @@ const StepTwoForm = ({
       <div className="benefits-categorized-list">
         {Object.entries(benefitsByCategory).map(([category, benefits]) => (
           <div key={category} className="section-container3">
-            <h3 className="category-title">{category}</h3>
-            <Select
-              options={benefits}
-              closeMenuOnSelect={false}
-              components={animatedComponents}
-              placeholder={`Selecciona beneficios de "${category}"`}
-              className="basic-multi-select"
-              classNamePrefix="select"
-              onChange={handleSelectChange(category)}
-              menuPortalTarget={document.body}
-              value={benefits.filter((opt) =>
-                (selectedBenefits[category] || []).includes(opt.value)
-              )}
-              isMulti
-              styles={{
-                menuPortal: (base) => ({
-                  ...base,
-                  zIndex: 9999, // por encima de todo
-                }),
-                menu: (provided) => ({
-                  ...provided,
-                  backgroundColor: "#2c2c2c", // fondo sólido real
-                  border: "1px solid #444",
-                  zIndex: 9999,
-                }),
-                control: (provided) => ({
-                  ...provided,
-                  backgroundColor: "#2c2c2c",
-                  borderColor: "#444",
-                  color: "#ff5722",
-                }),
-                option: (provided, state) => ({
-                  ...provided,
-                  backgroundColor: state.isFocused ? "#70addf" : "#2c2c2c",
-                  color: "#fff",
-                  cursor: "pointer",
-                }),
-                multiValue: (provided) => ({
-                  ...provided,
-                  backgroundColor: "#70addf",
-                }),
-                multiValueLabel: (provided) => ({
-                  ...provided,
-                  color: "#000",
-                }),
-                placeholder: (provided) => ({
-                  ...provided,
-                  color: "#ccc",
-                }),
-                singleValue: (provided) => ({
-                  ...provided,
-                  color: "#000",
-                }),
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                cursor: "pointer",
               }}
-            />
-            {/* <Separator /> */}
+              onClick={() => toggleCategory(category)}
+            >
+              <h3 className="category-title">{category}</h3>
+              <span>
+                {openCategory === category ? (
+                  <IoIosArrowUp size={24} color="#ff5722" />
+                ) : (
+                  <IoIosArrowDown size={24} />
+                )}
+              </span>
+            </div>
+            <Separator />
+            {openCategory === category && (
+              <div
+                className="benefits-grid"
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  background: "#2C2C2C",
+                  border: "1px solid #ccc",
+                  padding: "15px",
+                  zIndex: "9999",
+                  width: "100%",
+                  boxShadow: "0px 4px 8px rgba(0,0,0,0.2)",
+                  borderRadius: "6px",
+                }}
+              >
+                {benefits.map((benefit, idx) => {
+                  const benefitId = `benefit-${category}-${idx}`;
+                  // 🔍 Check if the benefit is selected (by value) in that category
+                  const isChecked = Array.isArray(selectedBenefits?.[category])
+                    ? selectedBenefits[category].some(
+                        (b) => b.value === benefit.value
+                      )
+                    : false;
+                  return (
+                    <div
+                      key={benefitId}
+                      className="checkbox-wrapper-24"
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        id={benefitId}
+                        value={benefit.value}
+                        checked={isChecked}
+                        onChange={(e) => {
+                          const updated = isChecked
+                            ? selectedBenefits[category].filter(
+                                (b) => b.value !== benefit.value
+                              )
+                            : [...(selectedBenefits[category] || []), benefit];
+                          handleCheckboxChange(
+                            category,
+                            updated,
+                            updated // si usas un segundo array para display, lo puedes separar aquí
+                          );
+                        }}
+                      />
+                      <label
+                        htmlFor={benefitId}
+                        {...(benefit.descripcion && {
+                          "data-tooltip-id": benefitId,
+                          "data-tooltip-content": benefit.descripcion,
+                        })}
+                      >
+                        <span></span>
+                        {benefit.label}
+                      </label>
+                      {benefit.descripcion && (
+                        <Tooltip id={benefitId} place="top" variant="light" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         ))}
-      </div>
-
-      <div className="form-row">
-        <div className="form-column2">
-          <a className="login-olvido" onClick={handleBack}>
-            Volver
-          </a>
-        </div>
-        <div className="form-column">
-          <button onClick={handleSubmit} className="quote-button">
-            Siguiente
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -34,6 +34,7 @@ export const getServiciosMensuales = async () => {
   try {
     const response = await airtable.get("/mensuales/");
 
+
     // Usando el ID de la tabla
     return response.data;
   } catch (error) {
@@ -113,7 +114,7 @@ export const fetchPaginasBasicas = async (id) => {
 export const fetchFuncionesExtras = async (id) => {
   try {
     const response = await airtable.get(`/funciones/${id}/`);
-    return response.data.fields["Páginas avanzadas "];
+    return response.data;
   } catch (error) {
     console.error(
       "Error al obtener datos de funciones adicionales desde Airtable:",

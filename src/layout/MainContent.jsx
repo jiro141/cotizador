@@ -16,7 +16,7 @@ function MainContent() {
       case "WebInformativa":
       case "Blog":
       case "PaginaDeMembresia":
-      case "Foro":
+      case "AulaVirtual":
       case "eCommerce":
         return <LandingPageClickThrough formData={formData} />;
       default:

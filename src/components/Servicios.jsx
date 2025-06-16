@@ -13,14 +13,14 @@ export default function Servicios({
   formData,
 }) {
   const cliente = formData?.cliente || {};
-  const isClienteIncompleto = !cliente.nombre || !cliente.email || !cliente.cargo;
+  const isClienteIncompleto =
+    !cliente.nombre || !cliente.email || !cliente.cargo;
 
   const tooltipProps = isClienteIncompleto
     ? {
         "data-tooltip-id": "cliente-tooltip",
-        "data-tooltip-variant":"light",
-        "data-tooltip-content":
-          "Por favor, cargar datos del cliente",
+        "data-tooltip-variant": "light",
+        "data-tooltip-content": "Por favor, cargar datos del cliente",
       }
     : {};
 

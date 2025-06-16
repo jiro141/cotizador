@@ -1,16 +1,30 @@
 import React, { useState, useContext } from "react";
 import { MyContext } from "../context/Context";
-import StepOneForm from "./StepOneForm";
 import StepTwoForm from "./StepTwoForm";
 import StepThreeForm from "./StepThreeForm";
-import Buttons from "./Buttons";
 import LandingPageClickThrough from "./LandingPageClickThrough";
 import MainContent from "../layout/MainContent";
+import { useNavigate } from "react-router-dom";
+import { IoChevronBackSharp, IoChevronForward } from "react-icons/io5";
+import { Stepper, Step } from "react-form-stepper";
 
 const FormWeb = () => {
-  const [step, setStep] = useState(1);
-  const { setFormData, state } = useContext(MyContext);
+  const { setFormData, state, step, setStep } = useContext(MyContext);
   const [showRadar, setShowRadar] = useState(true);
+  const navigate = useNavigate();
+
+  const redirectToHome = () => {
+    navigate("/");
+  };
+
+  const handleNext = () => {
+    if (step === 1) return setStep(2);
+    if (step === 2) return setStep(3);
+    if (step === 3) {
+      setFormData(input);
+      setStep(4);
+    }
+  };
 
   const [input, setInput] = useState({
     tipo_informe: "",
@@ -55,24 +69,7 @@ const FormWeb = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (["nombre", "cargo", "rubro", "email"].includes(name)) {
-      setInput((prev) => ({
-        ...prev,
-        cliente: {
-          ...prev.cliente,
-          [name]: value,
-        },
-      }));
-    } else {
-      setInput((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
-    }
-  };
-
+  // <-- ÚNICO CAMBIO HECHO EN ESTA FUNCIÓN -->
   const handleCheckboxChange = (
     category,
     selectedBenefitObjects,
@@ -96,11 +93,18 @@ const FormWeb = () => {
       [category]: selectedOptions,
     };
 
+    // Cambia input
     setInput((prev) => ({
       ...prev,
       beneficios_producto: [...otros, ...selectedNames],
       beneficios_por_categoria,
       beneficios: beneficios_por_categoria_display,
+    }));
+
+    // <-- ADICIÓN: actualiza también en formData del contexto -->
+    setFormData((prev) => ({
+      ...prev,
+      beneficios_producto: [...otros, ...selectedNames],
     }));
   };
 
@@ -118,16 +122,67 @@ const FormWeb = () => {
 
   return (
     <div className="calculator-container">
-      <h2
-        className="titulo2"
+      <div style={{ width: "100%" }}>
+        <Stepper
+          activeStep={step - 1}
+          connectorStyleConfig={{
+            activeColor: "#e64a19",
+            completedColor: "#70addf",
+            disabledColor: "#bdbdbd",
+            size: 2,
+          }}
+          styleConfig={{
+            activeBgColor: "#e64a19",
+            activeTextColor: "#fff",
+            completedBgColor: "#70addf",
+            completedTextColor: "#fff",
+            inactiveBgColor: "#70addf",
+            inactiveTextColor: "#fff",
+            size: "2em",
+            labelFontSize: "0.2rem",
+            fontWeight: 500,
+          }}
+          onStepClick={() => {}}
+        >
+          <Step label="Beneficios del Producto" />
+          <Step label="Producto Sugerido" />
+          <Step label="Adicionales" />
+        </Stepper>
+      </div>
+
+      {/* Botones de navegación */}
+      <div
         style={{
-          padding: "10px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          margin: "10px 0",
         }}
       >
-        Formulario Web Esencial
-      </h2>
+        <a
+          onClick={step === 1 ? redirectToHome : handleBack}
+          className="atras"
+          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+        >
+          <IoChevronBackSharp size={40} color="#e64a19" />
+        </a>
+
+        {step < 3 && (
+          <button
+            type="button"
+            onClick={handleNext}
+            className="adelante"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <IoChevronForward size={40} color="#e64a19" />
+          </button>
+        )}
+      </div>
+
+      {/* Formulario */}
       <form
         onSubmit={handleSubmit}
+        style={{ zIndex: "99999" }}
         className={step === 1 ? "calculator-content" : ""}
       >
         {step === 1 && (
@@ -139,18 +194,14 @@ const FormWeb = () => {
           />
         )}
         {step === 2 && (
-          <div>
-            <div>
-              {" "}
-              <StepThreeForm
-                selectedBenefits={input.beneficios}
-                handleSubmit={() => setFormData(input)}
-                formData={input}
-                handleBack={handleBack}
-              />
-            </div>
-          </div>
+          <StepThreeForm
+            selectedBenefits={input.beneficios}
+            handleSubmit={() => setFormData(input)}
+            formData={input}
+            handleBack={handleBack}
+          />
         )}
+        {step === 3 && <MainContent />}
       </form>
     </div>
   );
