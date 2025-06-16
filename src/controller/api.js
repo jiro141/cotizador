@@ -34,7 +34,6 @@ export const getServiciosMensuales = async () => {
   try {
     const response = await airtable.get("/mensuales/");
 
-
     // Usando el ID de la tabla
     return response.data;
   } catch (error) {
@@ -214,8 +213,9 @@ export const authenticateUser = async (username, password) => {
 
     const user = response.data[0];
 
-    // Si no hay contraseña registrada, marcar como requiere configuración
-    if (!user.password) {
+    // Si no hay contraseña registrada en la base o la contraseña enviada está vacía
+    if (!user.password || !password) {
+      // Aquí retorna flujo de configuración de contraseña
       return {
         id: user.id,
         name: user.name,
@@ -226,8 +226,7 @@ export const authenticateUser = async (username, password) => {
       };
     }
 
-    // Validar contraseña ingresada
-
+    // Solo si ambos tienen contraseña, validar
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -248,6 +247,7 @@ export const authenticateUser = async (username, password) => {
     throw error;
   }
 };
+
 
 export const updatePassword = async (userId, newPassword, securityQA) => {
   try {

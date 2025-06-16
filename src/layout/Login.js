@@ -25,12 +25,11 @@ function Login({ onLogin }) {
 
   // Función para manejar el inicio de sesión
   const handleLogin = async (e) => {
+    
     e.preventDefault();
     setIsLoading(true); // Muestra el spinner
-
     try {
       const user = await authenticateUser(username, password);
-      console.log(user);
       
       if (user.requiresPasswordSetup) {
         toast.success("Por favor, configure su contraseña."); // Toast informativo
