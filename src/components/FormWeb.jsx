@@ -7,10 +7,10 @@ import MainContent from "../layout/MainContent";
 import { useNavigate } from "react-router-dom";
 import { IoChevronBackSharp, IoChevronForward } from "react-icons/io5";
 import { Stepper, Step } from "react-form-stepper";
-
+import CategorySelection from "./CategorySelection";
 const FormWeb = () => {
   const { setFormData, state, step, setStep } = useContext(MyContext);
-  const [showRadar, setShowRadar] = useState(true);
+  // const [showRadar, setShowRadar] = useState(true);
   const navigate = useNavigate();
 
   const redirectToHome = () => {
@@ -20,9 +20,10 @@ const FormWeb = () => {
   const handleNext = () => {
     if (step === 1) return setStep(2);
     if (step === 2) return setStep(3);
+    if (step === 3) return setStep(4);
     if (step === 3) {
       setFormData(input);
-      setStep(4);
+      setStep(5);
     }
   };
 
@@ -70,41 +71,15 @@ const FormWeb = () => {
   };
 
   // <-- ÚNICO CAMBIO HECHO EN ESTA FUNCIÓN -->
-  const handleCheckboxChange = (
-    category,
-    selectedBenefitObjects,
-    selectedOptions
-  ) => {
-    const selectedNames = selectedOptions.map((b) => b.value);
-    const otros = input.beneficios_producto.filter(
-      (benefit) =>
-        !input.beneficios_por_categoria?.[category]
-          ?.map((b) => b.value)
-          .includes(benefit)
-    );
-
-    const beneficios_por_categoria = {
-      ...input.beneficios_por_categoria,
-      [category]: selectedBenefitObjects,
-    };
-
-    const beneficios_por_categoria_display = {
-      ...input.beneficios,
-      [category]: selectedOptions,
-    };
-
-    // Cambia input
+  const handleCheckboxChange = (updatedSelected) => {
     setInput((prev) => ({
       ...prev,
-      beneficios_producto: [...otros, ...selectedNames],
-      beneficios_por_categoria,
-      beneficios: beneficios_por_categoria_display,
+      beneficios: updatedSelected, // este objeto tiene todos los seleccionados por categoría
     }));
 
-    // <-- ADICIÓN: actualiza también en formData del contexto -->
     setFormData((prev) => ({
       ...prev,
-      beneficios_producto: [...otros, ...selectedNames],
+      beneficios: updatedSelected,
     }));
   };
 
@@ -112,23 +87,32 @@ const FormWeb = () => {
     e.preventDefault();
     if (step === 1) return setStep(2);
     if (step === 2) return setStep(3);
+    if (step === 3) return setStep(4);
+
     setFormData(input);
-    setStep(4);
+    setStep(5);
   };
+  console.log(step, "estacions");
 
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
   };
 
   return (
-    <div className="calculator-container">
+    <div
+      className="calculator-container"
+      style={{
+        ...(step > 1 ? { margin: "2% 0px 0px 0px" } : {}),
+        ...(step === 4 ? { width: "90vw", margin: "4% 0px 0px 0px" } : {}),
+      }}
+    >
       <div style={{ width: "100%" }}>
         <Stepper
           activeStep={step - 1}
           connectorStyleConfig={{
             activeColor: "#e64a19",
             completedColor: "#70addf",
-            disabledColor: "#bdbdbd",
+            disabledColor: "#1A1A1A",
             size: 2,
           }}
           styleConfig={{
@@ -144,6 +128,7 @@ const FormWeb = () => {
           }}
           onStepClick={() => {}}
         >
+          <Step label="Soluciones" />
           <Step label="Beneficios del Producto" />
           <Step label="Producto Sugerido" />
           <Step label="Adicionales" />
@@ -167,7 +152,7 @@ const FormWeb = () => {
           <IoChevronBackSharp size={40} color="#e64a19" />
         </a>
 
-        {step < 3 && (
+        {step < 4 && (
           <button
             type="button"
             onClick={handleNext}
@@ -182,18 +167,49 @@ const FormWeb = () => {
       {/* Formulario */}
       <form
         onSubmit={handleSubmit}
-        style={{ zIndex: "99999" }}
-        className={step === 1 ? "calculator-content" : ""}
+        style={{ zIndex: "99999", padding: "0px 50px" }}
+        className={step === 2 ? "calculator-content" : ""}
       >
         {step === 1 && (
+          <CategorySelection
+            onSelectCategories={(selectedCats) => {
+              setInput((prev) => {
+                const updated = { ...prev.beneficios_por_categoria };
+
+                // Mantener solo las categorías actualmente seleccionadas
+                const selectedMap = selectedCats.reduce((acc, cat) => {
+                  acc[cat.nombre] = cat.beneficios;
+                  return acc;
+                }, {});
+
+                // Eliminar las categorías que ya no están seleccionadas
+                Object.keys(updated).forEach((cat) => {
+                  if (!selectedMap[cat]) {
+                    delete updated[cat];
+                  }
+                });
+
+                return {
+                  ...prev,
+                  beneficios_por_categoria: {
+                    ...updated,
+                    ...selectedMap, // agrega/actualiza las categorías seleccionadas
+                  },
+                };
+              });
+            }}
+          />
+        )}
+        {step === 2 && (
           <StepTwoForm
-            selectedBenefits={input.beneficios_por_categoria || {}}
+            availableBenefits={input.beneficios_por_categoria || {}}
+            selectedBenefits={input.beneficios || {}}
             handleCheckboxChange={handleCheckboxChange}
             handleSubmit={handleSubmit}
             handleBack={handleBack}
           />
         )}
-        {step === 2 && (
+        {step === 3 && (
           <StepThreeForm
             selectedBenefits={input.beneficios}
             handleSubmit={() => setFormData(input)}
@@ -201,7 +217,7 @@ const FormWeb = () => {
             handleBack={handleBack}
           />
         )}
-        {step === 3 && <MainContent />}
+        {step === 4 && <MainContent />}
       </form>
     </div>
   );

@@ -1,359 +1,275 @@
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tabs con Imágenes</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
-    <!-- Agregamos FontAwesome para los íconos -->
-    <style>
-      /* Contenedor principal de los Tabs */
-      body {
-        background-color: none !important;
-      }
-      .tabs-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: visible; /* <- Cambiado */
-        margin-bottom: 20px;
-      }
+<div class="tabs-wrapper">
+  <button class="arrow-button arrow-left" aria-label="Anterior">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+  <div class="tabs-container" id="tabs-container"></div>
+  <button class="arrow-button arrow-right" aria-label="Siguiente">
+    <i class="fas fa-chevron-right"></i>
+  </button>
+</div>
+<div class="content-container" id="content-container"></div>
+<style>
+  .tabs-wrapper {
+    position: relative;
+    width: 100%;
+    margin: 40px auto 40px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-      .tabs-container {
-        display: flex;
-        justify-content: center; /* <- Cambio para mejor scroll */
-        align-items: center;
-        gap: 50px;
-        overflow-x: scroll; /* <- Importante: scroll visible */
-        white-space: nowrap; /* <- Mantener en línea */
-        padding: 10px 40px; /* espacio lateral para flechas */
-        scroll-snap-type: x mandatory;
-        width: 100%;
-        scroll-behavior: smooth;
-        transition: transform 0.3s ease;
-      }
+  .arrow-button {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 18px 14px;
+    font-size: 2rem;
+    cursor: pointer;
+    border-radius: 8px;
+    position: absolute;
+    top: 50%;
+    z-index: 10;
+    transform: translateY(-50%);
+    transition: background 0.2s;
+  }
+  .arrow-left {
+    left: 0;
+  }
+  .arrow-right {
+    right: 0;
+  }
 
-      /* Flechas para desplazarse entre los tabs (más grandes y espaciadas) */
-      .arrow-button {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        padding: 15px;
-        border: none;
-        cursor: pointer;
-        z-index: 10;
-        font-size: 30px;
-      }
-      .arrow-left {
-        left: 10px;
-      }
-      .arrow-right {
-        right: 10px;
-      }
+  .tabs-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    position: relative;
+    perspective: 900px;
+  }
 
-      /* Estilo para cada tab (imagen) */
-      .tab {
-        width: 500px;
-        height: 200px;
-        cursor: pointer;
-        object-fit: cover;
-        scroll-snap-align: center;
-        position: relative;
-        transition: transform 0.3s ease-in-out;
-        border-radius: 8px;
-        opacity: 0.5;
-      }
-      .tab img {
-        border-radius: 8px !important;
-      }
+  .tab {
+    /* width: 180px; */
+    height: 200px;
+    margin: 0 10px;
+    transition: transform 0.4s cubic-bezier(0.4, 2, 0.3, 1), box-shadow 0.4s,
+      opacity 0.3s;
+    opacity: 0.6;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-      /* Efecto al hacer hover o estar activo */
-      .tab:hover,
-      .tab.selected {
-        transform: scale(1.1);
-        opacity: 1;
-      }
+  .tab img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+    pointer-events: none;
+    user-select: none;
+    transition: filter 0.2s;
+    filter: brightness(0.97);
+  }
 
-      /* Fondo semi-transparente y título en hover o cuando está activo */
-      .tab:hover::after,
-      .tab.selected::after {
-        content: attr(data-title);
-        position: absolute;
-        top: 10px;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(
-          255,
-          255,
-          255,
-          0.7
-        ); /* Fondo blanco semi-transparente */
-        color: black;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 22px;
-        border-radius: 8px;
-        padding: 10px;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      }
+  .tab .tab-title {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    color: #222;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.74);
+    padding: 6px 0;
+    font-size: 1rem;
+    border-radius: 0 0 12px 12px;
+    text-align: center;
+    box-shadow: 0 4px 8px -10px #000;
+    pointer-events: none;
+    user-select: none;
+  }
 
-      /* Contenedor de contenido */
-      .content-container {
-        padding: 20px;
-        min-height: 200px;
-        margin-top: 20px;
-      }
+  .tab.center {
+    z-index: 4;
+    transform: scale(1.16) rotateY(0deg);
+    opacity: 1;
+    box-shadow: 0 8px 24px -4px #3336;
+  }
+  .tab.left {
+    z-index: 2;
+    opacity: 0.85;
+    transform: scale(0.93) rotateY(15deg) translateX(-10px);
+    box-shadow: 0 2px 12px -2px #aaa6;
+  }
+  .tab.right {
+    z-index: 2;
+    opacity: 0.85;
+    transform: scale(0.93) rotateY(-15deg) translateX(10px);
+    box-shadow: 0 2px 12px -2px #aaa6;
+  }
 
-      /* Eliminar scroll */
-      .tabs-container::-webkit-scrollbar {
-        display: none;
-      }
-      .tabs-container {
-        -ms-overflow-style: none; /* Internet Explorer 10+ */
-        scrollbar-width: none; /* Firefox */
-      }
-      /* Estilo base para el contenedor */
-      #content-container {
-        opacity: 0; /* Inicio de la animación (invisible) */
-        transform: translateY(20px); /* Posición desplazada hacia abajo */
-        animation: fadeUp 1s ease-in-out forwards; /* Activar animación */
-      }
+  @media (max-width: 700px) {
+    .tabs-wrapper {
+      max-width: 98vw;
+    }
+    .tabs-container {
+      max-width: 98vw;
+    }
+    .tab {
+      width: 27vw;
+      height: 23vw;
+      min-width: 85px;
+      min-height: 75px;
+    }
+    .arrow-button {
+      font-size: 1.3rem;
+      padding: 9px 3px;
+    }
+    .tab .tab-title {
+      font-size: 0.88rem;
+    }
+  }
 
-      /* Definición de la animación fade-up */
-      @keyframes fadeUp {
-        0% {
-          opacity: 0;
-          transform: translateY(20px); /* Posición inicial */
+  .content-container {
+    padding: 18px;
+    min-height: 70px;
+    margin-top: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    animation: fadeUp 1s ease-in-out;
+  }
+  @keyframes fadeUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+<script>
+  const tabsData = [
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/1-e1732638280330.png",
+      title: "Patolsima",
+      content: `[SHORTCODE_ELEMENTOR id="1165"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-26_130604727.png",
+      title: "Green & Clean",
+      content: `[SHORTCODE_ELEMENTOR id="497"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_082408868-e1732710310835.png",
+      title: "Organización Tanabe",
+      content: `[SHORTCODE_ELEMENTOR id="507"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_083233055-e1732710855728.png",
+      title: "Villa Manolo",
+      content: `[SHORTCODE_ELEMENTOR id="520"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084005190.png",
+      title: "Dojo Hinomaru",
+      content: `[SHORTCODE_ELEMENTOR id="529"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084629699-e1732711645792.png",
+      title: "Oasis Uvita",
+      content: `[SHORTCODE_ELEMENTOR id="540"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_085344234-e1732712097986.png",
+      title: "Koru",
+      content: `[SHORTCODE_ELEMENTOR id="556"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_090717014-e1732712918901.png",
+      title: "Osa Magic",
+      content: `[SHORTCODE_ELEMENTOR id="573"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2024/11/Screenshot-2024-11-27-160415-e1732738557306.png",
+      title: "Gitanas Corcovado Tours",
+      content: `[SHORTCODE_ELEMENTOR id="826"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2025/06/Group-56-1-scaled-e1750448710997.jpg",
+      title: "Japi Travels",
+      content: `[SHORTCODE_ELEMENTOR id="2017"]`,
+    },
+    {
+      src: "https://detipcompany.com/wp-content/uploads/2025/06/Group-57-1-scaled-e1750449212362.jpg",
+      title: "Citronella",
+      content: `[SHORTCODE_ELEMENTOR id="2028"]`,
+    },
+  ];
+  let centerIdx = 0;
+
+  function renderTabs() {
+    const container = document.getElementById("tabs-container");
+    container.innerHTML = "";
+
+    // Calcula los índices circularmente
+    const leftIdx = (centerIdx - 1 + tabsData.length) % tabsData.length;
+    const rightIdx = (centerIdx + 1) % tabsData.length;
+
+    // Tabs a mostrar
+    const toShow = [
+      { idx: leftIdx, pos: "left" },
+      { idx: centerIdx, pos: "center" },
+      { idx: rightIdx, pos: "right" },
+    ];
+
+    toShow.forEach(({ idx, pos }) => {
+      const t = tabsData[idx];
+      const div = document.createElement("div");
+      div.className = "tab " + pos;
+      div.innerHTML = `<img src="${t.src}" alt="${t.title}"><div class="tab-title">${t.title}</div>`;
+      // Click: el central no hace nada, los otros mueven el carrusel
+      div.onclick = () => {
+        if (pos === "left") {
+          centerIdx = leftIdx;
+          renderTabs();
+          renderContent();
+        } else if (pos === "right") {
+          centerIdx = rightIdx;
+          renderTabs();
+          renderContent();
         }
-        100% {
-          opacity: 1;
-          transform: translateY(0); /* Posición final */
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Contenedor principal con las flechas y los tabs -->
-    <div class="tabs-wrapper">
-      <!-- Flecha izquierda -->
-      <button class="arrow-button arrow-left">
-        <i class="fas fa-chevron-left"></i>
-      </button>
+      };
+      container.appendChild(div);
+    });
+  }
 
-      <!-- Contenedor de los tabs con imágenes -->
-      <div class="tabs-container">
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/1-e1732638280330.png"
-          alt="Tab 1"
-          class="tab"
-          data-content="content1"
-          data-title="Patolsima"
-        />
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-26_130604727.png"
-          alt="Tab 2"
-          class="tab"
-          data-content="content2"
-          data-title="Green & Clean"
-        />
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_082408868-e1732710310835.png"
-          alt="Tab 3"
-          class="tab"
-          data-content="content3"
-          data-title="Organización Tanabe"
-        />
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_083233055-e1732710855728.png"
-          alt="Tab 4"
-          class="tab"
-          data-content="content4"
-          data-title="Villa Manolo"
-        />
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084005190.png"
-          alt="Tab 5"
-          class="tab"
-          data-content="content5"
-          data-title="Dojo Hinomaru"
-        />
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084629699-e1732711645792.png"
-          alt="Tab 6"
-          class="tab"
-          data-content="content6"
-          data-title="Oasis Uvita"
-        />
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_085344234-e1732712097986.png"
-          alt="Tab 7"
-          class="tab"
-          data-content="content7"
-          data-title="Koru"
-        />
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_090717014-e1732712918901.png"
-          alt="Tab 8"
-          class="tab"
-          data-content="content8"
-          data-title="Osa Magic"
-        />
-        <img
-          src="https://detipcompany.com/wp-content/uploads/2024/11/Screenshot-2024-11-27-160415-e1732738557306.png"
-          alt="Tab 9"
-          class="tab"
-          data-content="content9"
-          data-title="Gitanas Corcovado Tours"
-        />
-      </div>
+  function renderContent() {
+    const content = document.getElementById("content-container");
+    content.innerHTML = `<p>${tabsData[centerIdx].content}</p>`;
+    content.style.animation = "none";
+    setTimeout(() => {
+      content.style.animation = "fadeUp 1s ease-in-out";
+    }, 10);
+  }
 
-      <!-- Flecha derecha -->
-      <button class="arrow-button arrow-right">
-        <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
+  document.querySelector(".arrow-left").onclick = function () {
+    centerIdx = (centerIdx - 1 + tabsData.length) % tabsData.length;
+    renderTabs();
+    renderContent();
+  };
+  document.querySelector(".arrow-right").onclick = function () {
+    centerIdx = (centerIdx + 1) % tabsData.length;
+    renderTabs();
+    renderContent();
+  };
 
-    <!-- Contenedor de contenido -->
-    <div class="content-container" id="content-container">
-      <!-- El contenido aquí se actualizará dinámicamente -->
-      <p>[SHORTCODE_ELEMENTOR id="1165"]</p>
-    </div>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const contentContainer = document.getElementById("content-container");
-        const tabsContainer = document.querySelector(".tabs-container");
-        const arrowLeft = document.querySelector(".arrow-left");
-        const arrowRight = document.querySelector(".arrow-right");
-        const scrollValue = 500;
-        const autoScrollSpeed = 1;
-        let isAutoScrolling = true;
-        let autoScrollTimeout;
-
-        // 📦 Diccionario de contenidos por ID
-        const tabContents = {
-          content1: `[SHORTCODE_ELEMENTOR id="1165"]`,
-          content2: `[SHORTCODE_ELEMENTOR id="497"]`,
-          content3: `[SHORTCODE_ELEMENTOR id="507"]`,
-          content4: `[SHORTCODE_ELEMENTOR id="520"]`,
-          content5: `[SHORTCODE_ELEMENTOR id="529"]`,
-          content6: `[SHORTCODE_ELEMENTOR id="540"]`,
-          content7: `[SHORTCODE_ELEMENTOR id="556"]`,
-          content8: `[SHORTCODE_ELEMENTOR id="573"]`,
-          content9: `[SHORTCODE_ELEMENTOR id="826"]`,
-        };
-
-        // 🔁 Clonar tabs para scroll infinito
-        const originalTabs = Array.from(tabsContainer.children);
-        originalTabs.forEach((tab) => {
-          const clone = tab.cloneNode(true);
-          tabsContainer.appendChild(clone);
-        });
-
-        const tabs = document.querySelectorAll(".tab");
-
-        // 🧠 Función para pausar scroll automático temporalmente
-        const pauseAutoScrollTemporarily = () => {
-          isAutoScrolling = false;
-          clearTimeout(autoScrollTimeout);
-          autoScrollTimeout = setTimeout(() => {
-            isAutoScrolling = true;
-          }, 4000);
-        };
-
-        // 👉 Evento click en tabs
-        tabs.forEach((tab) => {
-          tab.addEventListener("click", () => {
-            tabs.forEach((t) => t.classList.remove("selected"));
-            tab.classList.add("selected");
-
-            const tabOffset = tab.offsetLeft;
-            const containerWidth = tabsContainer.offsetWidth;
-            const tabWidth = tab.offsetWidth;
-
-            tabsContainer.scroll({
-              left: tabOffset - containerWidth / 2 + tabWidth / 2,
-              behavior: "smooth",
-            });
-
-            const contentId = tab.getAttribute("data-content");
-            contentContainer.innerHTML = `<p>${
-              tabContents[contentId] || ""
-            }</p>`;
-
-            contentContainer.style.animation = "none";
-            setTimeout(() => {
-              contentContainer.style.animation =
-                "fadeUp 1s ease-in-out forwards";
-            }, 0);
-
-            pauseAutoScrollTemporarily();
-          });
-        });
-
-        // 🧲 Centrar primer tab real (después de clonar) al cargar
-        const centerFirstTab = () => {
-          const containerWidth = tabsContainer.offsetWidth;
-          const tabWidth = tabs[0].offsetWidth;
-          const spacing = 30; // tu gap entre tabs
-          const totalTabsWidth = (tabWidth + spacing) * tabs.length;
-
-          // Desplaza al punto medio del scroll (inicio de duplicado)
-          tabsContainer.scrollLeft = totalTabsWidth / 4;
-
-          tabs[0].classList.add("selected");
-          contentContainer.innerHTML = `<p>${tabContents["content1"]}</p>`;
-        };
-        centerFirstTab();
-
-        // ⬅️➡️ Flechas con pausa de scroll infinito
-        const getScrollAmount = () => {
-          // Usa el ancho real de una tab (más el gap si lo tienes en CSS)
-          const tab = tabs[0];
-          const tabStyles = window.getComputedStyle(tab);
-          const gap = parseInt(tabStyles.marginRight || 30); // fallback 30px
-          return tab.offsetWidth + gap;
-        };
-
-        arrowLeft.addEventListener("click", () => {
-          tabsContainer.scrollBy({
-            left: -getScrollAmount(),
-            behavior: "smooth",
-          });
-          pauseAutoScrollTemporarily();
-        });
-
-        arrowRight.addEventListener("click", () => {
-          tabsContainer.scrollBy({
-            left: getScrollAmount(),
-            behavior: "smooth",
-          });
-          pauseAutoScrollTemporarily();
-        });
-
-        // ♻️ Scroll infinito animado
-        const infiniteScroll = () => {
-          if (isAutoScrolling) {
-            tabsContainer.scrollLeft += autoScrollSpeed;
-
-            // Si llega al final de duplicados, resetea al centro
-            const midpoint = tabsContainer.scrollWidth / 2;
-            if (tabsContainer.scrollLeft >= midpoint) {
-              tabsContainer.scrollLeft = midpoint / 2;
-            }
-          }
-          requestAnimationFrame(infiniteScroll);
-        };
-        infiniteScroll();
-      });
-    </script>
-  </body>
-</html>
+  renderTabs();
+  renderContent();
+</script>

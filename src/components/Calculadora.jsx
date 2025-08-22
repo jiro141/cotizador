@@ -175,7 +175,7 @@ export default function Calculadora({
           formData.integracion_terceros.trim() || "No requiere",
         notas: formData.notas.trim() || "Sin comentarios",
         tamano_equipo: formData.tamano_equipo.trim() || 1,
-        tipo_informe:"informe tipo 1"
+        tipo_informe: "informe tipo 1",
       };
       await toast.promise(
         (async () => {
@@ -318,23 +318,37 @@ export default function Calculadora({
           <h3 className="section-title">
             <strong>{selectedServicios.length > 0 ? "Servicios" : ""}</strong>
           </h3>
-          <ul className="items-list">
-            {selectedServicios.length > 0 &&
-              selectedServicios.map((item) => (
-                <li key={`servicio-${item.id}`} className="item-name">
-                  {item.producto}
-                </li>
-              ))}
-            {selectedServicios.length > 0 && (
-              <>
+          {selectedServicios.length > 0 && (
+            <>
+              <ul className="items-list">
+                {selectedServicios.map((item) => (
+                  <li key={`servicio-${item.id}`} className="item-name">
+                    {item.producto}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="totals">
                 <h4>
-                  Total de los servicios: $
-                  {totalServicios * precioPais + totalServicios2}
+                  Total de los servicios mensuales: $
+                  {(totalServicios * precioPais).toLocaleString("es-ES", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </h4>
                 <Separator />
-              </>
-            )}
-          </ul>
+                <h4>
+                  Total de los servicios anuales: $
+                  {totalServicios2.toLocaleString("es-ES", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </h4>
+                <Separator />
+              </div>
+            </>
+          )}
+
           {selectedSecciones.length > 0 && (
             <div className="secciones-container">
               <h3 className="section-title">

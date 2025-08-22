@@ -115,9 +115,8 @@ function App() {
           path="/"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Header toggleModal={toggleModal} userTipo={userTipo} />
-              <div className="dashboard">
-                {" "}
+              <div className="main-layout">
+                <Header toggleModal={toggleModal} userTipo={userTipo} />
                 <Dashboard />
               </div>
             </ProtectedRoute>
@@ -127,9 +126,11 @@ function App() {
           path="/webEsencial"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Header toggleModal={toggleModal} userTipo={userTipo} />
-              <div className="dashboard">
-                <FormWeb />
+              <div className="main-layout">
+                <Header toggleModal={toggleModal} userTipo={userTipo} />
+                <div className="dashboard">
+                  <FormWeb />
+                </div>
               </div>
             </ProtectedRoute>
           }
@@ -138,9 +139,12 @@ function App() {
           path="/smarSolution"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Header toggleModal={toggleModal} userTipo={userTipo} />
-              <div className="dashboard">
-                <SmartSolutions />
+              <div className="main-layout">
+                {" "}
+                <Header toggleModal={toggleModal} userTipo={userTipo} />
+                <div className="dashboard">
+                  <SmartSolutions />
+                </div>
               </div>
             </ProtectedRoute>
           }

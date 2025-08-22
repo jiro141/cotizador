@@ -15,6 +15,7 @@ export default function Servicios({
   const cliente = formData?.cliente || {};
   const isClienteIncompleto =
     !cliente.nombre || !cliente.email || !cliente.cargo;
+  const isDisabled = isClienteIncompleto || userTipo !== 1;
 
   const tooltipProps = isClienteIncompleto
     ? {
@@ -26,9 +27,7 @@ export default function Servicios({
 
   return (
     <div
-      className={`button-container-wrapper grid ${
-        userTipo === 1 ? "cuadrado" : ""
-      }`}
+      className={`button-container-wrapper grid cuadrado `}
       style={{ flex: "1", minWidth: 0 }}
     >
       <div {...tooltipProps}>
@@ -41,43 +40,24 @@ export default function Servicios({
           <p className="button-text">Web Esencial</p>
         </button>
       </div>
-
-      {userTipo === 1 && (
-        <>
-          <div {...tooltipProps}>
-            <button
-              className="button"
-              onClick={goToAbout}
-              disabled={isClienteIncompleto}
-            >
-              <img src={smart} alt="Smart Solutions" />
-              <p className="button-text">Smart Solution</p>
-            </button>
-          </div>
-
-          <div {...tooltipProps}>
-            <button
-              className="button"
-              onClick={goToAbout}
-              disabled={isClienteIncompleto}
-            >
-              <img src={digital} alt="Digital Support" />
-              <p className="button-text">Support and Development</p>
-            </button>
-          </div>
-
-          <div {...tooltipProps}>
-            <button
-              className="button"
-              onClick={goToAbout}
-              disabled={isClienteIncompleto}
-            >
-              <img src={informes} alt="Informes" />
-              <p className="button-text">Informes</p>
-            </button>
-          </div>
-        </>
-      )}
+      <div {...tooltipProps}>
+        <button className="button" onClick={goToAbout} disabled={isDisabled}>
+          <img src={smart} alt="Smart Solutions" />
+          <p className="button-text">Smart Solution</p>
+        </button>
+      </div>
+      <div {...tooltipProps}>
+        <button className="button" onClick={goToAbout} disabled={isDisabled}>
+          <img src={digital} alt="Digital Support" />
+          <p className="button-text">Support and Development</p>
+        </button>
+      </div>
+      <div {...tooltipProps}>
+        <button className="button" onClick={goToAbout} disabled={isDisabled}>
+          <img src={informes} alt="Informes" />
+          <p className="button-text">Informes</p>
+        </button>
+      </div>
 
       {/* Renderiza solo un tooltip compartido */}
       {isClienteIncompleto && <Tooltip id="cliente-tooltip" place="top" />}

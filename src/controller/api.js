@@ -1,15 +1,9 @@
 // airtableService.js
 
 import axios from "axios";
-// import { AIRTABLE_API_URL, AIRTABLE_BASE_ID, AIRTABLE_API_KEY } from "./airtableConfig";
+
 import bcrypt from "bcryptjs"; // Para hashear la contraseña
-// Configuración base de Axios para Airtable
-// const airtable = axios.create({
-//   baseURL: `https://api.airtable.com/v0/app77bOEPhtE0MihH`,
-//   headers: {
-//     Authorization: `Bearer patRDw2pOkc97NLot.4be638a9ae5c86a5a8ca52cc07101b62f27cfd62a0d9547ec2b572e33ed0fe63`,
-//   },
-// });
+
 const airtable = axios.create({
   baseURL: `https://detipcompany141.pythonanywhere.com/api`,
   headers: {
@@ -199,55 +193,50 @@ export const sendEmail = async (data) => {
   }
 };
 
-export const authenticateUser = async (username, password) => {
+export const authenticateUser = async (email, password) => {
   try {
-    const response = await airtable.get(`/users`, {
-      params: {
-        filterByFormula: `email = '${username}'`,
-      },
+    const response = await airtable.post("/auth/login/", {
+      email,
+      password,
     });
 
-    if (response.data.length === 0) {
-      throw new Error("Usuario no encontrado");
-    }
+    const data = response.data;
 
-    const user = response.data[0];
-
-    // Si no hay contraseña registrada en la base o la contraseña enviada está vacía
-    if (!user.password || !password) {
-      // Aquí retorna flujo de configuración de contraseña
+    // Checa si el backend pide configurar contraseña
+    if (
+      data.message &&
+      data.message.toLowerCase().includes("configure contraseña")
+    ) {
+      // Puedes cambiar 'user_id' por el identificador que mande tu backend, si lo retorna
       return {
-        id: user.id,
-        name: user.name,
-        username: user.email,
-        tipoUser: user.tipoUser,
-        pais: user.pais ?? null,
         requiresPasswordSetup: true,
+        user_id: data.user_id || null, // Asegúrate que este campo llegue
+        email: email,
       };
     }
 
-    // Solo si ambos tienen contraseña, validar
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      throw new Error("Contraseña incorrecta");
-    }
-
-    // Usuario autenticado correctamente
+    // Login normal
     return {
-      id: user.id,
-      name: user.name,
-      username: user.email,
-      tipoUser: user.tipoUser,
-      pais: user.pais ?? null,
+      id: data.user_id,
+      username: data.email,
+      access: data.access,
+      refresh: data.refresh,
       requiresPasswordSetup: false,
+      tipoUser: data.tipouser_id,
+      pais: data.pais_id,
     };
   } catch (error) {
-    console.error("Error en la autenticación:", error.message);
-    throw error;
+    if (error.response && error.response.data) {
+      const errorMsg =
+        typeof error.response.data === "string"
+          ? error.response.data
+          : Object.values(error.response.data).join(" ");
+      throw new Error(errorMsg);
+    } else {
+      throw new Error("Error en la autenticación. Intenta nuevamente.");
+    }
   }
 };
-
 
 export const updatePassword = async (userId, newPassword, securityQA) => {
   try {
