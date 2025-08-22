@@ -1,4 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import img1 from "../img/Recurso 11.svg";
+import img2 from "../img/Group 44.svg";
+import img3 from "../img/Group 65 (1).svg";
+import img4 from "../img/Recurso 52.svg";
+import img5 from "../img/Group 64.svg";
+import img6 from "../img/Group 46.svg";
+import img7 from "../img/Group 63.svg";
+import img8 from "../img/Group 48.svg";
+import img9 from "../img/Group 66.svg";
+import {
+  getFuncionesAdicionales,
+  getPaginasAdicionales,
+  getData,
+} from "../controller/api";
 import { Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -9,6 +23,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import Buttons from "./Buttons";
 
 ChartJS.register(
   RadialLinearScale,
@@ -18,92 +33,99 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-const productProfiles = {
-  "Landing Page Click Through": [
-    "Tener presencia en internet 24/7",
-    "Generar confianza y credibilidad en clientes",
-    "Aumentar la visibilidad de la marca",
-    "Posicionarse mejor en buscadores (SEO)",
-    "Mostrar promociones o novedades",
-    "Recolectar correos y construir una base de datos",
-  ],
-  "Web de Inicio (Landing básica)": [
-    "Tener presencia en internet 24/7",
-    "Mostrar ubicación y datos de contacto fácilmente",
-    "Mostrar portafolios o testimonios",
-    "Facilitar la comunicación con los clientes",
-  ],
-  "Web de Reservaciones": [
-    "Agilizar reservas, citas o pedidos",
-    "Facilitar la comunicación con los clientes",
-    "Permitir pagos digitales o suscripciones",
-    "Automatizar procesos repetitivos",
-  ],
-  "Página Corporativa": [
-    "Generar confianza y credibilidad en clientes",
-    "Mostrar portafolios o testimonios",
-    "Facilitar la comunicación con los clientes",
-    "Posicionarse mejor en buscadores (SEO)",
-    "Centralizar la información del negocio",
-  ],
-  "Web Informativa": [
-    "Educar al cliente sobre productos/servicios",
-    "Mostrar ubicación y datos de contacto fácilmente",
-    "Facilitar la comunicación con los clientes",
-    "Obtener datos y estadísticas de usuarios",
-  ],
-  Blog: [
-    "Educar al cliente sobre productos/servicios",
-    "Obtener datos y estadísticas de usuarios",
-    "Facilitar la atención multicanal (WhatsApp, email, chatbot)",
-    "Recolectar correos y construir una base de datos",
-  ],
-  "Página de Membresía": [
-    "Gestionar usuarios, clientes o productos desde un panel de control",
-    "Permitir pagos digitales o suscripciones",
-    "Facilitar la atención multicanal (WhatsApp, email, chatbot)",
-    "Mostrar promociones o novedades",
-  ],
-  "Aula virtual": [
-    "Educar al cliente sobre productos/servicios",
-    "Facilitar la atención multicanal (WhatsApp, email, chatbot)",
-    "Ofrecer contenido descargable (ebooks, catálogos, etc.)",
-    "Automatizar procesos repetitivos",
-  ],
-  eCommerce: [
-    "Vender productos o servicios en línea",
-    "Permitir pagos digitales o suscripciones",
-    "Tener control y administración de inventario",
-    "Mostrar promociones o novedades",
-    "Facilitar la atención multicanal (WhatsApp, email, chatbot)",
-  ],
+
+const PRODUCT_LABELS = {
+  1: "Landing Page",
+  2: "Web de Inicio",
+  3: "Web de Reservas",
+  4: "Web Corporativa",
+  5: "Web Informativa",
+  6: "Blog",
+  7: "Membresía",
+  8: "Aula Virtual",
+  9: "eCommerce",
 };
-const StepThreeForm = ({ handleSubmit, formData, handleBack }) => {
-  const selectedBenefits = formData?.beneficios_producto || [];
 
-  const calculateSimilarityScore = (selectedBenefits, profiles) => {
-    const scores = {};
+const PRODUCT_IMAGES = {
+  1: img3, // Landing Page Click through
+  2: img1, // Web de Inicio (Landing básica)
+  3: img2, // Web de Reservaciones
+  4: img7, // Página Corporativa
+  5: img9, // Web Informativa
+  6: img4, // Blog
+  7: img6, // Página de Membresía
+  8: img8, // Aula Virtual
+  9: img5, // eCommerce
+};
 
-    for (const [product, idealBenefits] of Object.entries(profiles)) {
-      const matches = selectedBenefits.filter((b) => idealBenefits.includes(b));
-      const score = (matches.length / idealBenefits.length) * 20;
-      scores[product] = Math.round(score);
-    }
+const StepThreeForm = ({ formData }) => {
 
-    return scores;
-  };
+  
+  // Calcular puntajes
+  const selectedObjects = Object.values(formData?.beneficios || {}).flat();
+  const productScores = {};
+  selectedObjects.forEach((benefit) => {
+    benefit.puntos?.forEach(({ producto_id, puntaje }) => {
+      if (!productScores[producto_id]) {
+        productScores[producto_id] = 0;
+      }
+      productScores[producto_id] += puntaje;
+    });
+  });
 
-  const similarityScores = calculateSimilarityScore(
-    selectedBenefits,
-    productProfiles
+  const labels = Object.keys(PRODUCT_LABELS).map((id) => PRODUCT_LABELS[id]);
+  const dataValues = Object.keys(PRODUCT_LABELS).map(
+    (id) => productScores[id] || 0
+  );
+
+  // Producto sugerido
+  const maxScoreProduct = Object.entries(productScores).reduce(
+    (max, [id, score]) => (score > max.score ? { id, score } : max),
+    { id: null, score: -Infinity }
+  );
+  const maxScoreProductId = maxScoreProduct.id;
+
+  // Estados para sugerencias (todas las funciones, páginas, secciones)
+  const [allFunciones, setAllFunciones] = useState([]);
+  const [allPaginas, setAllPaginas] = useState([]);
+  const [allSecciones, setAllSecciones] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Cargar TODOS los datos al montar
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([getFuncionesAdicionales(), getPaginasAdicionales(), getData()])
+      .then(([funciones, paginas, secciones]) => {
+        setAllFunciones(funciones);
+        setAllPaginas(paginas);
+        setAllSecciones(secciones);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Filtrar sugerencias según el producto sugerido (por array productos)
+  const funciones = allFunciones.filter(
+    (f) =>
+      Array.isArray(f.productos) &&
+      f.productos.some((prod) => String(prod) === String(maxScoreProductId))
+  );
+  const paginas = allPaginas.filter(
+    (p) =>
+      Array.isArray(p.productos) &&
+      p.productos.some((prod) => String(prod) === String(maxScoreProductId))
+  );
+  const secciones = allSecciones.filter(
+    (s) =>
+      Array.isArray(s.productos) &&
+      s.productos.some((prod) => String(prod) === String(maxScoreProductId))
   );
 
   const data = {
-    labels: Object.keys(similarityScores),
+    labels,
     datasets: [
       {
-        label: "Coincidencia (%)",
-        data: Object.values(similarityScores),
+        label: "",
+        data: dataValues,
         backgroundColor: "rgba(112, 173, 223, 0.2)",
         borderColor: "#70addf",
         pointBackgroundColor: "#70addf",
@@ -125,35 +147,109 @@ const StepThreeForm = ({ handleSubmit, formData, handleBack }) => {
         },
         ticks: {
           beginAtZero: true,
-          stepSize: 1,
+          stepSize: 5,
           color: "#ffffff",
           backdropColor: "transparent",
         },
       },
     },
     plugins: {
-      legend: {
-        position: "top",
-        labels: {
-          color: "#ffffff",
-          font: { size: 14 },
-        },
-      },
+      legend: { display: false },
     },
   };
 
   return (
-    <div className="custom-form">
-      <div>
-        <Radar
+    <div style={{ zIndex: "99" }}>
+      <div style={{ display: "flex", gap: "2rem", justifyContent: "center" }}>
+        <div
           style={{
-            minWidth: "800px",
-            height: "600px",
+            backgroundColor: "#2c2c2c",
+            maxWidth: "600px",
+            borderRadius: "8px",
           }}
-          data={data}
-          options={options}
-        />
+        >
+          <Radar style={{ height: "400px" }} data={data} options={options} />
+        </div>
+        {/* Producto sugerido */}
+        {maxScoreProductId && (
+          <div
+            style={{
+              background: "#2c2c2c",
+              padding: "2rem",
+              borderRadius: "12px",
+              color: "white",
+              minWidth: "300px",
+              maxWidth: "350px",
+              boxShadow: "0 4px 16px #0004",
+              minHeight: "400px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "1.2em",
+              justifyContent:'center'
+            }}
+          >
+            <h3 style={{ margin: 0 }}>Producto Sugerido</h3>
+            {/* Imagen aquí */}
+            <img
+              src={PRODUCT_IMAGES[maxScoreProductId]}
+              alt={PRODUCT_LABELS[maxScoreProductId]}
+              style={{
+                width: "100px",
+                height: "100px",
+                objectFit: "contain",
+                borderRadius: "14px",
+                // background: "#fff2",
+                marginBottom: "0.8em",
+                boxShadow: "0 2px 8px #0003",
+              }}
+            />
+            <h2 style={{ margin: "0.5em 0 0.25em", textAlign: "center" }}>
+              {PRODUCT_LABELS[maxScoreProductId]}
+            </h2>
+            <p style={{ margin: "0 0 1em", fontWeight: "bold" }}>
+              Puntaje: {maxScoreProduct.score}
+            </p>
+            {/* <div style={{ width: "100%" }}>
+              <strong>Secciones sugeridas:</strong>
+              <ul>
+                {loading ? (
+                  <li>Cargando...</li>
+                ) : secciones.length === 0 ? (
+                  <li>No hay sugerencias</li>
+                ) : (
+                  secciones.map((s, i) => <li key={i}>{s.seccion}</li>)
+                )}
+              </ul>
+            </div> */}
+            {/* <div style={{ width: "100%" }}>
+              <strong>Funciones sugeridas:</strong>
+              <ul>
+                {loading ? (
+                  <li>Cargando...</li>
+                ) : funciones.length === 0 ? (
+                  <li>No hay sugerencias</li>
+                ) : (
+                  funciones.map((f, i) => <li key={i}>{f.pagina_avanzada}</li>)
+                )}
+              </ul>
+            </div>
+            <div style={{ width: "100%" }}>
+              <strong>Páginas sugeridas:</strong>
+              <ul>
+                {loading ? (
+                  <li>Cargando...</li>
+                ) : paginas.length === 0 ? (
+                  <li>No hay sugerencias</li>
+                ) : (
+                  paginas.map((p, i) => <li key={i}>{p.pagina}</li>)
+                )}
+              </ul>
+            </div> */}
+          </div>
+        )}
       </div>
+      <Buttons />
     </div>
   );
 };

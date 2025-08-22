@@ -8,12 +8,65 @@ import digital from "../img/soporte-en-linea 1.svg";
 import informes from "../img/solicitud 1.svg";
 import Modal from "../components/Modal";
 import Header from "../components/Header";
+import StepOneForm from "../components/StepOneForm";
 import { MyContext } from "../context/Context";
-
+import { Stepper, Step } from "react-form-stepper";
+import Servicios from "../components/Servicios";
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [input, setInput] = useState({
+    tipo_informe: "",
+    tipo_producto: "",
+    usuarios: "no requiere",
+    interfaz_producto: "web",
+    tiempo_implementacion: "",
+    tamano_equipo: "",
+    descripcion_empresa: "",
+    descripcion_producto: "",
+    hardware: "",
+    beneficios_producto: [],
+    modulos: "",
+    notas: "",
+    soporte_digital: false,
+    formacion_uso: false,
+    integracion_terceros: "No requiere",
+    cliente: {
+      nombre: "",
+      cargo: "",
+      rubro: "",
+      email: "",
+    },
+  });
 
-  const { setIsModalOpen, isModalOpen, toggleModal,userTipo } = useContext(MyContext);
+  const {
+    setIsModalOpen,
+    isModalOpen,
+    toggleModal,
+    userTipo,
+    setFormData,
+    formData,
+  } = useContext(MyContext);
+  
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (["nombre", "cargo", "rubro", "email"].includes(name)) {
+      setInput((prev) => ({
+        ...prev,
+        cliente: {
+          ...prev.cliente,
+          [name]: value,
+        },
+      }));
+    } else {
+      setInput((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
+  };
   const goWebEsencial = () => {
     navigate("/webEsencial");
   };
@@ -24,53 +77,46 @@ export default function Dashboard() {
 
   return (
     <div>
-      {/* Modal que se muestra al hacer clic en el botón País */}
       <Modal isOpen={isModalOpen} onClose={toggleModal} />
-     
-      {/* Botón en la parte superior derecha que abre el modal */}
-      {/* <div className="boton-pais">
-        {userTipo === "Detip" && (
-          <a onClick={toggleModal}>
-            País
-            <img src={globo} alt="Globo de ubicación" />
-          </a>
-        )}
-        <a onClick={handleLogout}>
-          Cerrar sesión
-          <BiLogOutCircle size={30} color="#FFFF" />
-        </a>
-      </div> */}
-
       <div className="centrar">
-        <h3 className="titulo">Productos</h3>
-        <div
-          className={`button-container-wrapper grid ${
-            userTipo === "Detip" ? "cuadrado" : ""
-          }`}
-        >
-          {/* ✅ Siempre muestra el botón "Web Esencial" */}
-          <button className="button" onClick={goWebEsencial}>
-            <img src={webEsencial} alt="Web Esencial" />
-            <p className="button-text">Web Esencial</p>
-          </button>
 
-          {/* ✅ Solo muestra los otros botones si `userTipo` es "Detip" */}
-          {userTipo === "Detip" && (
-            <>
-              <button className="button" onClick={goToAbout}>
-                <img src={smart} alt="Smart Solutions" />
-                <p className="button-text">Smart Solution</p>
-              </button>
-              <button className="button" onClick={goToAbout}>
-                <img src={digital} alt="Digital Support" />
-                <p className="button-text">Support and Development</p>
-              </button>
-              <button className="button" onClick={goToAbout}>
-                <img src={informes} alt="Informes" />
-                <p className="button-text">Informes</p>
-              </button>
-            </>
-          )}
+        <div
+          style={{
+            display: "flex",
+            padding: "50px",
+            gap: "20px", // mejora espaciado entre divs
+          }}
+        >
+          <div
+            style={{
+              flex: "1 1 0", // <- garantiza que crece y se reduce por igual
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#2C2C2C",
+              padding: "0px 10px",
+              borderRadius: "8px",
+              zIndex: 99,
+              minWidth: 600, // <- evita que crezca por contenido
+            }}
+          >
+            <StepOneForm
+              input={input}
+              handleChange={handleChange}
+              setFormData={setFormData} // 🔥 aquí lo pasas
+            />
+          </div>
+
+          <Servicios
+            formData={formData}
+            webEsencial={webEsencial}
+            goWebEsencial={goWebEsencial}
+            userTipo={userTipo}
+            smart={smart}
+            goToAbout={goToAbout}
+            digital={digital}
+            informes={informes}
+          />
         </div>
       </div>
 

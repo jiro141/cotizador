@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import { GoPlusCircle } from "react-icons/go";
 import { MyContext } from "../context/Context";
-import { postCotizacion } from "../controller/api";
+import { postCotizacion, sendEmail } from "../controller/api";
 import toast, { Toaster } from "react-hot-toast";
-import { sendEmail } from "../controller/api";
 import Separator from "./Separator";
 import logo from "../img/banner.png";
 import frente from "../img/frente.png";
 import { createHtmlFile1 } from "../layout/documents/Informe1";
+
 export default function Calculadora({
   data,
   selectedServicios,
@@ -22,40 +22,34 @@ export default function Calculadora({
   onCheckboxChange,
 }) {
   const precioPais = JSON.parse(localStorage.getItem("precio"));
-
   const { state, setFormData, formData } = useContext(MyContext);
+
   const totalServicios = selectedServicios.reduce(
-    (sum, item) => sum + Number(item.fields.Valor),
+    (sum, item) => sum + Number(item.valor),
     0
   );
   const totalServicios2 = selectedServicios.reduce(
-    (sum, item) => sum + Number(item?.fields?.precio || 0),
+    (sum, item) => sum + Number(item?.precio || 0),
+    0
+  );
+  const totalSecciones = selectedSeccionesMax.reduce(
+    (sum, item) => sum + Number(item.valor),
+    0
+  );
+  const totalPaginasExtra = exceededPaginas.reduce(
+    (sum, item) => sum + Number(item.valor),
+    0
+  );
+  const totalFunciones = selectedFunciones.reduce(
+    (sum, item) => sum + Number(item.valor),
     0
   );
 
-  // Calcular el precio total multiplicando por precioPais
-
-  const totalSecciones = selectedSeccionesMax.reduce(
-    (sum, item) => sum + Number(item.Valor),
-    0 // Se asegura de que el reduce siempre empiece desde 0
-  );
-
-  const totalPaginasExtra = exceededPaginas.reduce(
-    (sum, item) => sum + Number(item.Valor),
-    0 // Agregado el valor inicial
-  );
-
-  const totalFunciones = selectedFunciones.reduce(
-    (sum, item) => sum + Number(item.Valor),
-    0 // Agregado el valor inicial
-  );
-
   const [isLoading, setIsLoading] = useState(false);
+
   let total =
     (totalSecciones + totalFunciones + precio + totalPaginasExtra) * precioPais;
 
-  // Dependiendo del estado (state), restamos algunos valores
-  // Mapeo de estados a descuentos
   const descuentos = {
     WebDeReservaciones: selectedFunciones[0]?.Valor * precioPais,
     PaginaCorporativa: selectedFunciones[0]?.Valor * precioPais,
@@ -70,13 +64,9 @@ export default function Calculadora({
     eCommerce: selectedFunciones[0]?.Valor * precioPais,
   };
 
-  // Si el estado existe en el mapeo, restamos el descuento correspondiente
   if (descuentos[state]) {
     total -= descuentos[state];
   }
-
-  // Otras condiciones para más estados
-  // Puedes agregar más lógica dependiendo de lo que necesites
 
   const [formData1, setformData1] = useState({
     Producto: "",
@@ -101,17 +91,17 @@ export default function Calculadora({
 
   useEffect(() => {
     setformData1((prev) => ({
-      ...prev, // Correctamente envuelto en paréntesis
+      ...prev,
       Cliente: formData.cliente.nombre,
       email: formData.cliente.email,
       Cargo: formData.cliente.cargo,
       company: formData.descripcion_empresa,
-      Producto: state || "", // Asegura que `state` tenga un valor predeterminado si es null o undefined
+      Producto: state || "",
       funciones_mensuales: (selectedServicios || [])
-        .map((item) => item.fields?.Producto || "")
-        .join(", "), // Convierte el arreglo en un string separado por comas
+        .map((item) => item?.producto || "")
+        .join(", "),
       secciones: (selectedSecciones || [])
-        .map((item) => item.name || "" || item["Secciones de portada básicas "])
+        .map((item) => item.name || "")
         .join(", "),
       Funciones: (selectedFunciones || [])
         .map((item) => item.name || "")
@@ -122,24 +112,22 @@ export default function Calculadora({
       paginas_extra: Object.entries(
         (exceededPaginas || []).reduce((acc, item) => {
           const name = item.name || item.paginas || "";
-          acc[name] = (acc[name] || 0) + 1; // Cuenta las repeticiones
+          acc[name] = (acc[name] || 0) + 1;
           return acc;
         }, {})
       )
-        .map(([name, count]) => (count > 1 ? `${name} x${count}` : name)) // Agrega "x2, x3" si hay repeticiones
-        .join(", "), // Convierte el resultado en un string separado por comas
-
+        .map(([name, count]) => (count > 1 ? `${name} x${count}` : name))
+        .join(", "),
       paginas: Object.entries(
         (selectedPaginas || []).reduce((acc, item) => {
           const name = item.name || item.paginas || "";
-          acc[name] = (acc[name] || 0) + 1; // Cuenta las repeticiones
+          acc[name] = (acc[name] || 0) + 1;
           return acc;
         }, {})
       )
-        .map(([name, count]) => (count > 1 ? `${name} x${count}` : name)) // Agrega "x2, x3" si hay repeticiones
-        .join(", "), // Convierte el resultado en un string separado por comas
-
-      total: total || 0, // Asegura que `total` sea un número, incluso si es undefined
+        .map(([name, count]) => (count > 1 ? `${name} x${count}` : name))
+        .join(", "),
+      total: total || 0,
     }));
   }, [
     state,
@@ -151,6 +139,7 @@ export default function Calculadora({
     exceededPaginas,
     total,
   ]);
+
   const toBase64 = (url) => {
     return fetch(url)
       .then((res) => res.blob())
@@ -164,31 +153,21 @@ export default function Calculadora({
           })
       );
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // por si usas algún loader
-
+    setIsLoading(true);
     try {
-      // // === PRIMERA ACCIÓN: postCotizacion y sendEmail ===
-      // const [cotizacion, correo] = await Promise.all([
-      //   postCotizacion(formData1),
-      //   sendEmail(formData1),
-      // ]);
-
-      // if (cotizacion && correo) {
-      //   toast("🚀 Cotización y correo enviados con éxito", {
-      //     icon: "📧",
-      //     style: {
-      //       borderRadius: "10px",
-      //       background: "#2C2C2C",
-      //       color: "#fff",
-      //     },
-      //   });
-      // }
-
-      // === SEGUNDA ACCIÓN: Enviar a tu API personalizada ===
+      // --- Aquí convertimos a string ---
+      const beneficiosProductoString = Array.isArray(
+        formData.beneficios_producto
+      )
+        ? formData.beneficios_producto.join(", ")
+        : formData.beneficios_producto || "";
+      // --- Usamos el string en dataToSend ---
       const dataToSend = {
         ...formData,
+        beneficios_producto: beneficiosProductoString, // <--- aquí el cambio
         tiempo_implementacion:
           formData.tiempo_implementacion.trim() || "Sin comentarios",
         hardware: formData.hardware.trim() || "No requiere",
@@ -196,6 +175,7 @@ export default function Calculadora({
           formData.integracion_terceros.trim() || "No requiere",
         notas: formData.notas.trim() || "Sin comentarios",
         tamano_equipo: formData.tamano_equipo.trim() || 1,
+        tipo_informe:"informe tipo 1"
       };
       await toast.promise(
         (async () => {
@@ -209,7 +189,6 @@ export default function Calculadora({
               body: JSON.stringify(dataToSend),
             }
           );
-
           if (!response.ok) {
             let message = `Error ${response.status}`;
             try {
@@ -218,14 +197,11 @@ export default function Calculadora({
             } catch {}
             throw new Error(message);
           }
-
           const responseData = await response.json();
-
           const [logoBase64, frenteBase64] = await Promise.all([
             toBase64(logo),
             toBase64(frente),
           ]);
-
           createHtmlFile1({
             ...responseData,
             logo: logoBase64,
@@ -238,13 +214,7 @@ export default function Calculadora({
           error: "💥 Algo falló al despegar... inténtalo de nuevo.",
         }
       );
-
-      // ✅ Todo listo: reiniciar si quieres
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 3000);
     } catch (error) {
-      console.error("❌ Error general en envío:", error);
       toast("❌ Hubo un error al enviar los datos", {
         icon: "⚠️",
         style: {
@@ -306,9 +276,8 @@ export default function Calculadora({
       .filter(Boolean)
       .join("\n");
 
-    // ⚡ Detección de palabras clave
     const serviciosText = (selectedServicios || [])
-      .map((item) => item.fields?.Producto?.toLowerCase() || "")
+      .map((item) => item?.producto?.toLowerCase() || "")
       .join(" ");
 
     const soporte_digital = serviciosText.includes("web master");
@@ -350,16 +319,13 @@ export default function Calculadora({
             <strong>{selectedServicios.length > 0 ? "Servicios" : ""}</strong>
           </h3>
           <ul className="items-list">
-            {selectedServicios.length > 0 ? (
+            {selectedServicios.length > 0 &&
               selectedServicios.map((item) => (
-                <li key={`servicio-${item.fields.ID}`} className="item-name">
-                  {item.fields.Producto}
+                <li key={`servicio-${item.id}`} className="item-name">
+                  {item.producto}
                 </li>
-              ))
-            ) : (
-              <></>
-            )}
-            {selectedServicios.length > 0 ? (
+              ))}
+            {selectedServicios.length > 0 && (
               <>
                 <h4>
                   Total de los servicios: $
@@ -367,44 +333,35 @@ export default function Calculadora({
                 </h4>
                 <Separator />
               </>
-            ) : (
-              <></>
             )}
           </ul>
           {selectedSecciones.length > 0 && (
             <div className="secciones-container">
-              {" "}
-              {/* Clase añadida */}
               <h3 className="section-title">
                 <strong>Secciones</strong>
               </h3>
               <ul className="items-list">
-                {selectedSecciones.map((item, index) => {
-                  return (
-                    <li key={`seccion-${item.ID}`} className="item-name">
-                      {item.name} {item["Secciones de portada básicas "]}
-                    </li>
-                  );
-                })}
+                {selectedSecciones.map((item) => (
+                  <li key={`seccion-${item.id}`} className="item-name">
+                    {item.name} {item["Secciones de portada básicas "]}
+                  </li>
+                ))}
               </ul>
             </div>
           )}
           {selectedSeccionesMax.length > 0 && (
             <div className="extra-sections-container">
-              {" "}
-              {/* Clase añadida */}
               <h3 className="section-title">
                 <strong>Secciones Extra</strong>
               </h3>
               <ul className="items-list">
                 {selectedSeccionesMax.map((item) => (
                   <li
-                    key={`max-seccion-${item.ID}`}
+                    key={`max-seccion-${item.id}`}
                     className="item-name extra-item flex justify-center"
                   >
                     <GoPlusCircle className="icon-extra-section" />
                     {item.name}
-                    {/* Clase añadida */}
                   </li>
                 ))}
               </ul>
@@ -414,22 +371,19 @@ export default function Calculadora({
             <strong>{selectedPaginas.length > 0 ? "Paginas" : ""}</strong>
           </h3>
           <ul className="items-list">
-            {selectedPaginas.length > 0 ? (
+            {selectedPaginas.length > 0 &&
               Object.entries(
                 selectedPaginas.reduce((acc, item) => {
-                  acc[item.ID] = acc[item.ID] || { ...item, count: 0 };
-                  acc[item.ID].count += 1;
+                  acc[item.id] = acc[item.id] || { ...item, count: 0 };
+                  acc[item.id].count += 1;
                   return acc;
                 }, {})
               ).map(([id, item]) => (
                 <li key={`pagina-${id}`} className="item-name">
-                  {item.name ? item.name : item.paginas}{" "}
+                  {item.name ? item.name : item.pagina}{" "}
                   {item.count > 1 ? `x${item.count}` : ""}
                 </li>
-              ))
-            ) : (
-              <></>
-            )}
+              ))}
           </ul>
           {exceededPaginas.length > 0 && (
             <>
@@ -441,16 +395,15 @@ export default function Calculadora({
               <ul className="items-list">
                 {Object.entries(
                   exceededPaginas.reduce((acc, item) => {
-                    acc[item.ID] = acc[item.ID] || { ...item, count: 0 };
-                    acc[item.ID].count += 1;
+                    acc[item.id] = acc[item.id] || { ...item, count: 0 };
+                    acc[item.id].count += 1;
                     return acc;
                   }, {})
                 ).map(([id, item]) => (
                   <li key={`pagina-${id}`} className="item-name extra-item">
                     <GoPlusCircle className="icon-extra-page" />
-                    {item.name ? item.name : item.paginas}{" "}
-                    {item.count > 1 ? `x${item.count}` : " "}{" "}
-                    {/* Clase añadida */}
+                    {item.name ? item.name : item.pagina}{" "}
+                    {item.count > 1 ? `x${item.count}` : " "}
                   </li>
                 ))}
               </ul>
@@ -460,20 +413,15 @@ export default function Calculadora({
             <strong>{selectedFunciones.length > 0 ? "Funciones" : ""}</strong>
           </h3>
           <ul className="items-list">
-            {selectedFunciones.length > 0 ? (
+            {selectedFunciones.length > 0 &&
               selectedFunciones.map((item) => (
-                <li key={`pagina-${item.ID}`} className="item-name">
+                <li key={`pagina-${item.id}`} className="item-name">
                   {item.name}
                 </li>
-              ))
-            ) : (
-              <></>
-            )}
+              ))}
           </ul>
-          <p className="total-price">Total: ${total.toFixed(2)}</p>{" "}
-          {/* Clase añadida */}
+          <p className="total-price">Total: ${total.toFixed(2)}</p>
           <div className="div-boton">
-            {" "}
             <button onClick={handleSubmit} className="quote-button">
               Enviar Formulario
             </button>

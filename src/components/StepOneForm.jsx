@@ -1,19 +1,109 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import { getClientes } from "../controller/api";
 
-const StepOneForm = ({ input, handleChange, handleSubmit, handleBack }) => {
+const StepOneForm = ({ input, handleChange, setFormData }) => {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
+  const [suggestions, setSuggestions] = useState([]);
+  const [searchField, setSearchField] = useState(null);
+  const [query, setQuery] = useState("");
+  const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (query.length < 2 || !searchField || !isHome) {
+      setSuggestions([]);
+      setDropdownVisible(false);
+      return;
+    }
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        const results = await getClientes(query);
+        setSuggestions(results);
+        setDropdownVisible(true);
+      } catch (err) {
+        setSuggestions([]);
+        setDropdownVisible(false);
+      }
+    }, 300);
+  }, [query, searchField, isHome]);
+
+  const handleSuggestionClick = (suggestion) => {
+    const updatedInput = {
+      ...input,
+      cliente: {
+        nombre: suggestion.nombre,
+        cargo: suggestion.cargo,
+        rubro: suggestion.rubro || "",
+        email: suggestion.email,
+      },
+      descripcion_empresa: suggestion.descripcion_empresa,
+    };
+
+    handleChange({
+      target: { name: "nombre", value: updatedInput.cliente.nombre },
+    });
+    handleChange({
+      target: { name: "cargo", value: updatedInput.cliente.cargo },
+    });
+    handleChange({
+      target: { name: "rubro", value: updatedInput.cliente.rubro },
+    });
+    handleChange({
+      target: { name: "email", value: updatedInput.cliente.email },
+    });
+    handleChange({
+      target: {
+        name: "descripcion_empresa",
+        value: updatedInput.descripcion_empresa,
+      },
+    });
+
+
+    setFormData(updatedInput);
+
+    setDropdownVisible(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    if ((name === "nombre" || name === "descripcion_empresa") && isHome) {
+      setSearchField(name);
+      setQuery(value);
+    }
+
+    handleChange(e);
+  };
+
+  const renderSuggestions = () => {
+    if (!isDropdownVisible || suggestions.length === 0) return null;
+    return (
+      <ul className="autocomplete-dropdown">
+        {suggestions.map((sug, idx) => (
+          <li key={idx} onClick={() => handleSuggestionClick(sug)}>
+            {searchField === "nombre" ? sug.nombre : sug.descripcion_empresa}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <div
       className="custom-form"
-      style={{
-        minWidth: "800px",
-      }}
+      style={{ minWidth: isHome ? undefined : "800px" }}
     >
-      <div className="form-group">
+      <div className="form-group" style={{ position: "relative" }}>
         <input
           type="text"
           name="nombre"
           value={input.cliente.nombre}
-          onChange={handleChange}
+          onChange={handleInputChange}
           className="form-input"
           placeholder=" "
           required
@@ -21,6 +111,7 @@ const StepOneForm = ({ input, handleChange, handleSubmit, handleBack }) => {
         <label className={`form-label ${input.cliente.nombre ? "active" : ""}`}>
           Nombre del Cliente
         </label>
+        {searchField === "nombre" && renderSuggestions()}
       </div>
 
       <div className="form-group">
@@ -68,12 +159,12 @@ const StepOneForm = ({ input, handleChange, handleSubmit, handleBack }) => {
         </label>
       </div>
 
-      <div className="form-group">
+      <div className="form-group" style={{ position: "relative" }}>
         <input
           type="text"
           name="descripcion_empresa"
           value={input.descripcion_empresa}
-          onChange={handleChange}
+          onChange={handleInputChange}
           className="form-input"
           placeholder=" "
           required
@@ -83,51 +174,7 @@ const StepOneForm = ({ input, handleChange, handleSubmit, handleBack }) => {
         >
           Nombre de la Empresa
         </label>
-      </div>
-
-      <div className="form-group">
-        <select
-          name="tipo_informe"
-          value={input.tipo_informe}
-          onChange={handleChange}
-          className="form-input"
-          required
-        >
-          <option value="">Selecciona tipo de informe</option>
-          <option value="informe tipo 1">Básico</option>
-          <option value="medio">Medio</option>
-          <option value="avanzado">Avanzado</option>
-        </select>
-        <label className={`form-label ${input.tipo_informe ? "active" : ""}`}>
-          Tipo de Informe
-        </label>
-      </div>
-
-      <div className="form-group" style={{ gridArea: "area7" }}>
-        <textarea
-          name="notas"
-          value={input.notas}
-          onChange={handleChange}
-          className="form-input"
-          rows="3"
-        ></textarea>
-        <label className={`form-label ${input.notas ? "active" : ""}`}>
-          Notas
-        </label>
-      </div>
-
-      <div></div>
-      <div></div>
-
-      <div className="form-column2">
-        <a className="login-olvido" onClick={handleBack}>
-          Volver
-        </a>
-      </div>
-      <div className="form-column2">
-        <button onClick={handleSubmit} className="quote-button">
-          Siguiente
-        </button>
+        {searchField === "descripcion_empresa" && renderSuggestions()}
       </div>
     </div>
   );

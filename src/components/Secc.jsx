@@ -13,20 +13,20 @@ export default function Secc({ loading, error, data, selectedServicios, handleCh
             ) : (
                 <div className="section-container2">
                     {data.map((item) => {
-                        const itemFields = item?.fields || {};
-                        const isChecked = selectedServicios.some((i) => i?.fields?.ID === itemFields.ID);
+                        const itemFields = item|| {};
+                        const isChecked = selectedServicios.some((i) => i?.id=== itemFields.id);
 
                         return (
-                            <div key={itemFields.ID} className="checkbox-wrapper-24">
+                            <div key={itemFields.id} className="checkbox-wrapper-24">
                                 <input
                                     type="checkbox"
-                                    id={`check-servicio-${itemFields.ID}`}
+                                    id={`check-servicio-${itemFields.id}`}
                                     checked={isChecked}
                                     onChange={() => handleCheckboxChangeServicios(item)}
                                 />
-                                <label htmlFor={`check-servicio-${itemFields.ID}`}>
+                                <label htmlFor={`check-servicio-${itemFields.id}`}>
                                     <span></span>
-                                    {itemFields.Producto || "Sin nombre"}
+                                    {itemFields.producto || "Sin nombre"}
                                 </label>
                             </div>
                         );

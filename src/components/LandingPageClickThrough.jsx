@@ -142,8 +142,8 @@ export default function LandingPageClickThrough() {
 
     // Filtra y extrae los objetos en un solo paso
     return cotizador
-      .map((item) => item.fields)
-      .find((item) => item.Producto === state); // Cambia filter + indexación por find
+      .map((item) => item)
+      .find((item) => item.producto === state);
   }, [cotizador, state]);
 
   useEffect(() => {
@@ -153,7 +153,7 @@ export default function LandingPageClickThrough() {
     }
   }, [productosMemo]);
 
-  const maxValue = productosFiltrados?.Secciones;
+  const maxValue = productosFiltrados?.maxSecciones;
 
   // Función para obtener datos de "Elementos de portada"
   const fetchPortadaDatos = async () => {
@@ -164,9 +164,7 @@ export default function LandingPageClickThrough() {
     }));
     try {
       const response = await Promise.all(
-        productosFiltrados?.Secciones_Obligatorias.map((id) =>
-          fetchPortadaElementos(id)
-        )
+        productosFiltrados?.secciones.map((id) => fetchPortadaElementos(id))
       );
       setDataState((prev) => ({
         ...prev,
@@ -191,10 +189,9 @@ export default function LandingPageClickThrough() {
     }));
     try {
       const response = await Promise.all(
-        productosFiltrados?.Paginas_Obligatorias.map((id) =>
-          fetchPaginasBasicas(id)
-        )
+        productosFiltrados?.paginas.map((id) => fetchPaginasBasicas(id))
       );
+
       setDataState((prev) => ({
         ...prev,
         paginasBasicas: response,
@@ -218,7 +215,7 @@ export default function LandingPageClickThrough() {
     }));
     try {
       const response = await Promise.all(
-        productosFiltrados?.Funciones_Obligatorias.map((id) =>
+        productosFiltrados?.funciones_obligatorias.map((id) =>
           fetchFuncionesExtras(id)
         )
       );
@@ -273,38 +270,34 @@ export default function LandingPageClickThrough() {
     setOpenSection((prevSection) =>
       prevSection === "funciones" ? null : "funciones"
     );
-
+  const sortByID = (a, b) => Number(a.id) - Number(b.id);
   // Filtros para dividir los datos en pares e impares (para "Secciones de la Landing")
   const pares = data
-    .filter((item, index) => index % 2 === 0)
-    .map((item) => item.fields)
-    .sort((a, b) => a.ID - b.ID); // Reemplaza "propiedad" por la que deseas ordenar
+    .filter((_, index) => index % 2 === 0)
+    .filter((item) => item && item.id != null) // extra seguridad
+    .sort(sortByID);
 
   const impares = data
-    .filter((item, index) => index % 2 !== 0)
-    .map((item) => item.fields)
-    .sort((a, b) => a.ID - b.ID); // Reemplaza "propiedad" por la que deseas ordenar
+    .filter((_, index) => index % 2 !== 0)
+    .filter((item) => item && item.id != null);
 
   // Maneja la selección de un servicio mensual (selección única)
   const handleCheckboxChangeServicios = (item) => {
-    
     setSelectedServicios((prevSelected) => {
-      const isAlreadySelected = prevSelected.some(
-        (i) => i.fields && i.fields.ID === item.fields.ID
-      );
+      const isAlreadySelected = prevSelected.some((i) => i && i.id === item.id);
 
       if (isAlreadySelected) {
         // Si ya está seleccionado, eliminarlo de la lista
-        return prevSelected.filter((i) => i.fields.ID !== item.fields.ID);
+        return prevSelected.filter((i) => i.id !== item.id);
       } else {
         // Verificar si el nombre contiene "Web Master" o "Hosting"
-        const isWebMaster = item.fields["Producto"].includes("Web Master");
-        const isHosting = item.fields["Producto"].includes("Hosting");
+        const isWebMaster = item.producto.includes("Web Master");
+        const isHosting = item.producto.includes("Hosting");
 
         // Filtrar duplicados según "Web Master" y "Hosting"
         const filteredList = prevSelected.filter((i) => {
-          const hasWebMaster = i.fields["Producto"].includes("Web Master");
-          const hasHosting = i.fields["Producto"].includes("Hosting");
+          const hasWebMaster = i.producto.includes("Web Master");
+          const hasHosting = i.producto.includes("Hosting");
           return !(isWebMaster && hasWebMaster) && !(isHosting && hasHosting);
         });
 
@@ -316,141 +309,132 @@ export default function LandingPageClickThrough() {
 
   // Maneja la selección de una sección con límite de puntos y muestra un aviso si se supera el límite
   const handleCheckboxChangeSecciones = (item) => {
-    const itemValue = Number(item.Valor);
-    const isSelectedInNormal = selectedSecciones.some((i) => i.ID === item.ID);
-    const isSelectedInExcess = selectedSeccionesMax.some(
-      (i) => i.ID === item.ID
-    );
+    const id = item.id;
+    const name = item.seccion?.trim();
+    const valor = Number(item.valor);
+    const precio = item.precio || 0;
 
-    if (isSelectedInNormal) {
-      // Si el elemento está en el estado normal, eliminarlo y mover uno del excedente al estado normal
-      setSelectedSecciones((prevSelectedSecciones) => {
-        const updatedSecciones = prevSelectedSecciones.filter(
-          (i) => i.ID !== item.ID
-        );
+    const normalSelected = selectedSecciones.some((i) => i.id === id);
+    const excessSelected = selectedSeccionesMax.some((i) => i.id === id);
 
-        // Reubicar del excedente al estado normal si hay espacio
-        const combined = [...updatedSecciones, ...selectedSeccionesMax];
-        const withinLimit = combined.slice(0, maxValue);
-        const excess = combined.slice(maxValue);
+    if (normalSelected) {
+      setSelectedSecciones((prev) => {
+        const updated = prev.filter((i) => i.id !== id);
 
-        setSelectedSeccionesMax(excess); // Actualizar excedente
-        return withinLimit;
+        if (selectedSeccionesMax.length > 0) {
+          const [next, ...rest] = selectedSeccionesMax;
+
+          setSelectedSeccionesMax(rest);
+          return [...updated, next];
+        }
+
+        return updated;
       });
-    } else if (isSelectedInExcess) {
-      // Si el elemento está en el excedente, eliminarlo
-      setSelectedSeccionesMax((prevSelectedSeccionesMax) =>
-        prevSelectedSeccionesMax.filter((i) => i.ID !== item.ID)
-      );
+    } else if (excessSelected) {
+      setSelectedSeccionesMax((prev) => prev.filter((i) => i.id !== id));
     } else {
-      const newCurrentValue = selectedSecciones.length + 1; // +1 porque estamos agregando itemValue
+      const newItem = {
+        category: "Secciones",
+        name,
+        id: id,
+        valor,
+        precio,
+      };
 
-      if (newCurrentValue > maxValue) {
-        setSelectedSeccionesMax((prevSelectedSeccionesMax) => [
-          ...prevSelectedSeccionesMax,
-          {
-            category: "Secciones",
-            name: item["Secciones de portada básicas "],
-            ID: item.ID,
-            Valor: item.Valor,
-            precio: item.precio,
-          },
-        ]);
+      if (selectedSecciones.length < maxValue) {
+        setSelectedSecciones((prev) => [...prev, newItem]);
       } else {
-        setSelectedSecciones((prevSelectedSecciones) => [
-          ...prevSelectedSecciones,
-          {
-            category: "Secciones",
-            name: item["Secciones de portada básicas "],
-            ID: item.ID,
-            Valor: item.Valor,
-            precio: item.precio,
-          },
-        ]);
+        setSelectedSeccionesMax((prev) => [...prev, newItem]);
       }
     }
   };
 
-  const [exceededPaginas, setExceededPaginas] = useState([]); // Nuevo estado para elementos excedentes
-  const maxPaginas = productosFiltrados?.paginas || 0; // Máximo permitido
+  const [exceededPaginas, setExceededPaginas] = useState([]);
+  const maxPaginas = productosFiltrados?.maxPaginas || 0;
 
+  // Helper: Remueve la primera ocurrencia por id
+  const removeFirstById = (arr, id) => {
+    const idx = arr.findIndex((i) => i.id === id);
+    if (idx !== -1) {
+      const copy = [...arr];
+      copy.splice(idx, 1);
+      return copy;
+    }
+    return arr;
+  };
+
+  // Calcula IDs de páginas obligatorias (fuera de las funciones, o ponlo en un useMemo/useCallback)
+  const paginasObligatoriasIds = (productosFiltrados?.paginas || []).map((p) =>
+    typeof p === "object" ? p.id : p
+  );
+
+  // Handler principal para checkboxes
   const handleCheckboxChangePaginas = (item) => {
-    const isSelectedInNormal = selectedPaginas.some((i) => i.ID === item.ID);
-    const isSelectedInExcess = exceededPaginas.some((i) => i.ID === item.ID);
+    const isInSelected = selectedPaginas.some((i) => i.id === item.id);
+    const isInExceeded = exceededPaginas.some((i) => i.id === item.id);
 
-    if (isSelectedInNormal) {
-      // Si el elemento está en el estado normal, eliminarlo y mover uno del excedente al estado normal
+    if (isInSelected) {
       setSelectedPaginas((prevSelected) => {
-        const updated = prevSelected.filter((i) => i.ID !== item.ID);
+        const updated = removeFirstById(prevSelected, item.id);
 
-        // Reubicar elementos del excedente al estado normal si hay espacio disponible
-        const combined = [...updated, ...exceededPaginas];
-        const withinLimit = combined.slice(0, maxPaginas);
-        const excess = combined.slice(maxPaginas);
+        let nextExceeded = [...exceededPaginas];
+        let newSelected = [...updated];
 
-        setExceededPaginas(excess); // Actualizar excedente
-        return withinLimit;
+        if (nextExceeded.length > 0) {
+          const [next, ...rest] = nextExceeded;
+          newSelected.push(next);
+          setExceededPaginas(rest);
+        } else {
+          setExceededPaginas(nextExceeded);
+        }
+        return newSelected;
       });
-    } else if (isSelectedInExcess) {
-      // Si el elemento está en el excedente, eliminarlo directamente
+    } else if (isInExceeded) {
       setExceededPaginas((prevExceeded) =>
-        prevExceeded.filter((i) => i.ID !== item.ID)
+        removeFirstById(prevExceeded, item.id)
       );
     } else {
-      // Si no está seleccionado, agregarlo al estado adecuado
+      const newItem = {
+        category: "Páginas Adicionales",
+        name: item.pagina,
+        id: item.id,
+        valor: item.valor,
+        count: 1,
+      };
       if (selectedPaginas.length < maxPaginas) {
-        setSelectedPaginas((prevSelected) => [
-          ...prevSelected,
-          {
-            category: "Páginas Adicionales",
-            name: item.paginas,
-            ID: item.ID,
-            Valor: item.Valor,
-            count: 1,
-          },
-        ]);
+        setSelectedPaginas((prev) => [...prev, newItem]);
       } else {
-        setExceededPaginas((prevExceeded) => [
-          ...prevExceeded,
-          {
-            category: "Páginas Adicionales",
-            name: item.paginas,
-            ID: item.ID,
-            Valor: item.Valor,
-            count: 1,
-          },
-        ]);
+        setExceededPaginas((prev) => [...prev, newItem]);
       }
     }
   };
 
+  // Incrementa cantidad (igual que antes)
   const handleIncrement = (item) => {
     if (selectedPaginas.length < maxPaginas) {
-      // Agregar al estado normal si hay espacio
       setSelectedPaginas((prev) => [...prev, item]);
     } else {
-      // Agregar al excedente si no hay espacio
       setExceededPaginas((prev) => [...prev, item]);
     }
   };
 
+  // Decrementa cantidad (1 unidad), respeta obligatorias
   const handleDecrement = (item) => {
-    const removeFirstById = (arr, id) => {
-      const index = arr.findIndex((i) => i.ID === id);
-      if (index !== -1) {
-        const copy = [...arr];
-        copy.splice(index, 1);
-        return copy;
-      }
-      return arr;
-    };
-  
-    const isInSelected = selectedPaginas.some((i) => i.ID === item.ID);
-    const isInExceeded = exceededPaginas.some((i) => i.ID === item.ID);
-  
+    // Si la página es obligatoria y solo hay una, no se elimina
+    // const isObligatoria = paginasObligatoriasIds.includes(item.id);
+    // const countSelected =
+    //   selectedPaginas.filter((i) => i.id === item.id).length +
+    //   exceededPaginas.filter((i) => i.id === item.id).length;
+    // if (isObligatoria && countSelected <= 1) {
+    //   return;
+    // }
+
+    const isInSelected = selectedPaginas.some((i) => i.id === item.id);
+    const isInExceeded = exceededPaginas.some((i) => i.id === item.id);
+
     if (isInSelected) {
-      const updatedSelected = removeFirstById(selectedPaginas, item.ID);
-  
+      const updatedSelected = removeFirstById(selectedPaginas, item.id);
+
       if (exceededPaginas.length > 0) {
         const [next, ...rest] = exceededPaginas;
         setSelectedPaginas([...updatedSelected, next]);
@@ -459,34 +443,29 @@ export default function LandingPageClickThrough() {
         setSelectedPaginas(updatedSelected);
       }
     } else if (isInExceeded) {
-      const updatedExceeded = removeFirstById(exceededPaginas, item.ID);
+      const updatedExceeded = removeFirstById(exceededPaginas, item.id);
       setExceededPaginas(updatedExceeded);
     }
   };
-  
-  
-  
-  
-  
-  
 
   // Maneja la selección de una función avanzada (sin límite)
   const handleCheckboxChangeFunciones = (item) => {
     setSelectedFunciones((prevSelectedFunciones) => {
-      const isSelected = prevSelectedFunciones.some((i) => i.ID === item.ID);
+      const isSelected = prevSelectedFunciones.some((i) => i.id === item.id);
       return isSelected
-        ? prevSelectedFunciones.filter((i) => i.ID !== item.ID)
+        ? prevSelectedFunciones.filter((i) => i.id !== item.id)
         : [
             ...prevSelectedFunciones,
             {
               category: "Funciones Avanzadas",
-              name: item["Páginas avanzadas "],
-              ID: item.ID,
-              Valor: item.Valor,
+              name: item.pagina_avanzada,
+              id: item.id, // <-- minúsculas!
+              valor: item.valor,
             },
           ];
     });
   };
+
   useEffect(() => {
     setDataState(initialDataState); // Reinicia dataState al valor inicial
   }, [state]);
@@ -508,87 +487,84 @@ export default function LandingPageClickThrough() {
   // Otras funciones siguen igual
   // 1. Obtener las secciones y páginas obligatorias
   // 1. Obtener las secciones y páginas obligatorias
-  const seccionesObligatorias =
-    productosFiltrados?.Secciones_Obligatorias?.split(",") || [];
-  const paginasObligatorias =
-    productosFiltrados?.Paginas_Obligatorias?.split(",") || [];
+  const seccionesObligatorias = productosFiltrados?.secciones || [];
+  const paginasObligatorias = productosFiltrados?.paginas || [];
 
   // 2. Manejo inicial para Secciones_Obligatorias
   const handleInitialSeccionesObligatorias = () => {
-    pares.concat(impares).forEach((item) => {
-      const isObligatoria = seccionesObligatorias.includes(
-        item["Secciones de portada básicas "]?.trim()
+    data.forEach((item) => {
+      const seccionID = Number(item.id); // ID del item, no .seccion
+      const isObligatoria = seccionesObligatorias.includes(seccionID);
+
+      const yaSeleccionada = selectedSecciones.some(
+        (selected) => selected.id === seccionID
       );
-      // Si está en Secciones_Obligatorias y no está en selectedServicios
-      if (
-        isObligatoria &&
-        !selectedSecciones.some((selected) => selected.ID === item.ID)
-      ) {
-        setSelectedSecciones((prevState) => [...prevState, item]);
-      }
-    });
-  };
 
-  // 3. Manejo inicial para Paginas_Obligatorias (usando el patrón de `pares.map`)
-  const handleInitialPaginasObligatorias = () => {
-    // Iterar sobre todas las páginas
-    paginas.forEach((item) => {
-      const itemFields = item.fields || {}; // Acceder al objeto fields
-
-      // Verificar el valor de 'name' y asegurarnos de que "name" es el campo correcto
-      const paginaName =
-        itemFields["name"]?.trim() || itemFields["paginas"]?.trim();
-
-      // Verificar si la página está en Paginas_Obligatorias
-      const isPaginaObligatoria = paginasObligatorias.includes(paginaName);
-
-      // Si está en Paginas_Obligatorias y no está en selectedPaginas
-      if (
-        isPaginaObligatoria &&
-        !selectedPaginas.some((selected) => selected.ID === itemFields.ID)
-      ) {
-        // Actualizar el estado de selectedPaginas directamente
-        setSelectedPaginas((prevSelected) => [
-          ...prevSelected,
+      if (isObligatoria && !yaSeleccionada) {
+        setSelectedSecciones((prev) => [
+          ...prev,
           {
-            category: "Páginas Adicionales", // Asignamos el nombre de la categoría
-            name: itemFields["paginas"], // Usamos 'paginas' del 'fields'
-            ID: itemFields.ID, // Usamos 'ID' del item
-            Valor: itemFields["Valor"], // Usamos 'Valor' del 'fields'
-            count: 1, // Inicializamos el contador en 1
+            category: "Secciones",
+            name: item.seccion?.trim(),
+            id: seccionID,
+            valor: item.valor,
+            precio: item.precio || 0,
           },
         ]);
       }
     });
   };
+
+  // 3. Manejo inicial para paginas (usando el patrón de `pares.map`)
+  const handleInitialPaginasObligatorias = () => {
+    paginas.forEach((item) => {
+      const paginaID = Number(item.id);
+      const isObligatoria = paginasObligatorias.includes(paginaID);
+
+      const alreadySelected = selectedPaginas.some(
+        (selected) => selected.id === paginaID
+      );
+
+      if (isObligatoria && !alreadySelected) {
+        setSelectedPaginas((prev) => [
+          ...prev,
+          {
+            category: "Páginas Adicionales",
+            name: item.pagina?.trim(),
+            id: paginaID,
+            valor: item.valor,
+            count: 1,
+          },
+        ]);
+      }
+    });
+  };
+
   const funcionesObligatorias =
-    productosFiltrados?.Funciones_Obligatorias?.split(",") || [];
+    productosFiltrados?.funciones_obligatorias || [];
 
   // 4. Manejo inicial para Funciones_Obligatorias
   const handleInitialFuncionesObligatorias = () => {
-    // Iterar sobre todas las funciones
     funcionesA.forEach((item) => {
-      const itemFields = item.fields || {}; // Acceder al objeto fields
+      const funcionName = item?.pagina_avanzada?.trim();
+      const funcionID = item?.id;
 
-      // Verificar el valor de 'Funciones_Obligatorias'
-      const funcionName = itemFields["Páginas avanzadas "]?.trim();
+      if (!funcionName || !funcionID) return; // Datos inválidos, ignorar
 
-      // Verificar si la función está en Funciones_Obligatorias
       const isFuncionObligatoria = funcionesObligatorias.includes(funcionName);
 
-      // Si está en Funciones_Obligatorias y no está en selectedFunciones
-      if (
-        isFuncionObligatoria &&
-        !selectedFunciones.some((selected) => selected.ID === itemFields.ID)
-      ) {
-        // Actualizar el estado de selectedFunciones directamente
-        setSelectedFunciones((prevSelected) => [
-          ...prevSelected,
+      const alreadySelected = selectedFunciones.some(
+        (selected) => selected.id === funcionID
+      );
+
+      if (isFuncionObligatoria && !alreadySelected) {
+        setSelectedFunciones((prev) => [
+          ...prev,
           {
-            category: "Funciones Avanzadas", // Asignamos el nombre de la categoría
-            name: itemFields["Páginas avanzadas "] || "Sin nombre", // Usamos 'Páginas avanzadas ' del 'fields'
-            ID: itemFields.ID, // Usamos 'ID' del item
-            Valor: itemFields["Valor"], // Usamos 'Valor' del 'fields'
+            category: "Funciones Avanzadas",
+            name: funcionName,
+            id: funcionID,
+            valor: item.valor,
           },
         ]);
       }
@@ -639,8 +615,8 @@ export default function LandingPageClickThrough() {
           </div>
           <div>
             <h4>Elementos básicos</h4> <br />
-            <p>Páginas: {Number(productosFiltrados?.paginas || 0) + 1}</p>
-            <p>Secciones: {productosFiltrados?.Secciones}</p>
+            <p>Páginas: {Number(productosFiltrados?.maxPaginas || 0) + 1}</p>
+            <p>Secciones: {productosFiltrados?.maxSecciones}</p>
             <br />
           </div>
         </div>
@@ -702,15 +678,14 @@ export default function LandingPageClickThrough() {
                   <p>Error al cargar datos</p>
                 ) : (
                   <div className="section-container">
-                    {pares.concat(impares).map((item) => {
+                    {data.map((item) => {
                       // Verificar si el item actual está en Secciones_Obligatorias
                       const isObligatoria = seccionesObligatorias.includes(
-                        item["Secciones de portada básicas "]?.trim()
+                        item?.id
                       );
-
                       return (
                         <div
-                          key={item.ID}
+                          key={item.id}
                           className="checkbox-wrapper-24"
                           style={{
                             display: "flex",
@@ -719,26 +694,25 @@ export default function LandingPageClickThrough() {
                         >
                           <input
                             type="checkbox"
-                            id={`check-seccion-portada-${item.ID}`} // IDs únicos
+                            id={`check-seccion-portada-${item.id}`} // IDs únicos
                             checked={
-                              selectedSecciones.some((i) => i.ID === item.ID) ||
+                              selectedSecciones.some((i) => i.id === item.id) ||
                               selectedSeccionesMax.some(
-                                (i) => i.ID === item.ID
+                                (i) => i.id === item.id
                               ) ||
-                              isObligatoria // Si está en Secciones_Obligatorias, lo marcamos
+                              isObligatoria
                             }
                             onChange={() => handleCheckboxChangeSecciones(item)}
                             disabled={
                               isObligatoria ||
                               dataState?.portada?.includes(
-                                item["Secciones de portada básicas "]?.trim()
+                                item?.seccion?.trim()
                               )
                             } // Deshabilitar si está en Secciones_Obligatorias o dataState.portada
                           />
-                          <label htmlFor={`check-seccion-portada-${item.ID}`}>
+                          <label htmlFor={`check-seccion-portada-${item.id}`}>
                             <span></span>
-                            {item["Secciones de portada básicas "]?.trim() ||
-                              "Sin nombre"}
+                            {item?.seccion?.trim() || "Sin nombre"}
                           </label>
                         </div>
                       );
@@ -779,33 +753,27 @@ export default function LandingPageClickThrough() {
                   ) : (
                     <div className="section-container">
                       {paginas.map((item) => {
-                        const itemFields = item.fields || {}; // Acceder al objeto fields
+                        const paginaName = item?.pagina?.trim() || "Sin nombre";
+                        const paginaID = item?.id;
 
-                        // Asegúrate de que 'Paginas_Obligatorias' esté bien formateado y sea una cadena
-                        const paginasObligatorias =
-                          productosFiltrados?.Paginas_Obligatorias?.split(
-                            ","
-                          ) || [];
+                        // Siempre extrae solo los IDs, soporte para array mixto (id u objeto)
+                        const paginasObligatorias = (
+                          productosFiltrados?.paginas || []
+                        ).map((p) => (typeof p === "object" ? p.id : p));
 
-                        // Verificamos si el ítem está en 'Paginas_Obligatorias'
                         const isPaginaObligatoria =
-                          paginasObligatorias.includes(
-                            itemFields.paginas?.trim()
-                          );
+                          paginasObligatorias.includes(paginaID);
 
-                        // Contamos cuántas veces aparece este ID en `selectedPaginas` y `exceededPaginas`
-                        const selectedCount = [
-                          ...selectedPaginas.filter(
-                            (i) => i.ID === itemFields.ID
-                          ),
-                          ...exceededPaginas.filter(
-                            (i) => i.ID === itemFields.ID
-                          ),
-                        ].length;
+                        // Cuenta cuántas veces aparece (en ambas listas)
+                        const selectedCount =
+                          selectedPaginas.filter((i) => i.id === paginaID)
+                            .length +
+                          exceededPaginas.filter((i) => i.id === paginaID)
+                            .length;
 
                         return (
                           <div
-                            key={itemFields.ID}
+                            key={paginaID}
                             style={{
                               display: "flex",
                               justifyContent: "space-between",
@@ -813,33 +781,31 @@ export default function LandingPageClickThrough() {
                               marginBottom: "10px",
                             }}
                           >
-                            {/* Checkbox para seleccionar/desseleccionar */}
+                            {/* Checkbox para seleccionar/deseleccionar */}
                             <div className="checkbox-wrapper-24">
                               <input
                                 type="checkbox"
-                                id={`check-seccion-paginas-${itemFields.ID}`} // IDs únicos
+                                id={`check-seccion-paginas-${paginaID}`}
                                 checked={
-                                  // Si el ítem está en Paginas_Obligatorias, marcamos el checkbox automáticamente
                                   isPaginaObligatoria ||
                                   !!selectedPaginas.find(
-                                    (i) => i.ID === itemFields.ID
+                                    (i) => i.id === paginaID
                                   ) ||
                                   !!exceededPaginas.find(
-                                    (i) => i.ID === itemFields.ID
+                                    (i) => i.id === paginaID
                                   )
                                 }
-                                // Si el ítem está en Paginas_Obligatorias, lo deshabilitamos para que no se pueda desmarcar
                                 onChange={() =>
                                   !isPaginaObligatoria &&
-                                  handleCheckboxChangePaginas(itemFields)
+                                  handleCheckboxChangePaginas(item)
                                 }
-                                disabled={isPaginaObligatoria} // Deshabilitamos el checkbox si es obligatoria
+                                disabled={isPaginaObligatoria}
                               />
                               <label
-                                htmlFor={`check-seccion-paginas-${itemFields.ID}`}
+                                htmlFor={`check-seccion-paginas-${paginaID}`}
                               >
                                 <span></span>
-                                {itemFields.paginas || "Sin nombre"}
+                                {paginaName || "Sin nombre"}
                               </label>
                             </div>
 
@@ -853,19 +819,48 @@ export default function LandingPageClickThrough() {
                                 marginRight: "10px",
                               }}
                             >
-                              <button
-                                onClick={() => handleDecrement(itemFields)}
-                                disabled={selectedCount === 0}
+                              <div
+                                style={{
+                                  backgroundColor:
+                                    selectedCount === 0 ? "#707070" : "#2c2c2c",
+                                  color: "white",
+                                  border: "none",
+                                  padding: "4px 8px",
+                                  cursor:
+                                    selectedCount === 0
+                                      ? "not-allowed"
+                                      : "pointer",
+                                  borderRadius: "4px",
+                                  transition: "background-color 0.3s ease",
+                                  opacity: selectedCount === 0 ? 0.5 : 1,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  margin: "0 4px",
+                                }}
+                                onClick={() => handleDecrement(item)}
                               >
                                 <TiMinus />
-                              </button>
-                              {/* Muestra la cantidad de veces que este ID está seleccionado */}
-                              {selectedCount}
-                              <button
-                                onClick={() => handleIncrement(itemFields)}
+                              </div>
+                              <span>{selectedCount}</span>
+                              <div
+                                style={{
+                                  backgroundColor: "#2c2c2c",
+                                  color: "white",
+                                  border: "none",
+                                  padding: "4px 8px",
+                                  cursor: "pointer",
+                                  borderRadius: "4px",
+                                  transition: "background-color 0.3s ease",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  margin: "0 4px",
+                                }}
+                                onClick={() => handleIncrement(item)}
                               >
                                 <FaPlus />
-                              </button>
+                              </div>
                             </div>
                           </div>
                         );
@@ -906,46 +901,35 @@ export default function LandingPageClickThrough() {
                     <p>Error al cargar datos</p>
                   ) : (
                     <div className="section-container">
-                      {funcionesA.map((item) => {
-                        const itemFields = item.fields || {};
-                        console.log(funcionesObligatorias, "hola");
-
-                        // Asegúrate de que ambos valores sean iguales y sin espacios al principio o al final
+                      {funcionesA.map((item = {}) => {
+                        const itemId = item.id;
+                        // Revisa si es una función obligatoria
                         const isObligatoria = funcionesObligatorias.some(
-                          (func) =>
-                            func.trim().toLowerCase() ===
-                            (
-                              itemFields["Páginas avanzadas "]?.trim() || ""
-                            ).toLowerCase()
+                          (func) => (func || "") === itemId
                         );
-
+                        // Revisa si está seleccionada o es obligatoria
                         const isChecked =
-                          selectedFunciones.some(
-                            (i) => i.ID === itemFields.ID
-                          ) || isObligatoria;
+                          selectedFunciones.some((i) => i.id === item.id) ||
+                          isObligatoria;
 
                         return (
-                          <div
-                            key={itemFields.ID}
-                            className="checkbox-wrapper-24"
-                          >
+                          <div key={item.id} className="checkbox-wrapper-24">
                             <input
                               type="checkbox"
-                              id={`check-seccion-funciones-${itemFields.ID}`} // IDs únicos
+                              id={`check-seccion-funciones-${item.id}`}
                               checked={isChecked}
+                              // Solo permite cambios si no es obligatoria
                               onChange={() => {
-                                // Solo permitir desmarcar si no es una función obligatoria
-                                if (!isObligatoria) {
-                                  handleCheckboxChangeFunciones(itemFields);
-                                }
+                                if (!isObligatoria)
+                                  handleCheckboxChangeFunciones(item);
                               }}
-                              disabled={isObligatoria} // Deshabilitar si es obligatoria
+                              disabled={isObligatoria}
                             />
                             <label
-                              htmlFor={`check-seccion-funciones-${itemFields.ID}`}
+                              htmlFor={`check-seccion-funciones-${item.id}`}
                             >
                               <span></span>
-                              {itemFields["Páginas avanzadas "] || "Sin nombre"}
+                              {item.pagina_avanzada || "Sin nombre"}
                             </label>
                           </div>
                         );
@@ -972,7 +956,7 @@ export default function LandingPageClickThrough() {
           selectedSeccionesMax={selectedSeccionesMax}
           limitReached={limitReached}
           exceededPaginas={exceededPaginas}
-          precio={productosFiltrados?.Valor}
+          precio={productosFiltrados?.valor}
           onCheckboxChange={handleCheckboxChangeSecciones}
         />
       </div>

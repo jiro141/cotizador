@@ -21,7 +21,7 @@ export default function Header({ toggleModal, userTipo }) {
         />
       </div>
       <div className="boton-pais">
-        {userTipo === "Detip" && location.pathname === "/" && ( // 👈 Mostrar solo en "/"
+        {userTipo === 1 && location.pathname === "/" && ( // 👈 Mostrar solo en "/"
           <a onClick={toggleModal}>
             País
             <img src={globo} alt="Globo de ubicación" />
