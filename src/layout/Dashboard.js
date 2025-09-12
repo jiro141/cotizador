@@ -12,6 +12,7 @@ import StepOneForm from "../components/StepOneForm";
 import { MyContext } from "../context/Context";
 import { Stepper, Step } from "react-form-stepper";
 import Servicios from "../components/Servicios";
+import Informes from "../components/Informes";
 export default function Dashboard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -73,6 +74,9 @@ export default function Dashboard() {
   const goToAbout = () => {
     navigate("/smarSolution");
   };
+  const goToInformes = () => {
+    navigate("/Informes");
+  };
 
   return (
     <div className="dashboard">
@@ -111,6 +115,7 @@ export default function Dashboard() {
             userTipo={userTipo}
             smart={smart}
             goToAbout={goToAbout}
+            goToInformes={goToInformes}
             digital={digital}
             informes={informes}
           />
@@ -120,6 +125,7 @@ export default function Dashboard() {
       <Routes>
         <Route path="/webEsencial" element={<MainContent />} />
         <Route path="/smarSolution" element={<SmartSolutions />} />
+         <Route path="/Informes" element={<Informes />} />
       </Routes>
     </div>
   );

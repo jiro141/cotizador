@@ -5,7 +5,7 @@ import axios from "axios";
 import bcrypt from "bcryptjs"; // Para hashear la contraseña
 
 const airtable = axios.create({
-  baseURL: `https://detipcompany141.pythonanywhere.com/api`,
+  baseURL: `http://127.0.0.1:8000/api`,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -200,31 +200,33 @@ export const authenticateUser = async (email, password) => {
       password,
     });
 
-    const data = response.data;
-
-    // Checa si el backend pide configurar contraseña
-    if (
-      data.message &&
-      data.message.toLowerCase().includes("configure contraseña")
-    ) {
-      // Puedes cambiar 'user_id' por el identificador que mande tu backend, si lo retorna
+    // Caso: requiere configurar contraseña
+    if (response.status === 202) {
       return {
+        status: response.status,
         requiresPasswordSetup: true,
-        user_id: data.user_id || null, // Asegúrate que este campo llegue
+        user_id: response.data.user?.user_id || null,
         email: email,
       };
     }
 
-    // Login normal
-    return {
-      id: data.user_id,
-      username: data.email,
-      access: data.access,
-      refresh: data.refresh,
-      requiresPasswordSetup: false,
-      tipoUser: data.tipouser_id,
-      pais: data.pais_id,
-    };
+    // Caso: login normal (200)
+    if (response.status === 200) {
+      const user = response.data; // 👈 aquí sí viene la data del backend
+
+      return {
+        status: response.status,
+        id: user.user_id,
+        username: user.email,
+        access: user.access,
+        refresh: user.refresh,
+        requiresPasswordSetup: false,
+        tipoUser: user.tipouser_id,
+        pais: user.pais_id,
+      };
+    }
+
+    throw new Error("Respuesta inesperada del servidor.");
   } catch (error) {
     if (error.response && error.response.data) {
       const errorMsg =
@@ -237,6 +239,7 @@ export const authenticateUser = async (email, password) => {
     }
   }
 };
+
 
 export const updatePassword = async (userId, newPassword, securityQA) => {
   try {
@@ -527,6 +530,19 @@ export const getClientes = async (query) => {
     return enriched;
   } catch (error) {
     console.error("Error al buscar clientes:", error);
+    throw error;
+  }
+};
+export const getInformes = async (search = "") => {
+  try {
+    const endpoint = search
+      ? `/documentos/?search=${encodeURIComponent(search)}`
+      : `/documentos/`;
+
+    const response = await airtable.get(endpoint);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener datos de informes desde Airtable:", error);
     throw error;
   }
 };

@@ -11,6 +11,7 @@ export default function Servicios({
   digital,
   informes,
   formData,
+  goToInformes
 }) {
   const cliente = formData?.cliente || {};
   const isClienteIncompleto =
@@ -53,7 +54,7 @@ export default function Servicios({
         </button>
       </div>
       <div {...tooltipProps}>
-        <button className="button" onClick={goToAbout} disabled={isDisabled}>
+        <button className="button" onClick={goToInformes} disabled={isDisabled}>
           <img src={informes} alt="Informes" />
           <p className="button-text">Informes</p>
         </button>

@@ -90,9 +90,9 @@ const FormWeb = () => {
     if (step === 3) return setStep(4);
 
     setFormData(input);
-    setStep(5);
+    setStep(4);
   };
-  console.log(step, "estacions");
+
 
   const handleBack = () => {
     if (step > 1) setStep(step - 1);

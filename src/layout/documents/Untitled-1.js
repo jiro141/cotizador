@@ -69,4 +69,4 @@ const misPrioridades = {
   // Agrega más beneficios según lo desees...
 };
 
-console.log(evaluarPagina(misPrioridades));
+

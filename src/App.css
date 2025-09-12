@@ -1649,3 +1649,122 @@ textarea.form-input:not(:placeholder-shown) + .form-label {
   font-size: 20px;
   color: #e64a19; /* mismo color que usas en el stepper */
 }
+
+/* //////////////////////////////////////////// MODAL //////////////////////////// */
+
+/* Overlay que cubre toda la pantalla */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6); /* fondo semitransparente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* asegurarse que esté encima */
+}
+
+/* Caja del modal */
+.modal-container {
+  background: #1a1a1a; /* fondo oscuro */
+  border-radius: 16px;
+  max-width: 650px;
+  width: 90%;
+  padding: 32px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  position: relative;
+  animation: fadeIn 0.3s ease forwards;
+  color: #f1f1f1;
+  text-align: center; /* centrado global */
+}
+
+.modal-container.closing {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+/* Botón de cerrar */
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #f1f1f1;
+  transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: #ff5722;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Contenido */
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centrar icono y texto */
+  justify-content: center;
+}
+
+.modal-icon {
+  font-size: 5rem; /* ícono más grande */
+  margin-bottom: 16px;
+}
+
+.modal-container h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.8rem; /* más grande */
+  color: #ff5722;
+}
+
+.modal-details {
+  text-align: center; /* centrado */
+  margin-top: 16px;
+  font-size: 1.1rem; /* texto un poco más grande */
+  line-height: 1.6;
+}
+
+.modal-details p {
+  margin: 8px 0;
+  color: #f1f1f1;
+}
+
+.modal-details b {
+  color: #ff5722;
+}
+
+.modal-details a {
+  color: #ff5722;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.modal-details a:hover {
+  text-decoration: underline;
+}

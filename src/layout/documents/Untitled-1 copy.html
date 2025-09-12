@@ -1,165 +1,175 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carrusel con Control de Flechas</title>
-    <style>
-      /* Contenedor del Carrusel */
-      .slider {
-        overflow: hidden;
-        width: 95%;
-        height: 200px;
-        position: relative;
-        margin: auto;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeTask - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
 
-      /* Track del Carrusel (donde se moverán las imágenes) */
-      .slide-track {
-        display: flex;
-        transition: transform 1s ease-in-out; /* Movimiento suave */
-      }
+  <!-- Header -->
+  <header class="bg-indigo-700 text-white py-4 px-6 shadow-md flex justify-between items-center">
+    <h1 class="text-2xl font-bold">🏠 HomeTask</h1>
+    <p class="text-sm opacity-80">Tablero de gestión de tareas</p>
+  </header>
 
-      /* Estilo para cada imagen */
-      .slide {
-        height: 100%;
-        width: 300px; /* Ajustar según el tamaño de la imagen */
-        flex-shrink: 0;
-        overflow: hidden;
-        margin-right: 20px; /* Espacio entre las imágenes */
-      }
+  <!-- Tablero -->
+  <main class="grid grid-cols-4 gap-4 p-4 flex-1">
 
-      .slide img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 8px; /* Borde redondeado */
-      }
+    <!-- Panel Izquierdo: Formulario -->
+    <section class="bg-gray-800 p-4 rounded-xl shadow-md col-span-1">
+      <h2 class="text-lg font-semibold mb-3">➕ Nueva Tarea</h2>
+      <form id="taskForm" class="flex flex-col gap-2 text-sm">
+        <input type="text" id="taskName" placeholder="Nombre de la tarea"
+          class="p-2 border border-gray-600 bg-gray-700 rounded-md w-full text-sm text-white" required>
+        
+        <select id="taskType" class="p-2 border border-gray-600 bg-gray-700 rounded-md w-full text-white">
+          <option value="Limpieza">Limpieza</option>
+          <option value="Cocina">Cocina</option>
+          <option value="Exterior">Exterior</option>
+          <option value="Otros">Otros</option>
+        </select>
 
-      /* Estilo para las flechas */
-      .arrow-button {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        padding: 15px;
-        border: none;
-        cursor: pointer;
-        font-size: 30px;
-        z-index: 10;
-      }
+        <select id="urgency" class="p-2 border border-gray-600 bg-gray-700 rounded-md w-full text-white">
+          <option value="Alta">Alta</option>
+          <option value="Media">Media</option>
+          <option value="Baja">Baja</option>
+        </select>
 
-      .arrow-left {
-        left: 10px;
-      }
+        <select id="assignedTo" class="p-2 border border-gray-600 bg-gray-700 rounded-md w-full text-white">
+          <option value="Ana">Ana</option>
+          <option value="Luis">Luis</option>
+          <option value="Marta">Marta</option>
+          <option value="Pedro">Pedro</option>
+        </select>
 
-      .arrow-right {
-        right: 10px;
-      }
+        <button type="submit"
+          class="bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500 transition">
+          Agregar
+        </button>
+      </form>
+    </section>
 
-    </style>
-  </head>
-  <body>
-    <div class="slider">
-      <!-- Flecha izquierda -->
-      <button class="arrow-button arrow-left">
-        &#9664; <!-- Símbolo de flecha hacia la izquierda -->
-      </button>
-
-      <!-- Contenedor de las imágenes (Slide Track) -->
-      <div class="slide-track">
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/1-e1732638280330.png" alt="Tab 1">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-26_130604727.png" alt="Tab 2">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_082408868-e1732710310835.png" alt="Tab 3">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_083233055-e1732710855728.png" alt="Tab 4">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084005190.png" alt="Tab 5">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084629699-e1732711645792.png" alt="Tab 6">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_085344234-e1732712097986.png" alt="Tab 7">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_090717014-e1732712918901.png" alt="Tab 8">
-        </div>
-        <!-- Duplicar las imágenes para crear el efecto de ciclo infinito -->
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/1-e1732638280330.png" alt="Tab 1">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-26_130604727.png" alt="Tab 2">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_082408868-e1732710310835.png" alt="Tab 3">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_083233055-e1732710855728.png" alt="Tab 4">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084005190.png" alt="Tab 5">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_084629699-e1732711645792.png" alt="Tab 6">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_085344234-e1732712097986.png" alt="Tab 7">
-        </div>
-        <div class="slide">
-          <img src="https://detipcompany.com/wp-content/uploads/2024/11/imagen_2024-11-27_090717014-e1732712918901.png" alt="Tab 8">
-        </div>
+    <!-- Columna Central: Lista de Tareas -->
+    <section class="bg-gray-800 p-4 rounded-xl shadow-md col-span-2">
+      <h2 class="text-lg font-semibold mb-3">📋 Tareas</h2>
+      <div id="taskColumns" class="grid grid-cols-2 gap-4">
+        <!-- Las columnas de tareas se generarán dinámicamente -->
       </div>
+    </section>
 
-      <!-- Flecha derecha -->
-      <button class="arrow-button arrow-right">
-        &#9654; <!-- Símbolo de flecha hacia la derecha -->
-      </button>
-    </div>
+    <!-- Panel Derecho: Ranking -->
+    <section class="bg-gray-800 p-4 rounded-xl shadow-md col-span-1">
+      <h2 class="text-lg font-semibold mb-3">🏆 Ranking</h2>
+      <div id="ranking" class="space-y-3 text-sm"></div>
+    </section>
 
-    <script>
-      // Obtener los elementos
-      const slideTrack = document.querySelector('.slide-track');
-      const arrowLeft = document.querySelector('.arrow-left');
-      const arrowRight = document.querySelector('.arrow-right');
+  </main>
 
-      // Obtener el ancho de cada slide
-      const slideWidth = document.querySelector('.slide').offsetWidth;
+  <script>
+    const taskForm = document.getElementById("taskForm");
+    const taskColumns = document.getElementById("taskColumns");
+    const rankingDiv = document.getElementById("ranking");
 
-      // Función para mover hacia la izquierda
-      arrowLeft.addEventListener('click', () => {
-        slideTrack.style.transform = `translateX(${slideWidth + 20}px)`; // +20px para el margen entre imágenes
-        setTimeout(() => {
-          slideTrack.appendChild(slideTrack.firstElementChild); // Mover el primer slide al final
-          slideTrack.style.transition = 'none'; // Eliminar transición temporal
-          slideTrack.style.transform = `translateX(0)`; // Resetear la posición
-          setTimeout(() => {
-            slideTrack.style.transition = 'transform 1s ease-in-out'; // Volver a habilitar la transición
-          });
-        }, 500);
+    let tasks = [];
+    let scores = { Ana: 0, Luis: 0, Marta: 0, Pedro: 0 };
+
+    const colorsByType = {
+      Limpieza: "bg-blue-500",
+      Cocina: "bg-green-500",
+      Exterior: "bg-yellow-500",
+      Otros: "bg-purple-500"
+    };
+
+    const urgencyColors = {
+      Alta: "bg-red-600 text-white",
+      Media: "bg-orange-500 text-white",
+      Baja: "bg-gray-400 text-black"
+    };
+
+    taskForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const taskName = document.getElementById("taskName").value;
+      const taskType = document.getElementById("taskType").value;
+      const urgency = document.getElementById("urgency").value;
+      const assignedTo = document.getElementById("assignedTo").value;
+
+      const task = { 
+        id: Date.now(), 
+        name: taskName, 
+        type: taskType, 
+        urgency, 
+        assignedTo, 
+        done: false 
+      };
+
+      tasks.push(task);
+      renderTasks();
+      taskForm.reset();
+    });
+
+    function renderTasks() {
+      taskColumns.innerHTML = "";
+      const grouped = { Limpieza: [], Cocina: [], Exterior: [], Otros: [] };
+
+      tasks.forEach(task => grouped[task.type].push(task));
+
+      Object.keys(grouped).forEach(type => {
+        const col = document.createElement("div");
+        col.innerHTML = `<h3 class="font-semibold mb-2">${type}</h3>`;
+        grouped[type].forEach(task => {
+          const card = document.createElement("div");
+          card.className = `p-3 rounded-lg shadow-md mb-2 ${colorsByType[type]} bg-opacity-90 text-sm`;
+          card.innerHTML = `
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold">${task.name}</span>
+              <span class="px-2 py-1 rounded text-xs ${urgencyColors[task.urgency]}">${task.urgency}</span>
+            </div>
+            <p class="text-xs">Asignada a: <b>${task.assignedTo}</b></p>
+            <button onclick="toggleTask(${task.id})" 
+              class="mt-2 px-2 py-1 rounded-md text-xs ${task.done ? 'bg-green-800' : 'bg-red-800'} text-white">
+              ${task.done ? 'Hecha' : 'No hecha'}
+            </button>
+          `;
+          col.appendChild(card);
+        });
+        taskColumns.appendChild(col);
       });
+    }
 
-      // Función para mover hacia la derecha
-      arrowRight.addEventListener('click', () => {
-        slideTrack.style.transform = `translateX(-${slideWidth + 20}px)`; // +20px para el margen entre imágenes
-        setTimeout(() => {
-          slideTrack.appendChild(slideTrack.firstElementChild); // Mover el primer slide al final
-          slideTrack.style.transition = 'none'; // Eliminar transición temporal
-          slideTrack.style.transform = `translateX(0)`; // Resetear la posición
-          setTimeout(() => {
-            slideTrack.style.transition = 'transform 1s ease-in-out'; // Volver a habilitar la transición
-          });
-        }, 500);
+    function toggleTask(id) {
+      tasks = tasks.map(task => {
+        if (task.id === id) {
+          task.done = !task.done;
+          if (task.done) scores[task.assignedTo] += 10;
+          else scores[task.assignedTo] -= 10;
+        }
+        return task;
       });
-    </script>
-  </body>
+      renderTasks();
+      renderRanking();
+    }
+
+    function renderRanking() {
+      rankingDiv.innerHTML = "";
+      Object.entries(scores)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([name, points]) => {
+          const div = document.createElement("div");
+          div.className = "flex items-center";
+          div.innerHTML = `
+            <span class="w-20">${name}</span>
+            <div class="bg-gray-600 w-full h-3 rounded-full mx-2">
+              <div class="bg-indigo-500 h-3 rounded-full" style="width:${points}px"></div>
+            </div>
+            <span class="ml-2 font-semibold">${points}</span>
+          `;
+          rankingDiv.appendChild(div);
+        });
+    }
+
+    renderRanking();
+  </script>
+</body>
 </html>

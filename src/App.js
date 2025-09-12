@@ -15,7 +15,7 @@ import SmartSolutions from "./layout/SmartSolutions";
 import { MyContext } from "./context/Context";
 import Header from "./components/Header";
 import FormWeb from "./components/FormWeb";
-
+import Informes from "./components/Informes";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [precio, setPrecio] = useState(null);
@@ -144,6 +144,20 @@ function App() {
                 <Header toggleModal={toggleModal} userTipo={userTipo} />
                 <div className="dashboard">
                   <SmartSolutions />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+          <Route
+          path="/Informes"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <div className="main-layout">
+                {" "}
+                <Header toggleModal={toggleModal} userTipo={userTipo} />
+                <div className="dashboard">
+                  <Informes />
                 </div>
               </div>
             </ProtectedRoute>

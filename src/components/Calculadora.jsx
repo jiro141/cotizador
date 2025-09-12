@@ -7,7 +7,7 @@ import Separator from "./Separator";
 import logo from "../img/banner.png";
 import frente from "../img/frente.png";
 import { createHtmlFile1 } from "../layout/documents/Informe1";
-
+import ModalInforme from "./ModalInforme";
 export default function Calculadora({
   data,
   selectedServicios,
@@ -22,7 +22,11 @@ export default function Calculadora({
   onCheckboxChange,
 }) {
   const precioPais = JSON.parse(localStorage.getItem("precio"));
+  const [showModal, setShowModal] = useState(false);
+  const [docData, setDocData] = useState(null);
   const { state, setFormData, formData } = useContext(MyContext);
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+
 
   const totalServicios = selectedServicios.reduce(
     (sum, item) => sum + Number(item.valor),
@@ -154,41 +158,77 @@ export default function Calculadora({
       );
   };
 
+  const formatFormDataToText = (data) => {
+    let output = "";
+
+    // Datos principales
+    if (data.tipo_producto)
+      output += `**Tipo de producto:** ${data.tipo_producto}\n`;
+    if (data.descripcion_empresa)
+      output += `**Empresa:** ${data.descripcion_empresa}\n`;
+    if (data.cliente) {
+      output += `**Cliente:** ${data.cliente.nombre || "N/A"} (${
+        data.cliente.cargo || "N/A"
+      }, ${data.cliente.rubro || "N/A"}, ${data.cliente.email || "N/A"})\n`;
+    }
+    if (data.descripcion_producto)
+      output += `**Precio final:** ${data.descripcion_producto}\n`;
+    if (data.hardware) output += `**Hardware:** ${data.hardware}\n`;
+    if (data.modulos) output += `**Módulos:** ${data.modulos}\n`;
+    if (data.notas) output += `**Notas:** ${data.notas}\n`;
+
+    // Beneficios
+    if (data.beneficios && typeof data.beneficios === "object") {
+      output += `\n**Beneficios:**\n`;
+      Object.entries(data.beneficios).forEach(([categoria, items]) => {
+        output += `\n- **${categoria}:**\n`;
+        items.forEach((item) => {
+          if (item.value) output += `   - ${item.value}\n`;
+        });
+      });
+    }
+
+    return output.trim();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
-      // --- Aquí convertimos a string ---
-      const beneficiosProductoString = Array.isArray(
-        formData.beneficios_producto
-      )
-        ? formData.beneficios_producto.join(", ")
-        : formData.beneficios_producto || "";
-      // --- Usamos el string en dataToSend ---
+
+      // Transformar formData a texto en formato Markdown
+      const contenidoTexto = formatFormDataToText(formData);
+
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const token = storedUser?.access;
+
       const dataToSend = {
-        ...formData,
-        beneficios_producto: beneficiosProductoString, // <--- aquí el cambio
-        tiempo_implementacion:
-          formData.tiempo_implementacion.trim() || "Sin comentarios",
-        hardware: formData.hardware.trim() || "No requiere",
-        integracion_terceros:
-          formData.integracion_terceros.trim() || "No requiere",
-        notas: formData.notas.trim() || "Sin comentarios",
-        tamano_equipo: formData.tamano_equipo.trim() || 1,
-        tipo_informe: "informe tipo 1",
+        contenido: contenidoTexto,
+        correo:
+          String(storedUser.username || "").trim() || "sin-correo@ejemplo.com",
+        cliente:
+          String(formData.cliente.nombre || "").trim() || "Cliente Genérico",
+        empresa:
+          String(formData.descripcion_empresa || "").trim() ||
+          "Empresa Genérica",
       };
+
+      // 🚀 Enviar al backend con el token JWT
       await toast.promise(
         (async () => {
           const response = await fetch(
-            "https://jiro141.pythonanywhere.com/api/informes/",
+            "http://127.0.0.1:8000/api/create-doc/",
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // 👈 JWT aquí
               },
               body: JSON.stringify(dataToSend),
             }
           );
+
           if (!response.ok) {
             let message = `Error ${response.status}`;
             try {
@@ -197,24 +237,21 @@ export default function Calculadora({
             } catch {}
             throw new Error(message);
           }
+
           const responseData = await response.json();
-          const [logoBase64, frenteBase64] = await Promise.all([
-            toBase64(logo),
-            toBase64(frente),
-          ]);
-          createHtmlFile1({
-            ...responseData,
-            logo: logoBase64,
-            frente: frenteBase64,
-          });
+
+          setDocData(responseData); // guardas la info
+          setShowModal(true); // abres modal
         })(),
         {
-          loading: "🛰️ Enviando tu informe al espacio...",
-          success: "🚀 Formulario enviado con éxito.",
-          error: "💥 Algo falló al despegar... inténtalo de nuevo.",
+          loading: "🛰️ Enviando tu documento...",
+          success: "🚀 Documento creado con éxito.",
+          error: "💥 Error al crear el documento.",
         }
       );
     } catch (error) {
+      console.log(error);
+
       toast("❌ Hubo un error al enviar los datos", {
         icon: "⚠️",
         style: {
@@ -442,6 +479,11 @@ export default function Calculadora({
           </div>
         </div>
       </div>
+      <ModalInforme
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        data={docData}
+      />
     </div>
   );
 }

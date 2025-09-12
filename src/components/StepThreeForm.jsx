@@ -65,7 +65,7 @@ const StepThreeForm = ({ formData }) => {
    * =============================== */
   const { ranking, labels, dataValues } = useMemo(() => {
     const selectedObjects = Object.values(formData?.beneficios || {}).flat();
-    console.log(formData);
+
 
     // Acumular puntajes
     const scores = selectedObjects.reduce((acc, benefit) => {

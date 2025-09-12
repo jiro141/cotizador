@@ -15,24 +15,39 @@ function Login({ onLogin }) {
   const [isLoading, setIsLoading] = useState(false);
   const [olvido, setOlvido] = useState(false);
 
+
   // Login normal
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const user = await authenticateUser(username, password);
-      console.log(user,'hola');
-      
-      if (user.requiresPasswordSetup) {
+      const response = await authenticateUser(username, password);
+
+
+      if (response.status === 202) {
         setRequiresPasswordSetup(true);
+
+        // ⚠️ NO guardes nada en localStorage todavía
+        // Solo pasas el email o username para usarlo en Crear
+        setUsername(response?.email || username);
         toast("Debes configurar una nueva contraseña.");
-      } else {
+        return; // 🚪 salir para no continuar con login normal
+      }
+
+      // Login normal (200)
+      if (response.status === 200) {
+        const user = response;
         toast.success("Inicio de sesión exitoso.");
         localStorage.setItem("user", JSON.stringify(user));
         onLogin(true);
+        
       }
     } catch (err) {
-      toast.error(err.message || "Error al iniciar sesión.");
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Error al iniciar sesión.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -50,13 +65,20 @@ function Login({ onLogin }) {
     }
 
     try {
-      // Autentica usando el mismo método con el nuevo password
-      const user = await authenticateUser(username, newPassword);
+      // Llamar al backend para setear la contraseña
+      const response = await authenticateUser(username, newPassword);
+
+      const user = response;
+
       toast.success("Contraseña configurada exitosamente. Iniciando sesión...");
       localStorage.setItem("user", JSON.stringify(user));
       onLogin(true);
     } catch (err) {
-      toast.error(err.message || "Error al guardar la contraseña.");
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Error al guardar la contraseña.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
