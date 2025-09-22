@@ -219,7 +219,7 @@ useEffect(() => {
       await toast.promise(
         (async () => {
           const response = await fetch(
-            "http://localhost:8000/api/create-doc/",
+            "https://detipcompany141.pythonanywhere.com/api/create-doc/",
             {
               method: "POST",
               headers: {
