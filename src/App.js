@@ -16,6 +16,7 @@ import { MyContext } from "./context/Context";
 import Header from "./components/Header";
 import FormWeb from "./components/FormWeb";
 import Informes from "./components/Informes";
+import Modal from "./components/Modal";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [precio, setPrecio] = useState(null);
@@ -98,6 +99,7 @@ function App() {
 
   return (
     <>
+      <Modal isOpen={isModalOpen} onClose={toggleModal} />
       <Routes>
         {/* Ruta para el inicio de sesión */}
         <Route
@@ -149,7 +151,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-          <Route
+        <Route
           path="/Informes"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>

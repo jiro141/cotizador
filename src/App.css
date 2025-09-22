@@ -1122,7 +1122,7 @@ textarea.form-input:not(:placeholder-shown) + .form-label {
 }
 .header {
   height: 50px;
-  z-index: 99;
+  z-index: 999;
   position: absolute;
   padding: 5px 50px;
   top: 0px;

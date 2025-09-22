@@ -20,7 +20,8 @@ import {
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { FcDocument } from "react-icons/fc";
-
+import { IoChevronBackSharp } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
   if (b[orderBy] > a[orderBy]) return 1;
@@ -37,6 +38,7 @@ export default function Informes() {
   const [informes, setInformes] = useState([]);
   const [loading, setLoading] = useState(true);
   const storedUser = JSON.parse(localStorage.getItem("user"));
+  const navigate = useNavigate();
 
   // ordenamiento
   const [order, setOrder] = useState("asc");
@@ -52,6 +54,10 @@ export default function Informes() {
 
   // filtro propios
   const [onlyMine, setOnlyMine] = useState(true);
+
+  const redirectToHome = () => {
+    navigate("/");
+  };
 
   const fetchData = async (query = "") => {
     setLoading(true);
@@ -105,6 +111,13 @@ export default function Informes() {
 
   return (
     <Box sx={{ width: "100%", px: "5vw", paddingTop: "10vh" }} zIndex={99}>
+      <a
+        onClick={redirectToHome}
+        className="atras"
+        style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+      >
+        <IoChevronBackSharp size={40} color="#e64a19" />
+      </a>
       <Paper
         sx={{
           width: "100%",
@@ -142,16 +155,20 @@ export default function Informes() {
           />
 
           {/* Switch propios */}
-          <FormControlLabel
-            control={
-              <Switch
-                checked={onlyMine}
-                onChange={(e) => setOnlyMine(e.target.checked)}
-              />
-            }
-            label="Propios"
-            sx={{ color: "#fff" }}
-          />
+          {storedUser.tipoUser === 1 ? (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={onlyMine}
+                  onChange={(e) => setOnlyMine(e.target.checked)}
+                />
+              }
+              label="Propios"
+              sx={{ color: "#fff" }}
+            />
+          ) : (
+            <></>
+          )}
         </Toolbar>
 
         <TableContainer>
@@ -162,6 +179,9 @@ export default function Informes() {
                   { id: "usuario_name", label: "Creador" },
                   { id: "cliente", label: "Cliente" },
                   { id: "empresa", label: "Empresa" },
+                  { id: "monto", label: "Monto" },
+                  { id: "Comisión", label: "Comisión" },
+                  { id: "Total", label: "Total" },
                   { id: "fecha_creacion", label: "Fecha" },
                   { id: "link", label: "Documento" },
                 ].map((headCell) => (
@@ -193,10 +213,19 @@ export default function Informes() {
                     }}
                   >
                     <TableCell sx={{ color: "#fff" }}>
-                      {row.usuario_name}
+                      {row.correo_compartido}
                     </TableCell>
                     <TableCell sx={{ color: "#fff" }}>{row.cliente}</TableCell>
                     <TableCell sx={{ color: "#fff" }}>{row.empresa}</TableCell>
+                    <TableCell sx={{ color: "#fff" }}>
+                      $ {Number(row.monto)}
+                    </TableCell>
+                    <TableCell sx={{ color: "#fff" }}>
+                      ${Number(row.monto) * 0.2}
+                    </TableCell>
+                    <TableCell sx={{ color: "#fff" }}>
+                      $ {Number(row.monto) + Number(row.monto) * 0.2}
+                    </TableCell>
                     <TableCell sx={{ color: "#fff" }}>
                       {new Date(row.fecha_creacion).toLocaleDateString()}
                     </TableCell>

@@ -27,7 +27,6 @@ export default function Calculadora({
   const { state, setFormData, formData } = useContext(MyContext);
   const storedUser = JSON.parse(localStorage.getItem("user"));
 
-
   const totalServicios = selectedServicios.reduce(
     (sum, item) => sum + Number(item.valor),
     0
@@ -93,56 +92,57 @@ export default function Calculadora({
     setformData1({ ...formData1, [name]: value });
   };
 
-  useEffect(() => {
-    setformData1((prev) => ({
-      ...prev,
-      Cliente: formData.cliente.nombre,
-      email: formData.cliente.email,
-      Cargo: formData.cliente.cargo,
-      company: formData.descripcion_empresa,
-      Producto: state || "",
-      funciones_mensuales: (selectedServicios || [])
-        .map((item) => item?.producto || "")
-        .join(", "),
-      secciones: (selectedSecciones || [])
-        .map((item) => item.name || "")
-        .join(", "),
-      Funciones: (selectedFunciones || [])
-        .map((item) => item.name || "")
-        .join(", "),
-      secciones_extra: (selectedSeccionesMax || [])
-        .map((item) => item.name || "")
-        .join(", "),
-      paginas_extra: Object.entries(
-        (exceededPaginas || []).reduce((acc, item) => {
-          const name = item.name || item.paginas || "";
-          acc[name] = (acc[name] || 0) + 1;
-          return acc;
-        }, {})
-      )
-        .map(([name, count]) => (count > 1 ? `${name} x${count}` : name))
-        .join(", "),
-      paginas: Object.entries(
-        (selectedPaginas || []).reduce((acc, item) => {
-          const name = item.name || item.paginas || "";
-          acc[name] = (acc[name] || 0) + 1;
-          return acc;
-        }, {})
-      )
-        .map(([name, count]) => (count > 1 ? `${name} x${count}` : name))
-        .join(", "),
-      total: total || 0,
-    }));
-  }, [
-    state,
-    selectedServicios,
-    selectedSecciones,
-    selectedPaginas,
-    selectedFunciones,
-    selectedSeccionesMax,
-    exceededPaginas,
-    total,
-  ]);
+useEffect(() => {
+  setformData1((prev) => ({
+    ...prev,
+    Cliente: formData?.cliente?.nombre || "Cliente Generico",
+    email: formData?.cliente?.email || "correo@correo.com",
+    Cargo: formData?.cliente?.cargo || "Prueba",
+    company: formData?.descripcion_empresa || "Prueba",
+    Producto: state || "",
+    funciones_mensuales: (selectedServicios || [])
+      .map((item) => item?.producto || "Sin producto")
+      .join(", "),
+    secciones: (selectedSecciones || [])
+      .map((item) => item?.name || "Sin nombre")
+      .join(", "),
+    Funciones: (selectedFunciones || [])
+      .map((item) => item?.name || "Sin función")
+      .join(", "),
+    secciones_extra: (selectedSeccionesMax || [])
+      .map((item) => item?.name || "Sin sección extra")
+      .join(", "),
+    paginas_extra: Object.entries(
+      (exceededPaginas || []).reduce((acc, item) => {
+        const name = item?.name || item?.paginas || "Página desconocida";
+        acc[name] = (acc[name] || 0) + 1;
+        return acc;
+      }, {})
+    )
+      .map(([name, count]) => (count > 1 ? `${name} x${count}` : name))
+      .join(", "),
+    paginas: Object.entries(
+      (selectedPaginas || []).reduce((acc, item) => {
+        const name = item?.name || item?.paginas || "Página desconocida";
+        acc[name] = (acc[name] || 0) + 1;
+        return acc;
+      }, {})
+    )
+      .map(([name, count]) => (count > 1 ? `${name} x${count}` : name))
+      .join(", "),
+    total: total || 0,
+  }));
+}, [
+  formData, // 👈 agrega también formData a las dependencias
+  state,
+  selectedServicios,
+  selectedSecciones,
+  selectedPaginas,
+  selectedFunciones,
+  selectedSeccionesMax,
+  exceededPaginas,
+  total,
+]);
 
   const toBase64 = (url) => {
     return fetch(url)
@@ -191,12 +191,12 @@ export default function Calculadora({
     return output.trim();
   };
 
+  console.log(formData1.total, "monto");
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-
       // Transformar formData a texto en formato Markdown
       const contenidoTexto = formatFormDataToText(formData);
 
@@ -212,13 +212,14 @@ export default function Calculadora({
         empresa:
           String(formData.descripcion_empresa || "").trim() ||
           "Empresa Genérica",
+        monto: formData1.total ? Number(formData1.total) : 0,
       };
 
       // 🚀 Enviar al backend con el token JWT
       await toast.promise(
         (async () => {
           const response = await fetch(
-            "https://detipcompany141.pythonanywhere.com/api/create-doc/",
+            "http://localhost:8000/api/create-doc/",
             {
               method: "POST",
               headers: {

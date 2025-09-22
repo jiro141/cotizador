@@ -5,7 +5,7 @@ import axios from "axios";
 import bcrypt from "bcryptjs"; // Para hashear la contraseña
 
 const airtable = axios.create({
-  baseURL: `https://detipcompany141.pythonanywhere.com/api`,
+  baseURL: `http://localhost:8000/api`,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

@@ -24,7 +24,7 @@ export default function Header({ toggleModal, userTipo }) {
         </Link>
       </div>
       <div className="boton-pais">
-        {userTipo === 1 && location.pathname === "/" && (
+        {userTipo === 1 &&  (
           <a onClick={toggleModal}>
             País
             <img src={globo} alt="Globo de ubicación" />

@@ -14,6 +14,7 @@ export const MyProvider = ({ children }) => {
   const userTipo = user?.tipoUser || "";
   const [step, setStep] = useState(1);
   // Función para abrir y cerrar el modal
+console.log(formData,'contexto');
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);

@@ -65,7 +65,7 @@ export default function Buttons() {
 
   return (
     <div
-      className="button-container-wrapper slider"
+      className="button-container-wrapper slider calculator-container"
       style={{ position: "relative" }}
     >
       {showArrows && (
@@ -102,7 +102,7 @@ export default function Buttons() {
             text: "Web de Inicio",
           },
 
-          { key: "PaginaCorporativa", img: img7, text: "Página Corporativa" },
+          { key: "PaginaCorporativa", img: img7, text: "Web Corporativa" },
           { key: "WebInformativa", img: img9, text: "Web Informativa" },
           { key: "Blog", img: img4, text: "Blog" },
           {
@@ -110,7 +110,7 @@ export default function Buttons() {
             img: img2,
             text: "Web de Reservaciones",
           },
-          { key: "PaginaDeMembresia", img: img6, text: "Página de Membresía" },
+          { key: "PaginaDeMembresia", img: img6, text: "Web de Membresía" },
           { key: "AulaVirtual", img: img8, text: "Aula Virtual" },
           { key: "eCommerce", img: img5, text: "eCommerce" },
         ].map(({ key, img, text }) => (

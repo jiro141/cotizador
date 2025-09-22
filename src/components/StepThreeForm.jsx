@@ -63,11 +63,10 @@ const StepThreeForm = ({ formData }) => {
   /** ===============================
    * Cálculo de ranking de productos
    * =============================== */
-  const { ranking, labels, dataValues } = useMemo(() => {
+  const { ranking, labels, normalizedValues } = useMemo(() => {
     const selectedObjects = Object.values(formData?.beneficios || {}).flat();
 
-
-    // Acumular puntajes
+    // Acumular puntajes originales
     const scores = selectedObjects.reduce((acc, benefit) => {
       (benefit.puntos || []).forEach(({ producto_id, puntaje }) => {
         acc[producto_id] = (acc[producto_id] || 0) + puntaje;
@@ -75,16 +74,20 @@ const StepThreeForm = ({ formData }) => {
       return acc;
     }, {});
 
-    // Ranking ordenado
+    // Ranking ordenado con puntajes originales
     const rankingArray = Object.entries(scores)
       .map(([id, score]) => ({ id, score }))
       .sort((a, b) => b.score - a.score);
 
-    // Labels y valores para radar chart
+    // Labels y valores originales
     const labels = Object.keys(PRODUCT_LABELS).map((id) => PRODUCT_LABELS[id]);
-    const dataValues = Object.keys(PRODUCT_LABELS).map((id) => scores[id] || 0);
+    const rawValues = Object.keys(PRODUCT_LABELS).map((id) => scores[id] || 0);
 
-    return { ranking: rankingArray, labels, dataValues };
+    // Escalar a máximo 10 para el radar
+    const maxValue = Math.max(...rawValues, 1);
+    const normalizedValues = rawValues.map((v) => (v / maxValue) * 10);
+
+    return { ranking: rankingArray, labels, normalizedValues };
   }, [formData]);
 
   const maxScoreProductId = ranking[0]?.id || null;
@@ -129,7 +132,7 @@ const StepThreeForm = ({ formData }) => {
     datasets: [
       {
         label: "",
-        data: dataValues,
+        data: normalizedValues,
         backgroundColor: "rgba(112, 173, 223, 0.2)",
         borderColor: "#70addf",
         pointBackgroundColor: "#70addf",
@@ -151,7 +154,8 @@ const StepThreeForm = ({ formData }) => {
         },
         ticks: {
           beginAtZero: true,
-          stepSize: 5,
+          stepSize: 1,
+          max: 5, // 🚀 Escala siempre en 10
           color: "#ffffff",
           backdropColor: "transparent",
         },

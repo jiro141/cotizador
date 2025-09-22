@@ -6,7 +6,7 @@ import "react-tooltip/dist/react-tooltip.css";
 
 const StepTwoForm = ({
   availableBenefits, // { "Comercio Electrónico": [todos los beneficios...] }
-  selectedBenefits,  // { "Comercio Electrónico": [solo checkeados] }
+  selectedBenefits, // { "Comercio Electrónico": [solo checkeados] }
   handleCheckboxChange,
   handleSubmit,
   handleBack,
@@ -66,7 +66,9 @@ const StepTwoForm = ({
             const benefitId = `benefit-${selectedCategory}-${idx}`;
 
             // checked depende solo de selectedBenefits
-            const isChecked = Array.isArray(selectedBenefits?.[selectedCategory])
+            const isChecked = Array.isArray(
+              selectedBenefits?.[selectedCategory]
+            )
               ? selectedBenefits[selectedCategory].some(
                   (b) => b.value === benefit.value
                 )
@@ -105,7 +107,13 @@ const StepTwoForm = ({
                       {benefit.label}
                       <Tooltip
                         id={`tooltip-${benefitId}`}
-                        style={{ backgroundColor: "#fff", color: "#000" }}
+                        style={{
+                          backgroundColor: "#fff",
+                          color: "#000",
+                          maxWidth: "400px", // 👈 define aquí el ancho máximo
+                          whiteSpace: "normal",
+                          zIndex:"9999999" // 👈 permite que el texto haga salto de línea
+                        }}
                       >
                         {benefit.descripcion}
                       </Tooltip>

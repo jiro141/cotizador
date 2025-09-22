@@ -9,12 +9,38 @@ import { IoChevronBackSharp, IoChevronForward } from "react-icons/io5";
 import { Stepper, Step } from "react-form-stepper";
 import CategorySelection from "./CategorySelection";
 const FormWeb = () => {
-  const { setFormData, state, step, setStep } = useContext(MyContext);
+  const { formData, setFormData, state, step, setStep } = useContext(MyContext);
   // const [showRadar, setShowRadar] = useState(true);
   const navigate = useNavigate();
-
+  console.log(formData, "datos");
+  const initialFormData = {
+    tipo_informe: "",
+    tipo_producto: "",
+    usuarios: "no requiere",
+    interfaz_producto: "web",
+    tiempo_implementacion: "",
+    tamano_equipo: "",
+    descripcion_empresa: "",
+    descripcion_producto: "",
+    hardware: "",
+    beneficios_producto: [],
+    modulos: "",
+    notas: "",
+    soporte_digital: false,
+    formacion_uso: false,
+    integracion_terceros: "No requiere",
+    cliente: {
+      nombre: "",
+      cargo: "",
+      rubro: "",
+      email: "",
+    },
+    beneficios_por_categoria: {},
+    beneficios: [],
+  };
   const redirectToHome = () => {
-    navigate("/");
+    setFormData(initialFormData); // reinicia el estado
+    navigate("/"); // redirige
   };
 
   const handleNext = () => {
@@ -93,7 +119,6 @@ const FormWeb = () => {
     setStep(4);
   };
 
-
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
   };
@@ -131,7 +156,7 @@ const FormWeb = () => {
           <Step label="Soluciones" />
           <Step label="Beneficios del Producto" />
           <Step label="Producto Sugerido" />
-          <Step label="Adicionales" />
+          <Step label="Propuesta" />
         </Stepper>
       </div>
 

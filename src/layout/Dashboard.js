@@ -80,7 +80,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <Modal isOpen={isModalOpen} onClose={toggleModal} />
+      
       <div className="centrar">
         <div
           style={{

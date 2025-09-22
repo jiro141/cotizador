@@ -33,13 +33,13 @@ export default function Servicios({
         </button>
       </div>
       <div >
-        <button className="button" onClick={goToAbout} >
+        <button className="button" onClick={goToAbout} disabled >
           <img src={smart} alt="Smart Solutions" />
           <p className="button-text">Smart Solution</p>
         </button>
       </div>
       <div >
-        <button className="button" onClick={goToAbout} >
+        <button className="button" onClick={goToAbout} disabled >
           <img src={digital} alt="Digital Support" />
           <p className="button-text">Support and Development</p>
         </button>
