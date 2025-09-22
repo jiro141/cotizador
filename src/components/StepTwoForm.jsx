@@ -1,174 +1,131 @@
-import React, { useState, useEffect, useContext } from "react";
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import { tipoBeneficio, beneficio } from "../controller/api";
+import React, { useState, useEffect } from "react";
 import logo from "../img/cropped-logo.png";
+import { MdArrowForwardIos, MdArrowBackIos } from "react-icons/md";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
-import Separator from "./Separator";
-import { MyContext } from "../context/Context";
+
 const StepTwoForm = ({
-  selectedBenefits,
+  availableBenefits, // { "Comercio Electrónico": [todos los beneficios...] }
+  selectedBenefits, // { "Comercio Electrónico": [solo checkeados] }
   handleCheckboxChange,
   handleSubmit,
   handleBack,
 }) => {
-  const [openCategory, setOpenCategory] = useState(null);
-  const [benefitsByCategory, setBenefitsByCategory] = useState({});
-  const [loading, setLoading] = useState(true);
-  const { setFormData, formData } = useContext(MyContext);
-  const tipoBene = async () => {
-    try {
-      const response = await tipoBeneficio();
-      const result = {};
-
-      for (const item of response) {
-        const category = item.nombre || "Categoría desconocida";
-        const ids = item.beneficios || [];
-
-        const beneficiosData = await Promise.all(
-          ids.map(async (id) => {
-            try {
-              const res = await beneficio(id);
-              return {
-                value: res.name || "Nombre desconocido",
-                label: res.name || "Nombre desconocido",
-                descripcion: res.descripcion || null,
-                puntos: res.puntaje || [],
-              };
-            } catch (error) {
-              console.warn(`Error al cargar beneficio ID ${id}:`, error);
-              return {
-                value: `error-${id}`,
-                label: "Error al cargar",
-                descripcion: null,
-              };
-            }
-          })
-        );
-
-        result[category] = beneficiosData;
-      }
-
-      setBenefitsByCategory(result);
-    } catch (error) {
-      console.error("Error al cargar beneficios:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
-    tipoBene();
-  }, []);
+    const categories = Object.keys(availableBenefits || {});
+    if (categories.length > 0) {
+      setSelectedCategory(categories[0]);
+    }
+  }, [availableBenefits]);
 
-  const toggleCategory = (category) => {
-    setOpenCategory((prev) => (prev === category ? null : category));
-  };
-
-  if (loading) {
+  if (!availableBenefits || Object.keys(availableBenefits).length === 0) {
     return (
       <div className="spinner-container">
         <img src={logo} alt="Cargando..." className="spinner" />
+        <p style={{ color: "#fff" }}>No hay categorías seleccionadas.</p>
       </div>
     );
   }
 
+  const categories = Object.keys(availableBenefits);
+
   return (
-    <div>
-      <div className="benefits-categorized-list">
-        {Object.entries(benefitsByCategory).map(([category, benefits]) => (
-          <div key={category} className="section-container3">
+    <div className="benefits-box">
+      <div className="benefits-row">
+        {/* Menú de Categorías */}
+        <div className="benefits-menu">
+          {categories.map((cat) => (
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-              onClick={() => toggleCategory(category)}
+              key={cat}
+              className={`benefits-menu-item ${
+                selectedCategory === cat ? "active" : ""
+              }`}
+              onClick={() => setSelectedCategory(cat)}
             >
-              <h3 className="category-title">{category}</h3>
-              <span>
-                {openCategory === category ? (
-                  <IoIosArrowUp size={24} color="#ff5722" />
+              <span className="benefits-menu-title">{cat}</span>
+              <span className="benefits-menu-arrow">
+                {selectedCategory === cat ? (
+                  <span className="arrow-orange">
+                    <MdArrowForwardIos />
+                  </span>
                 ) : (
-                  <IoIosArrowDown size={24} />
+                  <span className="arrow-gray">
+                    <MdArrowBackIos />
+                  </span>
                 )}
               </span>
             </div>
-            <Separator />
-            {openCategory === category && (
-              <div
-                className="benefits-grid"
-                style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  background: "#2C2C2C",
-                  border: "1px solid #ccc",
-                  padding: "15px",
-                  zIndex: "9999",
-                  width: "100%",
-                  boxShadow: "0px 4px 8px rgba(0,0,0,0.2)",
-                  borderRadius: "6px",
-                }}
-              >
-                {benefits.map((benefit, idx) => {
-                  const benefitId = `benefit-${category}-${idx}`;
-                  // 🔍 Check if the benefit is selected (by value) in that category
-                  const isChecked = Array.isArray(selectedBenefits?.[category])
-                    ? selectedBenefits[category].some(
-                        (b) => b.value === benefit.value
-                      )
-                    : false;
-                  return (
-                    <div
-                      key={benefitId}
-                      className="checkbox-wrapper-24"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        id={benefitId}
-                        value={benefit.value}
-                        checked={isChecked}
-                        onChange={(e) => {
-                          const updated = isChecked
-                            ? selectedBenefits[category].filter(
-                                (b) => b.value !== benefit.value
-                              )
-                            : [...(selectedBenefits[category] || []), benefit];
-                          handleCheckboxChange(
-                            category,
-                            updated,
-                            updated // si usas un segundo array para display, lo puedes separar aquí
-                          );
+          ))}
+        </div>
+
+        {/* Panel de beneficios */}
+        <div className="benefits-list">
+          {(availableBenefits[selectedCategory] || []).map((benefit, idx) => {
+            const benefitId = `benefit-${selectedCategory}-${idx}`;
+
+            // checked depende solo de selectedBenefits
+            const isChecked = Array.isArray(
+              selectedBenefits?.[selectedCategory]
+            )
+              ? selectedBenefits[selectedCategory].some(
+                  (b) => b.value === benefit.value
+                )
+              : false;
+
+            return (
+              <div className="checkbox-wrapper-24" key={benefitId}>
+                <input
+                  type="checkbox"
+                  id={benefitId}
+                  checked={isChecked}
+                  onChange={() => {
+                    // copiar todas las categorías ya seleccionadas
+                    const updatedAll = { ...selectedBenefits };
+
+                    // copiar la lista de esta categoría
+                    const currentCat = updatedAll[selectedCategory] || [];
+
+                    // actualizar solo esta categoría
+                    updatedAll[selectedCategory] = isChecked
+                      ? currentCat.filter((b) => b.value !== benefit.value)
+                      : [...currentCat, benefit];
+
+                    // pasar al padre el objeto completo actualizado
+                    handleCheckboxChange(updatedAll);
+                  }}
+                />
+                <label
+                  htmlFor={benefitId}
+                  style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  data-tooltip-id={`tooltip-${benefitId}`}
+                >
+                  <span></span>
+                  {benefit.descripcion ? (
+                    <>
+                      {benefit.label}
+                      <Tooltip
+                        id={`tooltip-${benefitId}`}
+                        style={{
+                          backgroundColor: "#fff",
+                          color: "#000",
+                          maxWidth: "400px", // 👈 define aquí el ancho máximo
+                          whiteSpace: "normal",
+                          zIndex:"9999999" // 👈 permite que el texto haga salto de línea
                         }}
-                      />
-                      <label
-                        htmlFor={benefitId}
-                        {...(benefit.descripcion && {
-                          "data-tooltip-id": benefitId,
-                          "data-tooltip-content": benefit.descripcion,
-                        })}
                       >
-                        <span></span>
-                        {benefit.label}
-                      </label>
-                      {benefit.descripcion && (
-                        <Tooltip id={benefitId} place="top" variant="light" />
-                      )}
-                    </div>
-                  );
-                })}
+                        {benefit.descripcion}
+                      </Tooltip>
+                    </>
+                  ) : (
+                    benefit.label
+                  )}
+                </label>
               </div>
-            )}
-          </div>
-        ))}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

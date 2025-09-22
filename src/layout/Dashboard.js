@@ -12,6 +12,7 @@ import StepOneForm from "../components/StepOneForm";
 import { MyContext } from "../context/Context";
 import { Stepper, Step } from "react-form-stepper";
 import Servicios from "../components/Servicios";
+import Informes from "../components/Informes";
 export default function Dashboard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -47,7 +48,6 @@ export default function Dashboard() {
     setFormData,
     formData,
   } = useContext(MyContext);
-  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -74,12 +74,14 @@ export default function Dashboard() {
   const goToAbout = () => {
     navigate("/smarSolution");
   };
+  const goToInformes = () => {
+    navigate("/Informes");
+  };
 
   return (
-    <div>
-      <Modal isOpen={isModalOpen} onClose={toggleModal} />
+    <div className="dashboard">
+      
       <div className="centrar">
-
         <div
           style={{
             display: "flex",
@@ -93,7 +95,7 @@ export default function Dashboard() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: "#2C2C2C",
+              backgroundColor: "#1a1a1a",
               padding: "0px 10px",
               borderRadius: "8px",
               zIndex: 99,
@@ -103,10 +105,9 @@ export default function Dashboard() {
             <StepOneForm
               input={input}
               handleChange={handleChange}
-              setFormData={setFormData} // 🔥 aquí lo pasas
+              setFormData={setFormData} 
             />
           </div>
-
           <Servicios
             formData={formData}
             webEsencial={webEsencial}
@@ -114,6 +115,7 @@ export default function Dashboard() {
             userTipo={userTipo}
             smart={smart}
             goToAbout={goToAbout}
+            goToInformes={goToInformes}
             digital={digital}
             informes={informes}
           />
@@ -123,6 +125,7 @@ export default function Dashboard() {
       <Routes>
         <Route path="/webEsencial" element={<MainContent />} />
         <Route path="/smarSolution" element={<SmartSolutions />} />
+         <Route path="/Informes" element={<Informes />} />
       </Routes>
     </div>
   );

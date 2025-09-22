@@ -64,16 +64,19 @@ const Modal = ({ isOpen, onClose }) => {
       console.error("No se encontró un ID de usuario válido");
       return;
     }
-
     try {
       const newPaisId = country.id;
       await userData(userId, newPaisId);
 
-      const updatedUser = { ...user, pais: newPaisId };
+      // Actualizar directamente localStorage
+      const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+      const updatedUser = { ...storedUser, pais: newPaisId };
       localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      // Actualizar solo el estado local
       setSelectedCountry(country.nombre);
+
       onClose();
-      window.location.reload();
     } catch (error) {
       console.error("Error al actualizar el país:", error);
     }
@@ -111,7 +114,9 @@ const Modal = ({ isOpen, onClose }) => {
                           <div
                             key={country.id}
                             className={`country-item ${
-                              selectedCountry === country.nombre ? "selected" : ""
+                              selectedCountry === country.nombre
+                                ? "selected"
+                                : ""
                             }`}
                             onClick={() => handleCountrySelect(country)}
                           >
@@ -124,7 +129,9 @@ const Modal = ({ isOpen, onClose }) => {
                               className="country-icon"
                               alt="icono"
                             />
-                            <span className="country-name">{country.nombre}</span>
+                            <span className="country-name">
+                              {country.nombre}
+                            </span>
                           </div>
                         ))}
                       </div>

@@ -1,17 +1,11 @@
 // airtableService.js
 
 import axios from "axios";
-// import { AIRTABLE_API_URL, AIRTABLE_BASE_ID, AIRTABLE_API_KEY } from "./airtableConfig";
+
 import bcrypt from "bcryptjs"; // Para hashear la contraseña
-// Configuración base de Axios para Airtable
-// const airtable = axios.create({
-//   baseURL: `https://api.airtable.com/v0/app77bOEPhtE0MihH`,
-//   headers: {
-//     Authorization: `Bearer patRDw2pOkc97NLot.4be638a9ae5c86a5a8ca52cc07101b62f27cfd62a0d9547ec2b572e33ed0fe63`,
-//   },
-// });
+
 const airtable = axios.create({
-  baseURL: `https://detipcompany141.pythonanywhere.com/api`,
+  baseURL: `http://localhost:8000/api`,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -199,52 +193,50 @@ export const sendEmail = async (data) => {
   }
 };
 
-export const authenticateUser = async (username, password) => {
+export const authenticateUser = async (email, password) => {
   try {
-    const response = await airtable.get(`/users`, {
-      params: {
-        filterByFormula: `email = '${username}'`,
-      },
+    const response = await airtable.post("/auth/login/", {
+      email,
+      password,
     });
 
-    if (response.data.length === 0) {
-      throw new Error("Usuario no encontrado");
-    }
-
-    const user = response.data[0];
-
-    // Si no hay contraseña registrada en la base o la contraseña enviada está vacía
-    if (!user.password || !password) {
-      // Aquí retorna flujo de configuración de contraseña
+    // Caso: requiere configurar contraseña
+    if (response.status === 202) {
       return {
-        id: user.id,
-        name: user.name,
-        username: user.email,
-        tipoUser: user.tipoUser,
-        pais: user.pais ?? null,
+        status: response.status,
         requiresPasswordSetup: true,
+        user_id: response.data.user?.user_id || null,
+        email: email,
       };
     }
 
-    // Solo si ambos tienen contraseña, validar
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Caso: login normal (200)
+    if (response.status === 200) {
+      const user = response.data; // 👈 aquí sí viene la data del backend
 
-    if (!isMatch) {
-      throw new Error("Contraseña incorrecta");
+      return {
+        status: response.status,
+        id: user.user_id,
+        username: user.email,
+        access: user.access,
+        refresh: user.refresh,
+        requiresPasswordSetup: false,
+        tipoUser: user.tipouser_id,
+        pais: user.pais_id,
+      };
     }
 
-    // Usuario autenticado correctamente
-    return {
-      id: user.id,
-      name: user.name,
-      username: user.email,
-      tipoUser: user.tipoUser,
-      pais: user.pais ?? null,
-      requiresPasswordSetup: false,
-    };
+    throw new Error("Respuesta inesperada del servidor.");
   } catch (error) {
-    console.error("Error en la autenticación:", error.message);
-    throw error;
+    if (error.response && error.response.data) {
+      const errorMsg =
+        typeof error.response.data === "string"
+          ? error.response.data
+          : Object.values(error.response.data).join(" ");
+      throw new Error(errorMsg);
+    } else {
+      throw new Error("Error en la autenticación. Intenta nuevamente.");
+    }
   }
 };
 
@@ -538,6 +530,19 @@ export const getClientes = async (query) => {
     return enriched;
   } catch (error) {
     console.error("Error al buscar clientes:", error);
+    throw error;
+  }
+};
+export const getInformes = async (search = "") => {
+  try {
+    const endpoint = search
+      ? `/documentos/?search=${encodeURIComponent(search)}`
+      : `/documentos/`;
+
+    const response = await airtable.get(endpoint);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener datos de informes desde Airtable:", error);
     throw error;
   }
 };

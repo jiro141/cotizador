@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import img1 from "../img/Recurso 11.svg";
 import img2 from "../img/Group 44.svg";
 import img3 from "../img/Group 65 (1).svg";
@@ -12,6 +12,7 @@ import {
   getFuncionesAdicionales,
   getPaginasAdicionales,
   getData,
+  getCotizador,
 } from "../controller/api";
 import { Radar } from "react-chartjs-2";
 import {
@@ -47,85 +48,91 @@ const PRODUCT_LABELS = {
 };
 
 const PRODUCT_IMAGES = {
-  1: img3, // Landing Page Click through
-  2: img1, // Web de Inicio (Landing básica)
-  3: img2, // Web de Reservaciones
-  4: img7, // Página Corporativa
-  5: img9, // Web Informativa
-  6: img4, // Blog
-  7: img6, // Página de Membresía
-  8: img8, // Aula Virtual
-  9: img5, // eCommerce
+  1: img3,
+  2: img1,
+  3: img2,
+  4: img7,
+  5: img9,
+  6: img4,
+  7: img6,
+  8: img8,
+  9: img5,
 };
 
 const StepThreeForm = ({ formData }) => {
+  /** ===============================
+   * Cálculo de ranking de productos
+   * =============================== */
+  const { ranking, labels, normalizedValues } = useMemo(() => {
+    const selectedObjects = Object.values(formData?.beneficios || {}).flat();
 
-  
-  // Calcular puntajes
-  const selectedObjects = Object.values(formData?.beneficios || {}).flat();
-  const productScores = {};
-  selectedObjects.forEach((benefit) => {
-    benefit.puntos?.forEach(({ producto_id, puntaje }) => {
-      if (!productScores[producto_id]) {
-        productScores[producto_id] = 0;
-      }
-      productScores[producto_id] += puntaje;
-    });
-  });
+    // Acumular puntajes originales
+    const scores = selectedObjects.reduce((acc, benefit) => {
+      (benefit.puntos || []).forEach(({ producto_id, puntaje }) => {
+        acc[producto_id] = (acc[producto_id] || 0) + puntaje;
+      });
+      return acc;
+    }, {});
 
-  const labels = Object.keys(PRODUCT_LABELS).map((id) => PRODUCT_LABELS[id]);
-  const dataValues = Object.keys(PRODUCT_LABELS).map(
-    (id) => productScores[id] || 0
-  );
+    // Ranking ordenado con puntajes originales
+    const rankingArray = Object.entries(scores)
+      .map(([id, score]) => ({ id, score }))
+      .sort((a, b) => b.score - a.score);
 
-  // Producto sugerido
-  const maxScoreProduct = Object.entries(productScores).reduce(
-    (max, [id, score]) => (score > max.score ? { id, score } : max),
-    { id: null, score: -Infinity }
-  );
-  const maxScoreProductId = maxScoreProduct.id;
+    // Labels y valores originales
+    const labels = Object.keys(PRODUCT_LABELS).map((id) => PRODUCT_LABELS[id]);
+    const rawValues = Object.keys(PRODUCT_LABELS).map((id) => scores[id] || 0);
 
-  // Estados para sugerencias (todas las funciones, páginas, secciones)
-  const [allFunciones, setAllFunciones] = useState([]);
-  const [allPaginas, setAllPaginas] = useState([]);
-  const [allSecciones, setAllSecciones] = useState([]);
+    // Escalar a máximo 10 para el radar
+    const maxValue = Math.max(...rawValues, 1);
+    const normalizedValues = rawValues.map((v) => (v / maxValue) * 10);
+
+    return { ranking: rankingArray, labels, normalizedValues };
+  }, [formData]);
+
+  const maxScoreProductId = ranking[0]?.id || null;
+  const secondScoreProductId = ranking[1]?.id || null;
+
+  /** ===============================
+   * Estados y carga de datos extra
+   * =============================== */
+  const [allProductos, setAllProductos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Cargar TODOS los datos al montar
   useEffect(() => {
     setLoading(true);
-    Promise.all([getFuncionesAdicionales(), getPaginasAdicionales(), getData()])
-      .then(([funciones, paginas, secciones]) => {
-        setAllFunciones(funciones);
-        setAllPaginas(paginas);
-        setAllSecciones(secciones);
+    Promise.all([
+      getFuncionesAdicionales(),
+      getPaginasAdicionales(),
+      getData(),
+      getCotizador(),
+    ])
+      .then(([_, __, ___, productos]) => {
+        setAllProductos(productos);
       })
       .finally(() => setLoading(false));
   }, []);
 
-  // Filtrar sugerencias según el producto sugerido (por array productos)
-  const funciones = allFunciones.filter(
-    (f) =>
-      Array.isArray(f.productos) &&
-      f.productos.some((prod) => String(prod) === String(maxScoreProductId))
-  );
-  const paginas = allPaginas.filter(
-    (p) =>
-      Array.isArray(p.productos) &&
-      p.productos.some((prod) => String(prod) === String(maxScoreProductId))
-  );
-  const secciones = allSecciones.filter(
-    (s) =>
-      Array.isArray(s.productos) &&
-      s.productos.some((prod) => String(prod) === String(maxScoreProductId))
-  );
+  /** ===============================
+   * Descripciones
+   * =============================== */
+  const descripcionProductoSugerido = useMemo(() => {
+    if (!allProductos.length || !maxScoreProductId) return "";
+    const producto = allProductos.find(
+      (p) => String(p.id) === String(maxScoreProductId)
+    );
+    return producto ? producto.descripcion : "";
+  }, [allProductos, maxScoreProductId]);
 
+  /** ===============================
+   * Chart data
+   * =============================== */
   const data = {
     labels,
     datasets: [
       {
         label: "",
-        data: dataValues,
+        data: normalizedValues,
         backgroundColor: "rgba(112, 173, 223, 0.2)",
         borderColor: "#70addf",
         pointBackgroundColor: "#70addf",
@@ -142,114 +149,110 @@ const StepThreeForm = ({ formData }) => {
         angleLines: { color: "#ffffff66" },
         grid: { color: "#ffffff33" },
         pointLabels: {
-          font: { size: 16 },
+          font: { size: 14 },
           color: "#ffffff",
         },
         ticks: {
           beginAtZero: true,
-          stepSize: 5,
+          stepSize: 1,
+          max: 5, // 🚀 Escala siempre en 10
           color: "#ffffff",
           backdropColor: "transparent",
         },
       },
     },
-    plugins: {
-      legend: { display: false },
-    },
+    plugins: { legend: { display: false } },
   };
 
   return (
-    <div style={{ zIndex: "99" }}>
-      <div style={{ display: "flex", gap: "2rem", justifyContent: "center" }}>
+    <div>
+      <Buttons />
+      <div
+        style={{
+          display: "flex",
+          gap: "2rem",
+          justifyContent: "space-around",
+        }}
+      >
+        {/* Radar chart */}
         <div
           style={{
-            backgroundColor: "#2c2c2c",
-            maxWidth: "600px",
+            backgroundColor: "#1A1A1A",
+            maxWidth: "400px",
             borderRadius: "8px",
           }}
         >
-          <Radar style={{ height: "400px" }} data={data} options={options} />
+          <Radar style={{ height: "250px" }} data={data} options={options} />
         </div>
-        {/* Producto sugerido */}
+
+        {/* Producto sugerido principal */}
         {maxScoreProductId && (
           <div
             style={{
-              background: "#2c2c2c",
-              padding: "2rem",
+              background: "#1a1a1a",
+              padding: "1rem",
               borderRadius: "12px",
               color: "white",
-              minWidth: "300px",
-              maxWidth: "350px",
+              minWidth: "240px",
+              maxWidth: "280px",
               boxShadow: "0 4px 16px #0004",
-              minHeight: "400px",
+              minHeight: "220px",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: "1.2em",
-              justifyContent:'center'
+              gap: "0.8em",
+              justifyContent: "center",
             }}
           >
-            <h3 style={{ margin: 0 }}>Producto Sugerido</h3>
-            {/* Imagen aquí */}
             <img
               src={PRODUCT_IMAGES[maxScoreProductId]}
               alt={PRODUCT_LABELS[maxScoreProductId]}
               style={{
-                width: "100px",
-                height: "100px",
+                width: "70px",
+                height: "70px",
                 objectFit: "contain",
-                borderRadius: "14px",
-                // background: "#fff2",
-                marginBottom: "0.8em",
-                boxShadow: "0 2px 8px #0003",
+                borderRadius: "10px",
+                marginBottom: "0.5em",
+                boxShadow: "0 2px 6px #0003",
               }}
             />
-            <h2 style={{ margin: "0.5em 0 0.25em", textAlign: "center" }}>
+            <h3 style={{ margin: "0.2em 0", textAlign: "center" }}>
               {PRODUCT_LABELS[maxScoreProductId]}
-            </h2>
-            <p style={{ margin: "0 0 1em", fontWeight: "bold" }}>
-              Puntaje: {maxScoreProduct.score}
+            </h3>
+            <p style={{ margin: 0, fontSize: "0.85rem", textAlign: "center" }}>
+              {descripcionProductoSugerido}
             </p>
-            {/* <div style={{ width: "100%" }}>
-              <strong>Secciones sugeridas:</strong>
-              <ul>
-                {loading ? (
-                  <li>Cargando...</li>
-                ) : secciones.length === 0 ? (
-                  <li>No hay sugerencias</li>
-                ) : (
-                  secciones.map((s, i) => <li key={i}>{s.seccion}</li>)
-                )}
-              </ul>
-            </div> */}
-            {/* <div style={{ width: "100%" }}>
-              <strong>Funciones sugeridas:</strong>
-              <ul>
-                {loading ? (
-                  <li>Cargando...</li>
-                ) : funciones.length === 0 ? (
-                  <li>No hay sugerencias</li>
-                ) : (
-                  funciones.map((f, i) => <li key={i}>{f.pagina_avanzada}</li>)
-                )}
-              </ul>
-            </div>
-            <div style={{ width: "100%" }}>
-              <strong>Páginas sugeridas:</strong>
-              <ul>
-                {loading ? (
-                  <li>Cargando...</li>
-                ) : paginas.length === 0 ? (
-                  <li>No hay sugerencias</li>
-                ) : (
-                  paginas.map((p, i) => <li key={i}>{p.pagina}</li>)
-                )}
-              </ul>
-            </div> */}
+
+            {/* Segundo producto sugerido */}
+            {secondScoreProductId && (
+              <div
+                style={{
+                  marginTop: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.6rem",
+                  background: "#2a2a2a",
+                  padding: "0.4rem 0.8rem",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 6px #0003",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <img
+                  src={PRODUCT_IMAGES[secondScoreProductId]}
+                  alt={PRODUCT_LABELS[secondScoreProductId]}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    objectFit: "contain",
+                  }}
+                />
+                <span>{PRODUCT_LABELS[secondScoreProductId]}</span>
+              </div>
+            )}
           </div>
         )}
       </div>
-      <Buttons />
     </div>
   );
 };
