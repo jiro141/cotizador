@@ -218,13 +218,13 @@ export default function Informes() {
                     <TableCell sx={{ color: "#fff" }}>{row.cliente}</TableCell>
                     <TableCell sx={{ color: "#fff" }}>{row.empresa}</TableCell>
                     <TableCell sx={{ color: "#fff" }}>
-                      $ {Number(row.monto)}
+                      $ {Number(row.monto) - Number(row.monto) * 0.2}
                     </TableCell>
                     <TableCell sx={{ color: "#fff" }}>
                       ${Number(row.monto) * 0.2}
                     </TableCell>
                     <TableCell sx={{ color: "#fff" }}>
-                      $ {Number(row.monto) + Number(row.monto) * 0.2}
+                      $ {Number(row.monto)}
                     </TableCell>
                     <TableCell sx={{ color: "#fff" }}>
                       {new Date(row.fecha_creacion).toLocaleDateString()}

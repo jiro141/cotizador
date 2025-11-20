@@ -104,7 +104,6 @@ export default function Buttons() {
 
           { key: "PaginaCorporativa", img: img7, text: "Web Corporativa" },
           { key: "WebInformativa", img: img9, text: "Web Informativa" },
-          { key: "Blog", img: img4, text: "Blog" },
           {
             key: "WebDeReservaciones",
             img: img2,
