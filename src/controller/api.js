@@ -1,21 +1,22 @@
 // airtableService.js
 
 import axios from "axios";
-// import { AIRTABLE_API_URL, AIRTABLE_BASE_ID, AIRTABLE_API_KEY } from "./airtableConfig";
+
 import bcrypt from "bcryptjs"; // Para hashear la contraseña
-// Configuración base de Axios para Airtable
+
 const airtable = axios.create({
-  baseURL: `https://api.airtable.com/v0/app77bOEPhtE0MihH`,
+  baseURL: `https://detipcompany141.pythonanywhere.com/api`,
   headers: {
-    Authorization: `Bearer patRDw2pOkc97NLot.4be638a9ae5c86a5a8ca52cc07101b62f27cfd62a0d9547ec2b572e33ed0fe63`,
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
 // Función para obtener datos de la tabla principal
 export const getData = async () => {
   try {
-    const response = await airtable.get("/Elementos%20de%20portada"); // Cambia "NombreDeLaTablaPrincipal" al nombre real de la tabla en Airtable
-    return response.data.records;
+    const response = await airtable.get("/elementos-portada"); // Cambia "NombreDeLaTablaPrincipal" al nombre real de la tabla en Airtable
+    return response.data;
   } catch (error) {
     console.error("Error al obtener datos de Airtable:", error);
     throw error;
@@ -25,10 +26,10 @@ export const getData = async () => {
 // Función para obtener datos de "Servicios Mensuales"
 export const getServiciosMensuales = async () => {
   try {
-    const response = await airtable.get("/Mensuales");
+    const response = await airtable.get("/mensuales/");
 
     // Usando el ID de la tabla
-    return response.data.records;
+    return response.data;
   } catch (error) {
     console.error(
       "Error al obtener datos de Servicios Mensuales en Airtable:",
@@ -41,8 +42,8 @@ export const getServiciosMensuales = async () => {
 // Función para obtener datos de "Páginas Adicionales"
 export const getPaginasAdicionales = async () => {
   try {
-    const response = await airtable.get("/Páginas%20básicas");
-    return response.data.records;
+    const response = await airtable.get("/paginas-basicas/");
+    return response.data;
   } catch (error) {
     console.error(
       "Error al obtener datos de Páginas Adicionales en Airtable:",
@@ -54,8 +55,8 @@ export const getPaginasAdicionales = async () => {
 // Función para obtener datos de "Funciones Adicionales"
 export const getFuncionesAdicionales = async () => {
   try {
-    const response = await airtable.get("/Funciones%20adicionales");
-    return response.data.records;
+    const response = await airtable.get("/funciones/");
+    return response.data;
   } catch (error) {
     console.error(
       "Error al obtener datos de Páginas Adicionales en Airtable:",
@@ -66,8 +67,8 @@ export const getFuncionesAdicionales = async () => {
 };
 export const getCotizador = async () => {
   try {
-    const response = await airtable.get("/productos");
-    return response.data.records;
+    const response = await airtable.get("/productos/");
+    return response.data;
   } catch (error) {
     console.error(
       "Error al obtener datos de Páginas Adicionales en Airtable:",
@@ -80,8 +81,8 @@ export const getCotizador = async () => {
 //consulta por id
 export const fetchPortadaElementos = async (id) => {
   try {
-    const response = await airtable.get(`/Elementos%20de%20portada/${id}`);
-    return response.data.fields["Secciones de portada básicas "];
+    const response = await airtable.get(`/elementos-portada/${id}/`);
+    return response.data;
   } catch (error) {
     console.error("Error al obtener datos de portada desde Airtable:", error);
     throw error;
@@ -91,8 +92,8 @@ export const fetchPortadaElementos = async (id) => {
 // Función para obtener datos de "Páginas Adicionales"
 export const fetchPaginasBasicas = async (id) => {
   try {
-    const response = await airtable.get(`/Páginas%20básicas/${id}`);
-    return response.data.fields.paginas;
+    const response = await airtable.get(`/paginas-basicas/${id}/`);
+    return response.data;
   } catch (error) {
     console.error(
       "Error al obtener datos de páginas básicas desde Airtable:",
@@ -105,8 +106,8 @@ export const fetchPaginasBasicas = async (id) => {
 // Función para obtener datos de "Funciones Adicionales"
 export const fetchFuncionesExtras = async (id) => {
   try {
-    const response = await airtable.get(`/Funciones%20adicionales/${id}`);
-    return response.data.fields["Páginas avanzadas "];
+    const response = await airtable.get(`/funciones/${id}/`);
+    return response.data;
   } catch (error) {
     console.error(
       "Error al obtener datos de funciones adicionales desde Airtable:",
@@ -145,8 +146,6 @@ export const postCotizacion = async (data) => {
   }
 };
 export const sendEmail = async (data) => {
-  console.log(data);
-
   // Función auxiliar para garantizar que todos los valores sean cadenas
   const safeString = (value) =>
     value !== undefined && value !== null ? String(value) : "";
@@ -167,8 +166,6 @@ export const sendEmail = async (data) => {
     total: safeString(data?.total), // Total
     comments: safeString(data?.comments), // Comentarios
   };
-
-  console.log(payload);
 
   try {
     const response = await fetch(
@@ -196,181 +193,173 @@ export const sendEmail = async (data) => {
   }
 };
 
-export const authenticateUser = async (username, password) => {
+export const authenticateUser = async (email, password) => {
   try {
-    const response = await airtable.get(`/users`, {
-      params: {
-        filterByFormula: `username = '${username}'`,
-      },
+    const response = await airtable.post("/auth/login/", {
+      email,
+      password,
     });
 
-    if (response.data.records.length === 0) {
-      throw new Error("Usuario no encontrado");
-    }
-
-    const user = response.data.records[0];
-    const fields = user.fields;
-
-    // Verificar si no tiene contraseña y está inactivo
-    if (!fields.password && fields.Status === "inactivo") {
+    // Caso: requiere configurar contraseña
+    if (response.status === 202) {
       return {
+        status: response.status,
         requiresPasswordSetup: true,
-        id: user.id,
-        username: fields.username,
+        user_id: response.data.user?.user_id || null,
+        email: email,
       };
     }
 
-    // Comparar la contraseña ingresada con la almacenada (hasheada)
-    const isMatch = await bcrypt.compare(password, fields.password);
-    if (!isMatch) {
-      throw new Error("Contraseña incorrecta");
+    // Caso: login normal (200)
+    if (response.status === 200) {
+      const user = response.data; // 👈 aquí sí viene la data del backend
+
+      return {
+        status: response.status,
+        id: user.user_id,
+        username: user.email,
+        access: user.access,
+        refresh: user.refresh,
+        requiresPasswordSetup: false,
+        tipoUser: user.tipouser_id,
+        pais: user.pais_id,
+      };
     }
 
-    // Retornar el usuario autenticado
-    return {
-      id: user.id,
-      name: fields.Name,
-      username: fields.username,
-      tipoUser: fields.TipoUser,
-      pais: fields.America,
-    };
+    throw new Error("Respuesta inesperada del servidor.");
   } catch (error) {
-    console.error("Error en la autenticación:", error);
-    throw error;
+    if (error.response && error.response.data) {
+      const errorMsg =
+        typeof error.response.data === "string"
+          ? error.response.data
+          : Object.values(error.response.data).join(" ");
+      throw new Error(errorMsg);
+    } else {
+      throw new Error("Error en la autenticación. Intenta nuevamente.");
+    }
   }
 };
 
-export const updatePassword = async (
-  userId,
-  newPassword,
-  securityQuestions
-) => {
+
+export const updatePassword = async (userId, newPassword, securityQA) => {
   try {
-    // Hashear la nueva contraseña
+    // 1. Hashear nueva contraseña
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Hashear las preguntas de las preguntas de seguridad
-    const hashedAnswers = await Promise.all(
-      securityQuestions.map(async (q) => {
-        return {
-          question: q.question, // Guardamos la pregunta tal cual
-          answer: await bcrypt.hash(q.answer, 10), // Hasheamos la pregunta
-        };
-      })
-    );
+    // 2. Crear array para almacenar los IDs de preguntas
+    const preguntasIds = [];
 
-    // Preparar el payload con las preguntas de seguridad hasheadas
-    const payload = {
-      fields: {
-        password: hashedPassword,
-        Status: "activo",
-        // Aquí guardamos las preguntas de seguridad hasheadas
-        respuesta1: hashedAnswers[0]?.answer,
-        respuesta2: hashedAnswers[1]?.answer,
-        respuesta3: hashedAnswers[2]?.answer,
-        respuesta4: hashedAnswers[3]?.answer,
-        // Puedes guardar las preguntas también si lo deseas
-        pregunta1: hashedAnswers[0]?.question,
-        pregunta2: hashedAnswers[1]?.question,
-        pregunta3: hashedAnswers[2]?.question,
-        pregunta4: hashedAnswers[3]?.question,
-      },
+    // 3. Procesar preguntas y respuestas
+    for (const item of securityQA) {
+      // Guardar la pregunta
+      const preguntaResponse = await airtable.post("/preguntas/", {
+        pregunta: item.question,
+      });
+
+      const preguntaId = preguntaResponse.data.id;
+      preguntasIds.push(preguntaId); // Guardar el ID
+
+      // Hashear la respuesta y guardarla
+      const hashedAnswer = await bcrypt.hash(item.answer, 10);
+      await airtable.post("/respuestas/", {
+        texto: hashedAnswer,
+        pregunta: preguntaId,
+        userId,
+      });
+    }
+
+    // 4. Actualizar contraseña y campo seguridad (array de ids) en el usuario
+    await airtable.patch(`/users/${userId}/`, {
+      password: hashedPassword,
+      seguridad: preguntasIds, // Asumiendo que es un array-type field
+      status: "activo",
+    });
+
+    return {
+      success: true,
+      message: "Contraseña y seguridad actualizadas correctamente",
     };
-
-    // Realizar el patch para actualizar la contraseña y las preguntas de seguridad
-    const response = await airtable.patch(`/users/${userId}`, payload);
-    return response.data;
   } catch (error) {
-    console.error(
-      "Error al actualizar la contraseña y preguntas de seguridad:",
-      error
+    console.error("Error en updatePassword:", error);
+    throw new Error(
+      "No se pudo actualizar la contraseña y preguntas de seguridad."
     );
-    throw error;
   }
 };
 export const updateOnlyPassword = async (userId, newPassword) => {
   try {
-    // Hashear la nueva contraseña
+    // 1. Hashear la nueva contraseña
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Payload para Airtable
-    const payload = {
-      fields: {
-        password: hashedPassword,
-        Status: "activo", // Si necesitas cambiar esto, hazlo dinámico
-      },
-    };
-
-    // Actualiza solo la contraseña del usuario
-    const response = await airtable.patch(`/users/${userId}`, payload);
+    // 2. PATCH al usuario para actualizar solo la contraseña
+    const response = await airtable.patch(`/users/${userId}/`, {
+      password: hashedPassword,
+    });
     return response.data;
   } catch (error) {
     console.error("Error al actualizar solo la contraseña:", error);
-    throw error;
+    throw new Error("No se pudo actualizar la contraseña.");
   }
 };
 // Función para obtener las preguntas de seguridad por correo
 export const getSecurityQuestionsByEmail = async (email) => {
   try {
-    // Consulta filtrando por el campo username (correo)
+    // 1. Obtener usuario por email
     const response = await airtable.get("/users", {
-      params: {
-        filterByFormula: `{username} = '${email}'`, // Asegúrate de que sea el campo correcto
-      },
+      params: { email },
     });
 
-    if (response.data.records.length === 0) {
+    if (!response.data || response.data.length === 0) {
       throw new Error("Correo no encontrado");
     }
 
-    const user = response.data.records[0];
-    const fields = user.fields;
+    const user = response.data[0];
+    const { id, name, tipoUser, seguridad } = user;
 
-    // Construcción de preguntas de seguridad
-    const securityQuestions = [
-      { question: fields.pregunta1 },
-      { question: fields.pregunta2 },
-      { question: fields.pregunta3 },
-      { question: fields.pregunta4 },
-    ];
+    // 2. Obtener preguntas por los IDs almacenados en `seguridad`
+    const questionRequests = seguridad.map((preguntaId) =>
+      airtable.get(`/preguntas/${preguntaId}`)
+    );
+    const questionResponses = await Promise.all(questionRequests);
 
-    // Retornamos también nombre y tipo de usuario
+    const questions = questionResponses.map((res) => ({
+      question: res.data.pregunta, // Campo 'pregunta' desde el backend
+    }));
+
     return {
-      id: user.id,
-      name: fields.Name,
-      tipoUser: fields.TipoUser,
-      questions: securityQuestions,
+      id,
+      name,
+      tipoUser,
+      questions,
+      seguridad,
     };
   } catch (error) {
-    console.error("Error al obtener las preguntas de seguridad:", error);
+    console.error("Error al obtener preguntas de seguridad:", error);
     throw error;
   }
 };
 
-export const validateSecurityAnswers = async (userId, questions, answers) => {
+export const validateSecurityAnswers = async (preguntaIds, userAnswers) => {
   try {
-    const response = await airtable.get(`/users/${userId}`);
-    const fields = response.data.fields;
-
-    const stored = {
-      [fields.pregunta1]: fields.respuesta1,
-      [fields.pregunta2]: fields.respuesta2,
-      [fields.pregunta3]: fields.respuesta3,
-      [fields.pregunta4]: fields.respuesta4,
-    };
-
     const validations = await Promise.all(
-      questions.map((q, index) => {
-        const hashed = stored[q.question];
-        if (!hashed) return false; // por si hay inconsistencias
-        return bcrypt.compare(answers[index], hashed);
+      preguntaIds.map(async (preguntaId, index) => {
+        // 1. Obtener respuesta hasheada para la pregunta
+        const respRes = await airtable.get("/respuestas", {
+          params: { pregunta: preguntaId },
+        });
+
+        const hashed = respRes.data[0]?.texto;
+        if (!hashed) return false;
+
+        // 2. Comparar con la respuesta ingresada por el usuario
+        return bcrypt.compare(userAnswers[index], hashed);
       })
     );
 
-    return validations.every(Boolean); // true si todas coinciden
+    return validations.every(Boolean); // ✅ true si todas coinciden
   } catch (error) {
-    console.error("Error validando respuestas:", error);
-    throw error;
+    console.error("Error validando respuestas de seguridad:", error);
+    throw new Error("No se pudieron validar las respuestas.");
   }
 };
 
@@ -434,8 +423,8 @@ export const getChatGPTResponse = async (prompt) => {
 // Función para obtener datos de "Funciones Adicionales"
 export const precioPais = async (id) => {
   try {
-    const response = await airtable.get(`/Paises/${id}`);
-    return response.data.fields;
+    const response = await airtable.get(`/paises/${id}/`);
+    return response.data;
   } catch (error) {
     console.error("Error al obtener datos de paises desde Airtable:", error);
     throw error;
@@ -444,8 +433,8 @@ export const precioPais = async (id) => {
 
 export const Pais = async () => {
   try {
-    const response = await airtable.get(`/Paises/`);
-    return response.data.records;
+    const response = await airtable.get(`/paises/`);
+    return response.data;
   } catch (error) {
     console.error("Error al obtener datos de paises desde Airtable:", error);
     throw error;
@@ -453,16 +442,107 @@ export const Pais = async () => {
 };
 export const userData = async (userId, newPais) => {
   const payload = {
-    fields: {
-      America: [newPais], // Asegúrate de que el formato coincida con lo que espera Airtable
-    },
+    pais: newPais, // Asegúrate de que el formato coincida con lo que espera Airtable
   };
 
   try {
-    const response = await airtable.patch(`/users/${userId}`, payload);
+    const response = await airtable.patch(`/users/${userId}/`, payload);
     return response.data;
   } catch (error) {
     console.error("Error al actualizar el país en Airtable:", error);
+    throw error;
+  }
+};
+export const tipoBeneficio = async () => {
+  try {
+    const response = await airtable.get(`/tipo-beneficios/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener datos de paises desde Airtable:", error);
+    throw error;
+  }
+};
+export const beneficio = async (id) => {
+  try {
+    const response = await airtable.get(`/beneficios/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener datos de paises desde Airtable:", error);
+    throw error;
+  }
+};
+
+const crmDetip = axios.create({
+  baseURL: `https://api.airtable.com/v0/appI1914BiuM1LNHu`,
+  headers: {
+    Authorization: `Bearer patjSpRYKQy2WwciK.4685e89aef380bf10a6e266e692011cc31f95b9f00007ae39c62bdad5937da17`,
+  },
+});
+export const getClientes = async (query) => {
+  try {
+    const formula = `OR(
+      FIND(LOWER("${query}"), LOWER({Nombre})),
+      FIND(LOWER("${query}"), LOWER({Empresa}))
+    )`;
+
+    const response = await crmDetip.get(`/Contacto`, {
+      params: {
+        filterByFormula: formula,
+        maxRecords: 5,
+      },
+    });
+
+    const contactos = response.data.records;
+
+    // Enriching each contacto with empresa name and rubro
+    const enriched = await Promise.all(
+      contactos.map(async (record) => {
+        const fields = record.fields;
+        let nombreEmpresa = "";
+        let rubro = "";
+
+        if (
+          fields["Empresa"] &&
+          Array.isArray(fields["Empresa"]) &&
+          fields["Empresa"][0]
+        ) {
+          const empresaId = fields["Empresa"][0];
+          try {
+            const empresaResponse = await crmDetip.get(`/Empresa/${empresaId}`);
+            const empresaFields = empresaResponse.data.fields;
+            nombreEmpresa = empresaFields["Empresa"] || "";
+            rubro = empresaFields["Sector/Industria"] || "";
+          } catch (e) {
+            console.warn(`No se pudo cargar empresa con ID ${empresaId}`);
+          }
+        }
+
+        return {
+          nombre: fields["Nombre"] || "",
+          cargo: fields["Cargo/Rol"] || "",
+          rubro,
+          email: fields["Correo_personal"] || "",
+          descripcion_empresa: nombreEmpresa,
+        };
+      })
+    );
+
+    return enriched;
+  } catch (error) {
+    console.error("Error al buscar clientes:", error);
+    throw error;
+  }
+};
+export const getInformes = async (search = "") => {
+  try {
+    const endpoint = search
+      ? `/documentos/?search=${encodeURIComponent(search)}`
+      : `/documentos/`;
+
+    const response = await airtable.get(endpoint);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener datos de informes desde Airtable:", error);
     throw error;
   }
 };

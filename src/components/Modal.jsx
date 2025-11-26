@@ -4,63 +4,57 @@ import icono from "../img/location_on.svg";
 import iconoOn from "../img/location_on1.svg";
 import Separator from "./Separator";
 import { userData } from "../controller/api";
+import globo from "../img/globe_location_pin (1).svg";
+
 const Modal = ({ isOpen, onClose }) => {
   const [countries, setCountries] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Obtener el usuario desde el localStorage
   const user = JSON.parse(localStorage.getItem("user"));
-  const paisId = user?.pais?.[0]; // Tomamos el primer ID del array "pais"
+  const paisId = user?.pais;
   const userId = user?.id;
-  // Variable para el país seleccionado
   const [selectedCountry, setSelectedCountry] = useState(null);
 
-  // Obtener el país que corresponde al paisId desde los datos de los países
   useEffect(() => {
     if (paisId && countries.length > 0) {
       const country = countries.find((c) => c.id === paisId);
       if (country) {
-        setSelectedCountry(country.fields.Pais); // Guardamos el nombre del país en el estado
+        setSelectedCountry(country.nombre);
       }
     }
-  }, [paisId, countries]); // Se ejecuta cuando `paisId` y `countries` cambian
+  }, [paisId, countries]);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchData(); // Solo se obtiene la data cuando el modal está abierto.
-    }
-  }, [isOpen]); // El useEffect se ejecuta cuando el modal se abre.
+    if (isOpen) fetchData();
+  }, [isOpen]);
 
   const fetchData = async () => {
     setLoadingData(true);
     try {
-      const response = await Pais(); // Aquí obtienes los datos de los países
-      setCountries(response); // Guardamos el arreglo de países
+      const response = await Pais();
+      setCountries(response);
     } catch (err) {
-      setError(err); // En caso de error, guardamos el error
+      setError(err);
     } finally {
-      setLoadingData(false); // Finaliza el proceso de carga
+      setLoadingData(false);
     }
   };
 
-  if (!isOpen) return null; // No muestra nada si el modal no está abierto.
+  if (!isOpen) return null;
 
-  // Ordenamos los países por nombre (alfabéticamente)
-  const sortedCountries = countries?.sort((a, b) => {
-    const countryA = a?.fields?.Pais.toUpperCase(); // Ignoramos mayúsculas/minúsculas
-    const countryB = b?.fields?.Pais.toUpperCase();
-    if (countryA < countryB) return -1;
-    if (countryA > countryB) return 1;
-    return 0; // Si son iguales, no cambia el orden
-  });
+  const filteredCountries = countries.filter((c) =>
+    c.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  // Agrupar los países por su primera letra
+  const sortedCountries = filteredCountries.sort((a, b) =>
+    a.nombre.localeCompare(b.nombre)
+  );
+
   const groupedCountries = sortedCountries.reduce((acc, country) => {
-    const firstLetter = country?.fields?.Pais.charAt(0).toUpperCase();
-    if (!acc[firstLetter]) {
-      acc[firstLetter] = [];
-    }
+    const firstLetter = country.nombre.charAt(0).toUpperCase();
+    if (!acc[firstLetter]) acc[firstLetter] = [];
     acc[firstLetter].push(country);
     return acc;
   }, {});
@@ -70,28 +64,24 @@ const Modal = ({ isOpen, onClose }) => {
       console.error("No se encontró un ID de usuario válido");
       return;
     }
-
     try {
-      const newPaisId = country.id; // ID del nuevo país seleccionado
-
-      // 1️⃣ **Actualizar el país en Airtable**
+      const newPaisId = country.id;
       await userData(userId, newPaisId);
 
-      // 2️⃣ **Actualizar localStorage**
-      const updatedUser = { ...user, pais: [newPaisId] };
+      // Actualizar directamente localStorage
+      const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+      const updatedUser = { ...storedUser, pais: newPaisId };
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // 3️⃣ **Actualizar el estado**
-      setSelectedCountry(country.fields.Pais);
-      // ❌ 4. Cerrar el modal
-      onClose();
+      // Actualizar solo el estado local
+      setSelectedCountry(country.nombre);
 
-      // 🔃 5. Recargar la página
-      window.location.reload();
+      onClose();
     } catch (error) {
       console.error("Error al actualizar el país:", error);
     }
   };
+
   return (
     <div className="modal-overlay">
       <div className="modal">
@@ -101,43 +91,55 @@ const Modal = ({ isOpen, onClose }) => {
         <div className="modal-content">
           <div className="modal-body">
             {loadingData ? (
-              <p>Loading...</p> // Muestra un texto de carga mientras se obtiene la data.
+              <p>Loading...</p>
             ) : error ? (
-              <p>Error: {error.message}</p> // Muestra un mensaje de error si ocurre un problema.
+              <p>Error: {error.message}</p>
             ) : (
-              <div className="country-list">
-                {Object.keys(groupedCountries).map((letter) => (
-                  <div key={letter} className="country-group">
-                    <h3 className="country-letter">{letter}</h3>
-                    <div className="country-items">
-                      {groupedCountries[letter].map((country, index) => (
-                        <div
-                          key={index}
-                          className={`country-item ${
-                            selectedCountry === country.fields.Pais
-                              ? "selected"
-                              : ""
-                          }`}
-                          onClick={() => handleCountrySelect(country)}
-                        >
-                          <img
-                            src={
-                              selectedCountry === country.fields.Pais && iconoOn
-                                ? iconoOn
-                                : icono
-                            }
-                            className="country-icon"
-                          />
-                          <span className="country-name">
-                            {country?.fields?.Pais}
-                          </span>
-                        </div>
-                      ))}
+              <>
+                {/* 🔍 Campo de búsqueda */}
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder={"Buscar país..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+
+                <div className="country-list">
+                  {Object.keys(groupedCountries).map((letter) => (
+                    <div key={letter} className="country-group">
+                      <h3 className="country-letter">{letter}</h3>
+                      <div className="country-items">
+                        {groupedCountries[letter].map((country) => (
+                          <div
+                            key={country.id}
+                            className={`country-item ${
+                              selectedCountry === country.nombre
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() => handleCountrySelect(country)}
+                          >
+                            <img
+                              src={
+                                selectedCountry === country.nombre
+                                  ? iconoOn
+                                  : icono
+                              }
+                              className="country-icon"
+                              alt="icono"
+                            />
+                            <span className="country-name">
+                              {country.nombre}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <Separator />
                     </div>
-                    <Separator />
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>

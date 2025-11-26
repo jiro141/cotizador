@@ -12,7 +12,10 @@ export const MyProvider = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user")) || {}; // Evita errores si `localStorage` es null
   const userTipo = user?.tipoUser || "";
+  const [step, setStep] = useState(1);
   // Función para abrir y cerrar el modal
+console.log(formData,'contexto');
+
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
@@ -33,7 +36,9 @@ export const MyProvider = ({ children }) => {
         setIsModalOpen,
         isModalOpen,
         toggleModal,
-        userTipo
+        userTipo,
+        step,
+        setStep
       }}
     >
       {children}

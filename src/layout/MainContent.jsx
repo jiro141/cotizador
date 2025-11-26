@@ -16,7 +16,7 @@ function MainContent() {
       case "WebInformativa":
       case "Blog":
       case "PaginaDeMembresia":
-      case "Foro":
+      case "AulaVirtual":
       case "eCommerce":
         return <LandingPageClickThrough formData={formData} />;
       default:
@@ -26,24 +26,11 @@ function MainContent() {
 
   return (
     <>
-      <a onClick={redirectToHome} className="atras">
-        <IoChevronBackCircle size={30} color="#FFFF" />
-      </a>
-
-      <h2 className="titulo">Formulario Web Esencial</h2>
-      {/* Mostrar formulario previo si no hay datos */}
-      {!formData ? (
-        <FormWeb />
-      ) : (
-        <>
-          {" "}
-          <h3 className="titulo2">¿Qué servicio estás buscando?</h3>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Buttons />
-          </div>
-          <div>{renderComponent()}</div>
-        </>
-      )}
+      {" "}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <Buttons />
+      </div>
+      <div>{renderComponent()}</div>
     </>
   );
 }

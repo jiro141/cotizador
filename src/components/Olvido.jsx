@@ -11,6 +11,7 @@ export default function Olvido() {
   const [email, setEmail] = useState("");
   const [step, setStep] = useState(1);
   const [questions, setQuestions] = useState([]);
+  const [questionIds, setQuestionIds] = useState([]);
   const [answers, setAnswers] = useState(["", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({ id: "", name: "", tipoUser: "" });
@@ -26,17 +27,24 @@ export default function Olvido() {
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
       const data = await getSecurityQuestionsByEmail(email);
       if (!data.questions || data.questions.length === 0) throw new Error();
+
       const selected = [];
+      const selectedIds = [];
+
       while (selected.length < 2) {
         const i = Math.floor(Math.random() * data.questions.length);
-        if (!selected.includes(data.questions[i]))
+        if (!selected.some((q) => q.question === data.questions[i].question)) {
           selected.push(data.questions[i]);
+          selectedIds.push(data.seguridad[i]); // mantener los IDs que corresponden
+        }
       }
 
-      setQuestions(selected);
+      setQuestions(selected); // Muestra los textos
+      setQuestionIds(selectedIds); // Guardamos los IDs para validación
       setUserInfo({ id: data.id, name: data.name, tipoUser: data.tipoUser });
       setStep(2);
     } catch {
@@ -49,17 +57,15 @@ export default function Olvido() {
   const handlePasswordReset = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
-      const isValid = await validateSecurityAnswers(
-        userInfo.id,
-        questions,
-        answers
-      );
+      const isValid = await validateSecurityAnswers(questionIds, answers);
       if (!isValid) {
         toast.error("Una o más respuestas son incorrectas.");
         return;
       }
-      setStep(3);
+
+      setStep(3); // Paso siguiente: formulario para nueva contraseña
     } catch (error) {
       toast.error("Error al verificar respuestas.");
       console.error(error);
@@ -71,22 +77,20 @@ export default function Olvido() {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     if (newPassword !== confirmPassword) {
       toast.error("Las contraseñas no coinciden.");
       setIsLoading(false);
       return;
     }
-  
+
     try {
       await updateOnlyPassword(userInfo.id, newPassword);
       toast.success("Contraseña actualizada correctamente.");
-  
-      // Opcional: resetear campos si se desea antes del reload
+
       setStep(1);
       setEmail("");
-  
-      // Esperar 3 segundos y recargar la página
+
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -96,9 +100,10 @@ export default function Olvido() {
       setIsLoading(false);
     }
   };
-  const goHome = ()=> {
+
+  const goHome = () => {
     window.location.reload();
-  }
+  };
 
   const goBack = () => setStep((prev) => prev - 1);
 
@@ -110,7 +115,7 @@ export default function Olvido() {
       <Stepper
         activeStep={step - 1}
         style={{
-          marginBottom:"20px"
+          marginBottom: "20px",
         }}
         connectorStyleConfig={{
           activeColor: "#e64a19",
@@ -162,7 +167,7 @@ export default function Olvido() {
               </a>
             </div>
             <div className="form-column">
-              <button type="submit" className="login-button">
+              <button type="submit" className="quote-button">
                 Siguiente
               </button>
             </div>
@@ -196,7 +201,7 @@ export default function Olvido() {
               </a>
             </div>
             <div className="form-column">
-              <button type="submit" className="login-button">
+              <button type="submit" className="quote-button">
                 Verificar respuestas
               </button>
             </div>
@@ -206,9 +211,7 @@ export default function Olvido() {
 
       {step === 3 && (
         <form onSubmit={handlePasswordSubmit}>
-          <h3>
-            Hola, {userInfo.name} ({userInfo.tipoUser})
-          </h3>
+          <h3>Hola, {userInfo.name}</h3>
           <div className="form-row">
             <div className="form-column">
               <div className="form-group">
@@ -244,7 +247,7 @@ export default function Olvido() {
               </a>
             </div>
             <div className="form-column">
-              <button type="submit" className="login-button">
+              <button type="submit" className="quote-button">
                 Guardar contraseña
               </button>
             </div>
